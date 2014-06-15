@@ -18,6 +18,8 @@
   "homepage": "https://github.com/garysoed/proto",
   "dependencies": {
     "express": "^4.4.1",
-    "logfmt": "^1.1.2"
+    "fs": "0.0.1",
+    "logfmt": "^1.1.2",
+    "process": "^0.7.0"
   }
 }
