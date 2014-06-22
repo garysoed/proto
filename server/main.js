@@ -7,7 +7,7 @@ var methodOverride = require('method-override');
 
 
 var app = express();
-var server = require('./server/server');
+var server = require('./server');
 
 // Register middlewares.
 app.use(logfmt.requestLogger());
