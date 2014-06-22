@@ -1,6 +1,19 @@
+/** @module server/server */
+var sessions = {};
 
-function register(userId, gameId) {
+/**
+ * @param {}
+ */
+module.exports.register = function (req, res) {
+  console.log(userId);
+  if (!userId) {
+    throw 'UserId required';
+  }
+  var gameId = gameId || Date.now();
+  if (sessions[gameId] === undefined) {
+    sessions[gameId] = [];
+  }
 
-}
-
-exports.server = register;
+  sessions[gameId].splice(0, 0, userId);
+  return gameId;
+};
