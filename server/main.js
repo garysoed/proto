@@ -5,7 +5,6 @@ var ejs = require('ejs');
 var bodyParser = require('body-parser');
 var methodOverride = require('method-override');
 
-
 var app = express();
 var server = require('./server');
 
@@ -23,14 +22,32 @@ app.use(function(err, req, res, next) {
 
 app.engine('html', ejs.renderFile);
 
+// Handle requests.
 app.get('/', function(req, res) {
   res.render(__dirname + '/public/main.html');
 });
-app.post('/register', function(req, res) {
-  var gameId = server.register(req.param('userId'), req.param('gameId'));
-  res.send({gameId: gameId});
+app.post('/newGame', function(req, res) {
+  res.send(server.newGame());
+});
+app.post('/sendUpdate', function(req, res) {
+  server.sendUpdate(req.body);
+  res.send(200);
+});
+app.get('/getUpdates', function(req, res) {
+  res.set({
+    'Content-Type': 'text/event-stream',
+    'Cache-Control': 'no-cache',
+    'Connection': 'keep-alive',
+    'retry': '10000'
+  });
+
+  var result = server.getUpdates(req.query, res);
+  if (result) {
+    sendEvent(res, 'init', result);
+  }
 });
 
+// Listen to a port, so the process still runs.
 var port = Number(process.env.PORT || 5000);
 app.listen(port, function() {
   console.log('Listening on ' + port);
