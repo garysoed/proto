@@ -1,4 +1,4 @@
-/** @module server */
+/** @module server/server */
 var asserts = require('./asserts');
 
 var sessions = {};
@@ -23,8 +23,6 @@ module.exports.newGame = function() {
  * @param {string} params.userId The user ID of the user to be registered.
  * @param {string} params.gameId The gameId to join.
  * @param {module:express.Response} res The Response object from Express.
- * @returns {{userIds: [string]}|null} Object containing existing user Ids if this is a new session 
- *     for the user. Or null if this is not a new session for the user.
  */
 module.exports.getUpdates = function(params, res) {
   var userId = asserts.requireArgExists(params.userId, 'userId');
@@ -45,7 +43,14 @@ module.exports.getUpdates = function(params, res) {
   }
 };
 
-module.exports.sendUpdate = function(params) {
+/**
+ * Sends an update to all the users.
+ * @param {Object} params The parameters from the request object.
+ * @param {*} params.msg The message to be sent to all users.
+ * @param {string} params.gameId The game ID to send the message to.
+ * @param {module:express.Response} res The Response object from Express.
+ */
+module.exports.sendUpdate = function(params, res) {
   var msg = asserts.requireArgExists(params.msg, 'msg');
   var gameId = asserts.requireArgExists(params.gameId, 'gameId');
 
@@ -59,6 +64,7 @@ module.exports.sendUpdate = function(params) {
 };
 
 /**
+ * Unregisters the user from the given game.
  * @param {Object} params The parameters from the request object.
  * @param {string} params.userId The user ID of the user to be unregistered.
  * @param {string} params.gameId The game ID for the user to be unregistered from.
@@ -70,4 +76,12 @@ module.exports.unregister = function(params) {
   if (sessions[gameId]) {
     delete sessions[gameId][userId];
   }
+};
+
+/**
+ * Deletes all running sessions.
+ */
+module.exports.reset = function() {
+  delete sessions;
+  sessions = {};
 };
