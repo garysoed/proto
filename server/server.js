@@ -1,19 +1,22 @@
 /** @module server/server */
 var asserts = require('./asserts');
+var util = require('./util');
 
-var sessions = {};
-
-function sendEvent(res, event, data) {
-  res.send('id: ' + Date.now() + '\nevent: ' + event + '\ndata: ' + JSON.stringify(data) + '\n\n');
+/**
+ * The server class.
+ * @class
+ */
+Server = function() {
+  this.sessions = {}
 };
 
 /**
  * Generates a new game.
  * @returns {{gameId: string}} Object containing the ID of the newly created game.
  */
-module.exports.newGame = function() {
+Server.prototype.newGame = function() {
   var gameId = Date.now();
-  sessions[gameId] = {};
+  this.sessions[gameId] = {};
   return {gameId: gameId};
 };
 
@@ -24,22 +27,22 @@ module.exports.newGame = function() {
  * @param {string} params.gameId The gameId to join.
  * @param {module:express.Response} res The Response object from Express.
  */
-module.exports.getUpdates = function(params, res) {
+Server.prototype.getUpdates = function(params, res) {
   var userId = asserts.requireArgExists(params.userId, 'userId');
   var gameId = asserts.requireArgExists(params.gameId, 'gameId');
 
-  if (!sessions[gameId]) {
+  if (!this.sessions[gameId]) {
     throw 'gameId ' + gameId + ' does not exist';
   }
 
-  var newSession = !sessions[gameId][userId];
-  sessions[gameId][userId] = res;
+  var newSession = !this.sessions[gameId][userId];
+  this.sessions[gameId][userId] = res;
   if (newSession) {
     var existingUserIds = [];
-    for (var existingUserId in sessions[gameId]) {
+    for (var existingUserId in this.sessions[gameId]) {
       existingUserIds.push(existingUserId);
     }
-    sendEvent(res, 'init', {userIds: existingUserIds});
+    res.send(util.sseMessage('init', {userIds: existingUserIds}));
   }
 };
 
@@ -50,16 +53,16 @@ module.exports.getUpdates = function(params, res) {
  * @param {string} params.gameId The game ID to send the message to.
  * @param {module:express.Response} res The Response object from Express.
  */
-module.exports.sendUpdate = function(params, res) {
+Server.prototype.sendUpdate = function(params, res) {
   var msg = asserts.requireArgExists(params.msg, 'msg');
   var gameId = asserts.requireArgExists(params.gameId, 'gameId');
 
-  if (!sessions[gameId]) {
+  if (!this.sessions[gameId]) {
     throw 'gameId ' + gameId + ' does not exist';
   }
 
-  for (var userId in sessions[gameId]) {
-    sendEvent(sessions[gameId][userId], 'message', {msg: msg});
+  for (var userId in this.sessions[gameId]) {
+    this.sessions[gameId][userId].send(util.sseMessage('message', {msg: msg}));
   }
 };
 
@@ -69,19 +72,13 @@ module.exports.sendUpdate = function(params, res) {
  * @param {string} params.userId The user ID of the user to be unregistered.
  * @param {string} params.gameId The game ID for the user to be unregistered from.
  */
-module.exports.unregister = function(params) {
+Server.prototype.unregister = function(params) {
   var userId = asserts.requireArgExists(params.userId, 'userId');
   var gameId = asserts.requireArgExists(params.gameId, 'gameId');
 
-  if (sessions[gameId]) {
-    delete sessions[gameId][userId];
+  if (this.sessions[gameId]) {
+    delete this.sessions[gameId][userId];
   }
 };
 
-/**
- * Deletes all running sessions.
- */
-module.exports.reset = function() {
-  delete sessions;
-  sessions = {};
-};
+module.exports = Server;

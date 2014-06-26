@@ -1,14 +1,14 @@
 var mock = require('../testing/mock');
+var util = require('./util');
+var Server = require('./server');
 
 QUnit.module('newGame', {
   setup: function() {
     this.oldDateNow = Date.now;
-    this.server = require('./server')
+    this.server = new Server();
   },
   teardown: function() {
     Date.now = this.oldDateNow;
-    this.server.reset();
-    delete this.server;
   }
 });
 QUnit.test('basic', function(assert) {
@@ -21,13 +21,11 @@ QUnit.test('basic', function(assert) {
 
 QUnit.module('getUpdates', {
   setup: function(assert) {
-    this.server = require('./server');
+    this.server = new Server();
     this.oldDateNow = Date.now;
   },
   teardown: function() {
     Date.now = this.oldDateNow;
-    this.server.reset();
-    delete this.server;
   }
 });
 
@@ -42,16 +40,12 @@ QUnit.test('new session', function(assert) {
 
   var gameId = this.server.newGame().gameId;
   this.server.getUpdates({userId: userId1, gameId: gameId}, res);
-  mock.verify(res.send)(
-      'id: ' + now + '\nevent: init\ndata: ' + JSON.stringify({userIds: [userId1]}) + '\n\n');
+  mock.verify(res.send)(util.sseMessage('init', {userIds: [userId1]}));
 
   // Another user comes along.
   var userId2 = 'User ID 2';
   this.server.getUpdates({userId: userId2, gameId: gameId}, res);
-  mock.verify(res.send)(
-      'id: ' + now + 
-      '\nevent: init\ndata: ' + 
-      JSON.stringify({userIds: [userId1, userId2]}) + '\n\n');
+  mock.verify(res.send)(util.sseMessage('init', {userIds: [userId1, userId2]}));
 });
 
 QUnit.test('old session', function(asserts) {
@@ -109,3 +103,5 @@ QUnit.test('invalid gameId', function(asserts) {
       'Throws when gameId does not exist');
   mock.verify(res.send, 0)(mock.any());
 });
+
+

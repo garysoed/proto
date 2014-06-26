@@ -28,6 +28,7 @@ var escape = function(input) {
 };
 
 /**
+ * Argument matcher.
  * @param {!Function} equalFn Function that returns true iff the current object is equal to the 
  *     given object.
  * @param {!string} name Name of the matcher.

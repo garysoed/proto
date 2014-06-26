@@ -6,7 +6,7 @@ var bodyParser = require('body-parser');
 var methodOverride = require('method-override');
 
 var app = express();
-var server = require('./server');
+var server = new require('./server')();
 
 // Register middlewares.
 app.use(logfmt.requestLogger());
