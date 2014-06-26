@@ -2,6 +2,10 @@ var mock = require('../testing/mock');
 var util = require('./util');
 var Server = require('./server');
 
+
+/**
+ * Test server.newGame
+ */
 QUnit.module('newGame', {
   setup: function() {
     this.oldDateNow = Date.now;
@@ -18,7 +22,9 @@ QUnit.test('Basic', function(assert) {
 });
 
 
-
+/**
+ * Test server.getUpdates
+ */
 QUnit.module('getUpdates', {
   setup: function() {
     this.server = new Server();
@@ -105,14 +111,15 @@ QUnit.test('Invalid gameId', function(assert) {
 });
 
 
-
+/**
+ * Test server.sendUpdate
+ */
 QUnit.module('sendUpdate', {
   setup: function() {
     this.oldDateNow = Date.now;
     Date.now = function() { return 74203; };
 
     this.userId = 'User ID';
-
     this.server = new Server();
     this.gameId = this.server.newGame().gameId;
   },
@@ -173,4 +180,42 @@ QUnit.test('Invalid gameId', function(assert) {
       /does not exist/,
       'Throws when gameId does not exist');
   mock.verify(res.send, 0)(mock.any());
+});
+
+
+/**
+ * Test server.unregister
+ */
+QUnit.module('unregister', {
+  setup: function() {
+    this.oldDateNow = Date.now;
+    Date.now = function() { return 23948; };
+
+    this.userId = 'User ID';
+    this.server = new Server();
+    this.gameId = this.server.newGame().gameId;
+  },
+  teardown: function() {
+    Date.now = this.oldDateNow;
+  }
+});
+
+QUnit.test('Success', function(assert) {
+  mock.forQUnit(assert);
+
+  var res = {send: mock.mockFunction()};
+  this.server.getUpdates({gameId: this.gameId, userId: this.userId}, res);
+  this.server.unregister({gameId: this.gameId, userId: this.userId});
+
+  console.log(res);
+});
+
+QUnit.test('No userId', function(assert) {
+  mock.forQUnit(assert);
+  // TODO: implement
+});
+
+QUnit.test('No gameId', function(assert) {
+  mock.forQUnit(assert);
+  // TODO: implement
 });
