@@ -11,6 +11,16 @@ Server = function() {
 };
 
 /**
+ * Events that the server sends out.
+ * @enum {string}
+ * @readonly
+ */
+Server.Events = {
+  INIT: 'init',
+  MESSAGE: 'message'
+};
+
+/**
  * Generates a new game.
  * @returns {{gameId: string}} Object containing the ID of the newly created game.
  */
@@ -37,12 +47,13 @@ Server.prototype.getUpdates = function(params, res) {
 
   var newSession = !this.sessions[gameId][userId];
   this.sessions[gameId][userId] = res;
+
   if (newSession) {
     var existingUserIds = [];
     for (var existingUserId in this.sessions[gameId]) {
       existingUserIds.push(existingUserId);
     }
-    res.send(util.sseMessage('init', {userIds: existingUserIds}));
+    res.send(util.sseMessage(Server.Events.INIT, {userIds: existingUserIds}));
   }
 };
 
@@ -51,9 +62,8 @@ Server.prototype.getUpdates = function(params, res) {
  * @param {Object} params The parameters from the request object.
  * @param {*} params.msg The message to be sent to all users.
  * @param {string} params.gameId The game ID to send the message to.
- * @param {module:express.Response} res The Response object from Express.
  */
-Server.prototype.sendUpdate = function(params, res) {
+Server.prototype.sendUpdate = function(params) {
   var msg = asserts.requireArgExists(params.msg, 'msg');
   var gameId = asserts.requireArgExists(params.gameId, 'gameId');
 
@@ -62,7 +72,7 @@ Server.prototype.sendUpdate = function(params, res) {
   }
 
   for (var userId in this.sessions[gameId]) {
-    this.sessions[gameId][userId].send(util.sseMessage('message', {msg: msg}));
+    this.sessions[gameId][userId].send(util.sseMessage(Server.Events.MESSAGE, {msg: msg}));
   }
 };
 
