@@ -99,8 +99,8 @@ QUnit.module('session.flushMessages', {
 QUnit.test('good', function(assert) {
   mock.forQUnit(assert);
 
-  assert.deepEqual(this.session.flushMessages(userId), [msg]);
-  assert.deepEqual(this.session.flushMessages(userId), []);
+  assert.deepEqual(this.session.flushMessages(this.userId), [this.message]);
+  assert.deepEqual(this.session.flushMessages(this.userId), []);
 });
 
 QUnit.test('non existing user', function(assert) {
@@ -109,6 +109,6 @@ QUnit.test('non existing user', function(assert) {
   assert.throws(
       function() { this.session.flushMessages('Non existing User ID'); },
       /User ID/,
-      )
+      'Throws exception when user Id has not been added');
 });
 

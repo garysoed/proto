@@ -1,5 +1,11 @@
 var runner = require('qunit');
 
+var callback = function(err) {
+  if (err) {
+    console.warn(err);
+  }
+};
+
 runner.setup({
   log: {
     assertions: true,
@@ -16,16 +22,16 @@ runner.run({
   deps: [
     __dirname + '/server/asserts.js'
   ]
-})
+}, callback);
 
 
 runner.run({
   code: __dirname + '/server/session.js',
   tests: __dirname + '/server/session_test.js'
-});
+}, callback);
 
 
 runner.run({
-  code: __dirname + '/server/event.js',
-  tests: __dirname + '/server/event_test.js'
-})
+  code: __dirname + '/server/sseevent.js',
+  tests: __dirname + '/server/sseevent_test.js'
+}, callback);
