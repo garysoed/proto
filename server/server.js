@@ -7,7 +7,7 @@ var util = require('./util');
  * @class
  */
 Server = function() {
-  this.sessions = {}
+  this.sessions_ = {}
 };
 
 /**
@@ -26,7 +26,7 @@ Server.Events = {
  */
 Server.prototype.newGame = function() {
   var gameId = Date.now();
-  this.sessions[gameId] = {};
+  this.sessions_[gameId] = {};
   return {gameId: gameId};
 };
 
@@ -41,16 +41,16 @@ Server.prototype.getUpdates = function(params, res) {
   var userId = asserts.requireArgExists(params.userId, 'userId');
   var gameId = asserts.requireArgExists(params.gameId, 'gameId');
 
-  if (!this.sessions[gameId]) {
+  if (!this.sessions_[gameId]) {
     throw 'gameId ' + gameId + ' does not exist';
   }
 
-  var newSession = !this.sessions[gameId][userId];
-  this.sessions[gameId][userId] = res;
+  var newSession = !this.sessions_[gameId][userId];
+  this.sessions_[gameId][userId] = res;
 
   if (newSession) {
     var existingUserIds = [];
-    for (var existingUserId in this.sessions[gameId]) {
+    for (var existingUserId in this.sessions_[gameId]) {
       existingUserIds.push(existingUserId);
     }
     res.send(util.sseMessage(Server.Events.INIT, {userIds: existingUserIds}));
@@ -67,12 +67,12 @@ Server.prototype.sendUpdate = function(params) {
   var msg = asserts.requireArgExists(params.msg, 'msg');
   var gameId = asserts.requireArgExists(params.gameId, 'gameId');
 
-  if (!this.sessions[gameId]) {
+  if (!this.sessions_[gameId]) {
     throw 'gameId ' + gameId + ' does not exist';
   }
 
-  for (var userId in this.sessions[gameId]) {
-    this.sessions[gameId][userId].send(util.sseMessage(Server.Events.MESSAGE, {msg: msg}));
+  for (var userId in this.sessions_[gameId]) {
+    this.sessions_[gameId][userId].send(util.sseMessage(Server.Events.MESSAGE, {msg: msg}));
   }
 };
 
@@ -86,9 +86,10 @@ Server.prototype.unregister = function(params) {
   var userId = asserts.requireArgExists(params.userId, 'userId');
   var gameId = asserts.requireArgExists(params.gameId, 'gameId');
 
-  if (this.sessions[gameId]) {
-    delete this.sessions[gameId][userId];
+  if (this.sessions_[gameId]) {
+    delete this.sessions_[gameId][userId];
   }
+  console.log(this.sessions_);
 };
 
 module.exports = Server;

@@ -132,7 +132,7 @@ QUnit.test('Send updates', function(assert) {
   mock.forQUnit(assert);
 
   var msg = 'Message';
-  var res = {send: mock.mockFunction()};
+  var res = {send: mock.mockFunction('res.send')};
 
   this.server.getUpdates({gameId: this.gameId, userId: this.userId}, res);
   this.server.sendUpdate({msg: msg, gameId: this.gameId});
@@ -143,7 +143,7 @@ QUnit.test('Send updates', function(assert) {
 QUnit.test('No gameId', function(assert) {
   mock.forQUnit(assert);
 
-  var res = {send: mock.mockFunction()};
+  var res = {send: mock.mockFunction('res.send')};
   this.server.getUpdates({gameId: this.gameId, userId: this.userId}, res);
 
   mock.reset(res.send);
@@ -157,7 +157,7 @@ QUnit.test('No gameId', function(assert) {
 QUnit.test('No Message', function(assert) {
   mock.forQUnit(assert);
 
-  var res = {send: mock.mockFunction()};
+  var res = {send: mock.mockFunction('res.send')};
   this.server.getUpdates({gameId: this.gameId, userId: this.userId}, res);
 
   mock.reset(res.send);
@@ -171,7 +171,7 @@ QUnit.test('No Message', function(assert) {
 QUnit.test('Invalid gameId', function(assert) {
   mock.forQUnit(assert);
 
-  var res = {send: mock.mockFunction()};
+  var res = {send: mock.mockFunction('res.send')};
   this.server.getUpdates({gameId: this.gameId, userId: this.userId}, res);
 
   mock.reset(res.send);
@@ -203,19 +203,31 @@ QUnit.module('unregister', {
 QUnit.test('Success', function(assert) {
   mock.forQUnit(assert);
 
-  var res = {send: mock.mockFunction()};
+  var res = {send: mock.mockFunction('res.send')};
   this.server.getUpdates({gameId: this.gameId, userId: this.userId}, res);
-  this.server.unregister({gameId: this.gameId, userId: this.userId});
 
-  console.log(res);
+  this.server.unregister({gameId: this.gameId, userId: this.userId});
+  assert.deepEqual(this.server.sessions_[this.gameId], {});
 });
 
 QUnit.test('No userId', function(assert) {
   mock.forQUnit(assert);
-  // TODO: implement
+
+  var res = {send: mock.mockFunction('res.send')};
+  this.server.getUpdates({gameId: this.gameId, userId: this.userId}, res);
+  assert.throws(
+      function() { this.server.unregister({gameId: this.gameId}); },
+      /userId/,
+      'Throws when userId is not specified');
 });
 
 QUnit.test('No gameId', function(assert) {
   mock.forQUnit(assert);
-  // TODO: implement
+
+  var res = {send: mock.mockFunction('res.send')};
+  this.server.getUpdates({gameId: this.gameId, userId: this.userId}, res);
+  assert.throws(
+      function() { this.server.unregister({userId: this.userId}); },
+      /gameId/,
+      'Throws when gameId is not specified');
 });
