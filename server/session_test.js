@@ -69,9 +69,16 @@ QUnit.module('session.queueEvent', {
 QUnit.test('good', function(assert) {
   mock.forQUnit(assert);
   
-  var sseEvent = new SseEvent('id', 'type', {msg: 'message'});
-  this.session.queueEvent(this.userId, sseEvent);
-  assert.deepEqual(this.session.users_[this.userId], [sseEvent]);
+  var type = 'event Type';
+  var data = {msg: 'message'};
+  this.session.queueEvent(this.userId, type, data);
+  this.session.queueEvent(this.userId, type, data);
+  assert.deepEqual(
+      this.session.users_[this.userId], 
+      [
+        new SseEvent(0, type, data),
+        new SseEvent(1, type, data)
+      ]);
 });
 
 QUnit.test('non existing user', function(assert) {
@@ -89,11 +96,13 @@ QUnit.test('non existing user', function(assert) {
  */
 QUnit.module('session.flushEvents', {
   setup: function() {
+    var eventType = 'type';
+    var eventData = {msg: 'message'};
     this.userId = 'User ID';
-    this.sseEvent = new SseEvent('id', 'type', {msg: 'message'});
+    this.sseEvent = new SseEvent(0, eventType, eventData);
     this.session = new Session();
     this.session.addUser(this.userId);
-    this.session.queueEvent(this.userId, this.sseEvent);
+    this.session.queueEvent(this.userId, eventType, eventData);
   }
 });
 

@@ -1,5 +1,7 @@
 /** @module server/session */
 
+var SseEvent = require('./sseevent');
+
 /**
  * Represents a session.
  * @class
@@ -9,6 +11,11 @@ Session = function() {
    * @private
    */
   this.users_ = {};
+
+  /**
+   * @private
+   */
+  this.nextEventId_ = 0;
 };
 
 /**
@@ -32,13 +39,15 @@ Session.prototype.removeUser = function(userId) {
 /**
  * Queues an SSE event for the given user.
  * @param {string} string The ID of the user to add the SSE event to.
- * @param {!SseEvent} sseEvent The SSE event to be added to the given user.
+ * @param {string} type The type of SSE event to be added.
+ * @param {!Object} data The data of SSE event to be added.
  */
-Session.prototype.queueEvent = function(userId, sseEvent) {
+Session.prototype.queueEvent = function(userId, type, data) {
   if (this.users_[userId] === undefined) {
     throw 'User ID [' + userId + '] not added';
   }
-  this.users_[userId].push(sseEvent);
+  this.users_[userId].push(new SseEvent(this.nextEventId_, type, data));
+  this.nextEventId_++;
 };
 
 /**
