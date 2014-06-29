@@ -30,28 +30,28 @@ Session.prototype.removeUser = function(userId) {
 }
 
 /**
- * Queues a message for the given user.
- * @param {string} string The ID of the user to add the message to.
- * @param {!Object} msg The message to be added to the given user.
+ * Queues an SSE event for the given user.
+ * @param {string} string The ID of the user to add the SSE event to.
+ * @param {!SseEvent} sseEvent The SSE event to be added to the given user.
  */
-Session.prototype.queueMessage = function(userId, msg) {
+Session.prototype.queueEvent = function(userId, sseEvent) {
   if (this.users_[userId] === undefined) {
     throw 'User ID [' + userId + '] not added';
   }
-  this.users_[userId].push(msg);
+  this.users_[userId].push(sseEvent);
 };
 
 /**
- * Removes all messages queued up for the user and returns them.
- * @return {!Object[]} Messages queued up for this user.
+ * Removes all SSE events queued up for the user and returns them.
+ * @return {!SseEvent[]} SSE events queued up for this user.
  */
-Session.prototype.flushMessages = function(userId) {
+Session.prototype.flushEvents = function(userId) {
   if (this.users_[userId] === undefined) {
     throw 'User ID [' + userId + '] not added';
   }
-  var messages = this.users_[userId];
+  var sseEvents = this.users_[userId];
   this.users_[userId] = [];
-  return messages;
+  return sseEvents;
 }
 
 module.exports = Session;

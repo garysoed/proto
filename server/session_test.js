@@ -1,5 +1,6 @@
 var mock = require('../testing/mock');
 var Session = require('./session');
+var SseEvent = require('./sseevent');
 
 /**
  * Tests session.addUser.
@@ -55,9 +56,9 @@ QUnit.test('non existing user', function(assert) {
 
 
 /**
- * Tests session.queueMessage.
+ * Tests session.queueEvent.
  */
-QUnit.module('session.queueMessage', {
+QUnit.module('session.queueEvent', {
   setup: function() {
     this.userId = 'User ID';
     this.session = new Session();
@@ -68,16 +69,16 @@ QUnit.module('session.queueMessage', {
 QUnit.test('good', function(assert) {
   mock.forQUnit(assert);
   
-  var msg = {msg: 'some message'};
-  this.session.queueMessage(this.userId, msg);
-  assert.deepEqual(this.session.users_[this.userId], [msg]);
+  var sseEvent = new SseEvent('id', 'type', {msg: message});
+  this.session.queueEvent(this.userId, sseEvent);
+  assert.deepEqual(this.session.users_[this.userId], [sseEvent]);
 });
 
 QUnit.test('non existing user', function(assert) {
   mock.forQUnit(assert);
   
   assert.throws(
-      function() { this.session.queueMessage('Non existing User ID', 'message'); },
+      function() { this.session.queueEvent('Non existing User ID', 'message'); },
       /User ID/,
       'Throws exception when user Id has not been added');
 });
@@ -92,7 +93,7 @@ QUnit.module('session.flushMessages', {
     this.message = {msg: 'Message'};
     this.session = new Session();
     this.session.addUser(this.userId);
-    this.session.queueMessage(this.userId, this.message);
+    this.session.queueEvent(this.userId, this.message);
   }
 });
 
