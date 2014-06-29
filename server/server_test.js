@@ -4,7 +4,7 @@ var Server = require('./server');
 
 
 /**
- * Test server.newGame
+ * Tests server.newGame
  */
 QUnit.module('newGame', {
   setup: function() {

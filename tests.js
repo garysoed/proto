@@ -17,3 +17,9 @@ runner.run({
     __dirname + '/server/asserts.js'
   ]
 })
+
+
+runner.run({
+  code: __dirname + '/server/session.js',
+  tests: __dirname + '/server/session_test.js',
+});

@@ -89,7 +89,6 @@ Server.prototype.unregister = function(params) {
   if (this.sessions_[gameId]) {
     delete this.sessions_[gameId][userId];
   }
-  console.log(this.sessions_);
 };
 
 module.exports = Server;
