@@ -1,7 +1,6 @@
 var mock = require('../testing/mock');
 var SseEvent = require('./sseevent');
 
-console.log('sse test');
 /**
  * Tests event.toSseMessage
  */
