@@ -21,5 +21,11 @@ runner.run({
 
 runner.run({
   code: __dirname + '/server/session.js',
-  tests: __dirname + '/server/session_test.js',
+  tests: __dirname + '/server/session_test.js'
 });
+
+
+runner.run({
+  code: __dirname + '/server/event.js',
+  tests: __dirname + '/server/event_test.js'
+})
