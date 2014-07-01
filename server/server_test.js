@@ -1,12 +1,14 @@
 var mock = require('../testing/mock');
 var util = require('./util');
 var Server = require('./server');
+var Session = require('./session');
+var SseEvent = require('./sseevent');
 
 
 /**
- * Tests server.newGame
+ * Tests server.create.
  */
-QUnit.module('newGame', {
+  QUnit.module('server.create', {
   setup: function() {
     this.oldDateNow = Date.now;
     this.server = new Server();
@@ -15,219 +17,204 @@ QUnit.module('newGame', {
     Date.now = this.oldDateNow;
   }
 });
+
 QUnit.test('Basic', function(assert) {
   var time = 12345;
   Date.now = function() { return time; }
-  assert.equal(this.server.newGame().gameId, time);
+  assert.equal(this.server.create().gameId, time);
 });
 
 
 /**
- * Test server.getUpdates
+ * Tests server.join.
  */
-QUnit.module('getUpdates', {
+QUnit.module('server.join', {
   setup: function() {
-    this.server = new Server();
     this.oldDateNow = Date.now;
+    Date.now = function() { return 12345; };
+
+    this.server = new Server();
+    this.gameId = this.server.create().gameId;
   },
   teardown: function() {
     Date.now = this.oldDateNow;
   }
+})
+
+QUnit.test('good', function(assert) {
+  mock.forQUnit(assert);
+  
+  var mockAddUser = mock.mockFunction('addUser');
+  var mockQueueEvent = mock.mockFunction('queueEvent');
+  this.server.sessions_[this.gameId].addUser = mockAddUser;
+  this.server.sessions_[this.gameId].queueEvent = mockQueueEvent;
+
+  var userId = 'User ID';
+  this.server.join(this.gameId, userId);
+
+  mock.verify(mockAddUser)(userId);
+  mock.verify(mockQueueEvent)(Server.Events.PLAYER_ADDED, {userId: userId});
 });
 
-QUnit.test('New session', function(assert) {
+QUnit.test('non existing game ID', function(assert) {
   mock.forQUnit(assert);
-
-  var now = 1234;
-  var userId1 = 'User ID';
-  var res = {send: mock.mockFunction('res.send')};
-
-  Date.now = function() { return now; }
-
-  var gameId = this.server.newGame().gameId;
-  this.server.getUpdates({userId: userId1, gameId: gameId}, res);
-  mock.verify(res.send)(util.sseMessage('init', {userIds: [userId1]}));
-
-  // Another user comes along.
-  var userId2 = 'User ID 2';
-  this.server.getUpdates({userId: userId2, gameId: gameId}, res);
-  mock.verify(res.send)(util.sseMessage(Server.Events.INIT, {userIds: [userId1, userId2]}));
-});
-
-QUnit.test('Old session', function(assert) {
-  mock.forQUnit(assert);
-
-  var res = {send: mock.mockFunction('res.send')};
-
-  Date.now = function() { return 1234; }
-
-  var gameId = this.server.newGame().gameId;
-  this.server.getUpdates({userId: 'User ID', gameId: gameId}, res);
-
-  // Call again. This time, there should be no request sent back.
-  mock.reset(res.send);
-  this.server.getUpdates({userId: 'User ID', gameId: gameId}, res);
-  mock.verify(res.send, 0)(mock.any());
-});
-
-QUnit.test('No userId', function(assert) {
-  mock.forQUnit(assert);
-  var res = {send: mock.mockFunction('res.send')};
-
-  Date.now = function() { return 1234; }
-
-  var gameId = this.server.newGame().gameId;
+  
   assert.throws(
-      function() { this.server.getUpdates({gameId: gameId}, res); },
-      /userId/,
-      'Throws when no userId is given');
-  mock.verify(res.send, 0)(mock.any());
-});
-
-QUnit.test('No gameId', function(assert) {
-  mock.forQUnit(assert);
-  var res = {send: mock.mockFunction('res.send')};
-
-  Date.now = function() { return 1234; };
-
-  assert.throws(
-      function() { this.server.getUpdates({userId: 'User Id'}, res); },
-      /gameId/,
-      'Throws when no gameId is given');
-  mock.verify(res.send, 0)(mock.any());
-});
-
-QUnit.test('Invalid gameId', function(assert) {
-  mock.forQUnit(assert);
-  var res = {send: mock.mockFunction('res.send')};
-
-  Date.now = function() { return 1234; };
-
-  assert.throws(
-      function() { this.server.getUpdates({gameId: '4543', userId: 'user ID'}, res); },
-      /does not exist/,
-      'Throws when gameId does not exist');
-  mock.verify(res.send, 0)(mock.any());
+      function() { this.server.join('non existing game Id', 'userId'); },
+      /Game ID/,
+      'Throws error for non existing gameId');
 });
 
 
 /**
- * Test server.sendUpdate
+ * Tests server.leave
  */
-QUnit.module('sendUpdate', {
-  setup: function() {
-    this.oldDateNow = Date.now;
-    Date.now = function() { return 74203; };
-
-    this.userId = 'User ID';
-    this.server = new Server();
-    this.gameId = this.server.newGame().gameId;
-  },
-  teardown: function() {
-    Date.now = this.oldDateNow;
-  }
-});
-
-QUnit.test('Send updates', function(assert) {
-  mock.forQUnit(assert);
-
-  var msg = 'Message';
-  var res = {send: mock.mockFunction('res.send')};
-
-  this.server.getUpdates({gameId: this.gameId, userId: this.userId}, res);
-  this.server.sendUpdate({msg: msg, gameId: this.gameId});
-
-  mock.verify(res.send)(util.sseMessage(Server.Events.MESSAGE, {msg: msg}));
-});
-
-QUnit.test('No gameId', function(assert) {
-  mock.forQUnit(assert);
-
-  var res = {send: mock.mockFunction('res.send')};
-  this.server.getUpdates({gameId: this.gameId, userId: this.userId}, res);
-
-  mock.reset(res.send);
-  assert.throws(
-      function() { this.server.sendUpdate({msg: 'Message'}); },
-      /gameId/,
-      'Throws when gameId is not specified');
-  mock.verify(res.send, 0)(mock.any());
-});
-
-QUnit.test('No Message', function(assert) {
-  mock.forQUnit(assert);
-
-  var res = {send: mock.mockFunction('res.send')};
-  this.server.getUpdates({gameId: this.gameId, userId: this.userId}, res);
-
-  mock.reset(res.send);
-  assert.throws(
-      function() { this.server.sendUpdate({gameId: this.gameId}); },
-      /msg/,
-      'Throws when msg is not specified');
-  mock.verify(res.send, 0)(mock.any());
-});
-
-QUnit.test('Invalid gameId', function(assert) {
-  mock.forQUnit(assert);
-
-  var res = {send: mock.mockFunction('res.send')};
-  this.server.getUpdates({gameId: this.gameId, userId: this.userId}, res);
-
-  mock.reset(res.send);
-  assert.throws(
-      function() { this.server.sendUpdate({gameId: this.gameId + '2', msg: 'Message'}); },
-      /does not exist/,
-      'Throws when gameId does not exist');
-  mock.verify(res.send, 0)(mock.any());
-});
-
-
-/**
- * Test server.unregister
- */
-QUnit.module('unregister', {
+QUnit.module('server.leave', {
   setup: function() {
     this.oldDateNow = Date.now;
     Date.now = function() { return 23948; };
 
     this.userId = 'User ID';
     this.server = new Server();
-    this.gameId = this.server.newGame().gameId;
+    this.gameId = this.server.create().gameId;
+    this.server.join(this.gameId, this.userId);
   },
   teardown: function() {
     Date.now = this.oldDateNow;
   }
 });
 
-QUnit.test('Success', function(assert) {
+QUnit.test('good', function(assert) {
   mock.forQUnit(assert);
 
-  var res = {send: mock.mockFunction('res.send')};
-  this.server.getUpdates({gameId: this.gameId, userId: this.userId}, res);
+  var mockRemoveUser = mock.mockFunction('removeUser');
+  var mockQueueEvent = mock.mockFunction('queueEvent');
+  this.server.sessions_[this.gameId].removeUser = mockRemoveUser;
+  this.server.sessions_[this.gameId].queueEvent = mockQueueEvent;
 
-  this.server.unregister({gameId: this.gameId, userId: this.userId});
-  assert.deepEqual(this.server.sessions_[this.gameId], {});
+  this.server.leave(this.gameId, this.userId);
+  mock.verify(mockRemoveUser)(this.userId);
+  mock.verify(mockQueueEvent)(Server.Events.PLAYER_REMOVED, {userId: this.userId});
 });
 
-QUnit.test('No userId', function(assert) {
+QUnit.test('non existing game', function(assert) {
   mock.forQUnit(assert);
 
-  var res = {send: mock.mockFunction('res.send')};
-  this.server.getUpdates({gameId: this.gameId, userId: this.userId}, res);
-  assert.throws(
-      function() { this.server.unregister({gameId: this.gameId}); },
-      /userId/,
-      'Throws when userId is not specified');
+  this.server.leave('Non existing Game Id', this.userId);
+  assert.ok(true, 'Does not throw exception when Game ID does not exist');
 });
 
-QUnit.test('No gameId', function(assert) {
+
+/**
+ * Tests server.stream.
+ */
+QUnit.module('server.stream', {
+  setup: function() {
+    this.userId = 'User ID';
+    this.server = new Server();
+    this.gameId = this.server.create().gameId;
+    this.res = {send: mock.mockFunction('res.send')};
+
+    this.server.join(this.gameId, this.userId);
+  }
+});
+
+QUnit.test('no queued event', function(assert) {
   mock.forQUnit(assert);
 
-  var res = {send: mock.mockFunction('res.send')};
-  this.server.getUpdates({gameId: this.gameId, userId: this.userId}, res);
+  var session = this.server.sessions_[this.gameId];
+  session.popEvent = function() {
+    return null;
+  };
+  
+  var sseEvent = new SseEvent('id', 'type', {msg: 'data'});
+
+  this.server.stream(this.gameId, this.userId, this.res);
+
+  mock.verify(this.res.send, 0)(mock.any());
+  session.emit(Session.Events.QUEUED, this.userId, sseEvent);
+
+  mock.verify(this.res.send)(sseEvent.toSseMessage());
+});
+
+QUnit.test('has queued event', function(assert) {
+  mock.forQUnit(assert);
+
+  var sseEvent = new SseEvent('id', 'type', {msg: 'data'});
+  var session = this.server.sessions_[this.gameId];
+  session.popEvent = function() {
+    return sseEvent;
+  };
+  
+  this.server.stream(this.gameId, this.userId, this.res);
+  mock.verify(this.res.send)(sseEvent.toSseMessage());
+});
+
+QUnit.test('non existent game ID', function(assert) {
+  mock.forQUnit(assert);
+  
   assert.throws(
-      function() { this.server.unregister({userId: this.userId}); },
-      /gameId/,
-      'Throws when gameId is not specified');
+      function() { this.server.stream('non existent Game ID', this.userId, {})},
+      /Game ID/,
+      'Throws error when Game ID does not exist');
+});
+
+
+/**
+ * Tests server.msg.
+ */
+QUnit.module('server.msg', {
+  setup: function() {
+    this.server = new Server();
+    this.gameId = this.server.create().gameId;
+  }
+});
+
+QUnit.test('good', function(assert) {
+  mock.forQUnit(assert);
+  var session = this.server.sessions_[this.gameId];
+  session.queueEvent = mock.mockFunction('queueEvent');
+
+  var msg = {msg: 'Message to be sent'};
+  this.server.msg(this.gameId, msg);
+
+  mock.verify(session.queueEvent)(Server.Events.MESSAGE, {msg: msg});
+});
+
+QUnit.test('non existent game ID', function(assert) {
+  mock.forQUnit(assert);
+  assert.throws(
+      function() { this.server.msg('non existent game ID', 'message'); },
+      /Game ID/,
+      'Throws error when Game ID does not exist');
+});
+
+
+/**
+ * Tests server.sync.
+ */
+QUnit.module('server.sync', {
+  setup: function() {
+    this.server = new Server();
+    this.gameId = this.server.create().gameId;
+  }
+});
+
+QUnit.test('good', function(assert) {
+  mock.forQUnit(assert);
+  var session = this.server.sessions_[this.gameId];
+  session.queueEvent = mock.mockFunction('queueEvent');
+
+  var gameState = {players: 1};
+  this.server.sync(this.gameId, gameState);
+
+  mock.verify(session.queueEvent)(Server.Events.SYNC, {gameState: gameState});
+});
+
+QUnit.test('non existent game ID', function(assert) {
+  mock.forQUnit(assert);
+  assert.throws(
+      function() { this.server.sync('non existent game ID', 'message'); },
+      /Game ID/,
+      'Throws error when Game ID does not exist');
 });
