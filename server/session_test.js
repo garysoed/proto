@@ -90,10 +90,12 @@ QUnit.test('good', function(assert) {
 
   assert.deepEqual(
       this.session.users_[this.userId1], 
-      [expectedSseEvent1, expectedSseEvent2]);
+      [expectedSseEvent1, expectedSseEvent2],
+      'Queued SSE events are as expected for userId1');
   assert.deepEqual(
       this.session.users_[this.userId2],
-      [expectedSseEvent1, expectedSseEvent2]);
+      [expectedSseEvent1, expectedSseEvent2],
+      'Queued SSE events are as expected for userId2');
 });
 
 
@@ -120,9 +122,18 @@ QUnit.test('good', function(assert) {
   var sseEvent2 = new SseEvent(1, eventType, eventData);
   this.session.queueEvent(eventType, eventData);
 
-  assert.deepEqual(this.session.popEvent(this.userId), this.sseEvent);
-  assert.deepEqual(this.session.popEvent(this.userId), sseEvent2);
-  assert.equal(this.session.popEvent(this.userId), null);
+  assert.deepEqual(
+      this.session.popEvent(this.userId), 
+      this.sseEvent,
+      'Returned SSE event from popEvent is as expected');
+  assert.deepEqual(
+      this.session.popEvent(this.userId), 
+      sseEvent2,
+      'Returned SSE event from second popEvent is as expected');
+  assert.equal(
+      this.session.popEvent(this.userId), 
+      null,
+      'Returned SSE event when there are no more events queued is null');
 });
 
 QUnit.test('non existing user', function(assert) {

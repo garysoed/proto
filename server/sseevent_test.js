@@ -13,6 +13,8 @@ QUnit.test('good', function(assert) {
   var type = 'eventType';
   var data = {sseEvent: data};
   var sseEvent = new SseEvent(id, type, data);
-  assert.equal(sseEvent.toSseMessage(),
-      'id: ' + id + '\nevent: ' + type + '\ndata: ' + JSON.stringify(data) + '\n\n');
+  assert.equal(
+    sseEvent.toSseMessage(),
+      'id: ' + id + '\nevent: ' + type + '\ndata: ' + JSON.stringify(data) + '\n\n',
+      'SSE message is as expected');
 });

@@ -18,10 +18,10 @@ var SseEvent = require('./sseevent');
   }
 });
 
-QUnit.test('Basic', function(assert) {
+QUnit.test('good', function(assert) {
   var time = 12345;
   Date.now = function() { return time; }
-  assert.equal(this.server.create().gameId, time);
+  assert.equal(this.server.create().gameId, time, 'gameId is as expected');
 });
 
 
@@ -132,6 +132,10 @@ QUnit.test('no queued event', function(assert) {
   this.server.stream(this.gameId, this.userId, this.res);
 
   mock.verify(this.res.send, 0)(mock.any());
+
+  session.popEvent = function() {
+    return sseEvent;
+  };
   session.emit(Session.Events.QUEUED, this.userId, sseEvent);
 
   mock.verify(this.res.send)(sseEvent.toSseMessage());

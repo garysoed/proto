@@ -6,7 +6,9 @@ var bodyParser = require('body-parser');
 var methodOverride = require('method-override');
 
 var app = express();
-var server = new require('./server')();
+var Server = require('./server');
+
+var server = new Server();
 
 // Register middlewares.
 app.use(logfmt.requestLogger());
@@ -26,26 +28,40 @@ app.engine('html', ejs.renderFile);
 app.get('/', function(req, res) {
   res.render(__dirname + '/public/main.html');
 });
-app.post('/newGame', function(req, res) {
-  res.send(server.newGame());
+app.post('/create', function(req, res) {
+  res.send(server.create());
 });
-app.post('/sendUpdate', function(req, res) {
-  server.sendUpdate(req.body);
+app.post('/join', function(req, res) {
+  var params = req.body;
+  server.join(params.gameId, params.userId);
   res.send(200);
 });
-app.get('/getUpdates', function(req, res) {
+app.post('/leave', function(req, res) {
+  var params = req.body;
+  server.leave(params.gameId, params.userId);
+  res.send(200);
+});
+app.get('/stream', function(req, res) {
   res.set({
     'Content-Type': 'text/event-stream',
     'Cache-Control': 'no-cache',
     'Connection': 'keep-alive',
     'retry': '10000'
   });
-
-  var result = server.getUpdates(req.query, res);
-  if (result) {
-    sendEvent(res, 'init', result);
-  }
+  var params = req.query;
+  server.stream(params.gameId, params.userId, res);
 });
+app.post('/msg', function(req, res) {
+  var params = req.body;
+  server.msg(params.gameId, params.msg);
+  res.send(200);
+});
+app.post('/sync', function(req, res) {
+  var params = req.body;
+  server.sync(params.gameId, params.gameState);
+  res.send(200);
+});
+
 
 // Listen to a port, so the process still runs.
 var port = Number(process.env.PORT || 5000);

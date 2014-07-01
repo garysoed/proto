@@ -21,10 +21,10 @@ Server = function() {
  * @readonly
  */
 Server.Events = {
-  MESSAGE: 'Server.MESSAGE',
-  PLAYER_ADDED: 'Server.PLAYER_ADDED',
-  PLAYER_REMOVED: 'Server.PLAYER_REMOVED',
-  SYNC: 'Server.SYNC'
+  MESSAGE: 'Proto.message',
+  PLAYER_ADDED: 'Proto.player_added',
+  PLAYER_REMOVED: 'Proto.player_removed',
+  SYNC: 'Proto.sync'
 };
 
 /**
@@ -80,7 +80,7 @@ Server.prototype.stream = function(gameId, userId, res) {
     res.send(sseEvent.toSseMessage());
   } else {
     session.once(Session.Events.QUEUED, function(userId, sseEvent) {
-      res.send(sseEvent.toSseMessage());
+      res.send(session.popEvent(userId).toSseMessage());
     });
   }
 };
