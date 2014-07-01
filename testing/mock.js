@@ -2,16 +2,16 @@
 var asserts;
 
 var deepEqual = function(obj1, obj2) {
+  if (!(obj1 instanceof Object)) {
+    return obj1 === obj2;
+  }
+
   if (obj1.equals instanceof Function) {
     return obj1.equals(obj2);
   }
 
   if (obj2.equals instanceof Function) {
     return obj2.equals(obj1);
-  }
-
-  if (!(obj1 instanceof Object)) {
-    return obj1 === obj2;
   }
 
   for (var key in obj1) {

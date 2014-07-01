@@ -24,7 +24,8 @@ Server.Events = {
   MESSAGE: 'Proto.message',
   PLAYER_ADDED: 'Proto.player_added',
   PLAYER_REMOVED: 'Proto.player_removed',
-  SYNC: 'Proto.sync'
+  SYNC: 'Proto.sync',
+  SYNC_ACK: 'Proto.sync_ack'
 };
 
 /**
@@ -99,16 +100,28 @@ Server.prototype.msg = function(gameId, msg) {
 };
 
 /**
- * Sends the current game state to all participants of the given game.
- * @param {string} gameId ID of the game to send the game state to.
- * @param {!Object} gameState The game state to be broadcast.
+ * Sends a message to all participants of the given game to sync up.
+ * @param {string} gameId ID of the game to be synced.
  */
-Server.prototype.sync = function(gameId, gameState) {
+Server.prototype.sync = function(gameId) {
   if (!this.sessions_[gameId]) {
     throw 'Game ID [' + gameId + '] does not exist';
   }
 
-  this.sessions_[gameId].queueEvent(Server.Events.SYNC, {gameState: gameState});
+  this.sessions_[gameId].queueEvent(Server.Events.SYNC, {});
+};
+
+/**
+ * Sends the current game state to all participants of the given game.
+ * @param {string} gameId ID of the game to send the game state to.
+ * @param {!Object} gameState The game state to be broadcast.
+ */
+Server.prototype.syncAck = function(gameId, gameState) {
+  if (!this.sessions_[gameId]) {
+    throw 'Game ID [' + gameId + '] does not exist';
+  }
+
+  this.sessions_[gameId].queueEvent(Server.Events.SYNC_ACK, {gameState: gameState});
 }
 
 module.exports = Server;

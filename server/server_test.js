@@ -209,16 +209,45 @@ QUnit.test('good', function(assert) {
   var session = this.server.sessions_[this.gameId];
   session.queueEvent = mock.mockFunction('queueEvent');
 
-  var gameState = {players: 1};
-  this.server.sync(this.gameId, gameState);
+  this.server.sync(this.gameId);
 
-  mock.verify(session.queueEvent)(Server.Events.SYNC, {gameState: gameState});
+  mock.verify(session.queueEvent)(Server.Events.SYNC, {});
 });
 
 QUnit.test('non existent game ID', function(assert) {
   mock.forQUnit(assert);
   assert.throws(
-      function() { this.server.sync('non existent game ID', 'message'); },
+      function() { this.server.sync('non existent game ID'); },
+      /Game ID/,
+      'Throws error when Game ID does not exist');
+});
+
+
+/**
+ * Tests server.syncAck.
+ */
+QUnit.module('server.syncAck', {
+  setup: function() {
+    this.server = new Server();
+    this.gameId = this.server.create().gameId;
+  }
+});
+
+QUnit.test('good', function(assert) {
+  mock.forQUnit(assert);
+  var session = this.server.sessions_[this.gameId];
+  session.queueEvent = mock.mockFunction('queueEvent');
+
+  var gameState = {players: 1};
+  this.server.syncAck(this.gameId, gameState);
+
+  mock.verify(session.queueEvent)(Server.Events.SYNC_ACK, {gameState: gameState});
+});
+
+QUnit.test('non existent game ID', function(assert) {
+  mock.forQUnit(assert);
+  assert.throws(
+      function() { this.server.syncAck('non existent game ID', 'message'); },
       /Game ID/,
       'Throws error when Game ID does not exist');
 });

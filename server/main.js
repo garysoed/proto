@@ -56,9 +56,9 @@ app.post('/msg', function(req, res) {
   server.msg(params.gameId, params.msg);
   res.send(200);
 });
-app.post('/sync', function(req, res) {
+app.post('/syncack', function(req, res) {
   var params = req.body;
-  server.sync(params.gameId, params.gameState);
+  server.syncAck(params.gameId, params.gameState);
   res.send(200);
 });
 

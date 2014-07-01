@@ -1,0 +1,21 @@
+{
+  "name": "proto-web",
+  "version": "0.0.0",
+  "authors": [
+    "Gary Soedarsono <garysoed@gmail.com>"
+  ],
+  "description": "Web part of Proto",
+  "main": "main.html",
+  "license": "MIT",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "jquery": "~2.1.1"
+  }
+}
