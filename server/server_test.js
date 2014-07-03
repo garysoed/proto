@@ -1,11 +1,9 @@
 var requirejs = require('requirejs');
-requirejs.config({
-  baseUrl: __dirname,
-  nodeRequire: require
-});
+var config = require('./config');
+requirejs.config(config);
 requirejs(
-    ['../testing/mock', 'util', 'server', 'session', 'sseevent'], 
-    function(mock, util, Server, Session, SseEvent) {
+    ['mock', 'util', 'server', 'session', 'sseevent', 'common/events'], 
+    function(mock, util, Server, Session, SseEvent, Events) {
       /**
        * Tests server.create.
        */
@@ -54,7 +52,7 @@ requirejs(
         this.server.join(this.gameId, userId);
 
         mock.verify(mockAddUser)(userId);
-        mock.verify(mockQueueEvent)(Server.Events.PLAYER_ADDED, {userId: userId});
+        mock.verify(mockQueueEvent)(Events.Server.PLAYER_ADDED, {userId: userId});
       });
 
       QUnit.test('non existing game ID', function(assert) {
@@ -95,7 +93,7 @@ requirejs(
 
         this.server.leave(this.gameId, this.userId);
         mock.verify(mockRemoveUser)(this.userId);
-        mock.verify(mockQueueEvent)(Server.Events.PLAYER_REMOVED, {userId: this.userId});
+        mock.verify(mockQueueEvent)(Events.Server.PLAYER_REMOVED, {userId: this.userId});
       });
 
       QUnit.test('non existing game', function(assert) {
@@ -183,7 +181,7 @@ requirejs(
         var msg = {msg: 'Message to be sent'};
         this.server.msg(this.gameId, msg);
 
-        mock.verify(session.queueEvent)(Server.Events.MESSAGE, {msg: msg});
+        mock.verify(session.queueEvent)(Events.Server.MESSAGE, {msg: msg});
       });
 
       QUnit.test('non existent game ID', function(assert) {
@@ -212,7 +210,7 @@ requirejs(
 
         this.server.sync(this.gameId);
 
-        mock.verify(session.queueEvent)(Server.Events.SYNC, {});
+        mock.verify(session.queueEvent)(Events.Server.SYNC, {});
       });
 
       QUnit.test('non existent game ID', function(assert) {
@@ -242,7 +240,7 @@ requirejs(
         var gameState = {players: 1};
         this.server.syncAck(this.gameId, gameState);
 
-        mock.verify(session.queueEvent)(Server.Events.SYNC_ACK, {gameState: gameState});
+        mock.verify(session.queueEvent)(Events.Server.SYNC_ACK, {gameState: gameState});
       });
 
       QUnit.test('non existent game ID', function(assert) {

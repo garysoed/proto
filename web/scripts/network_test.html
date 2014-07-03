@@ -7,67 +7,60 @@
 <body>
   <div id="qunit"></div>
   <div id="qunit-fixture"></div>
+  <script src="../../bower_components/qunit/qunit/qunit.js"></script>
   <script src="require.js"></script>
+  <script src="config.js"></script>
   <script>
-    require.config({
-      paths: {
-        'jquery': '../../bower_components/jquery/dist/jquery',
-        'qunit': '../../bower_components/qunit/qunit/qunit',
-        'mock': '../../testing/mock',
-        'mockajax': '../../testing/mockajax'
-      },
-      shim : {
-        'qunit': {
-          exports: 'QUnit'
-        },
-        'jquery': {
-          exports: '$'
-        },
-        'mock': {
-          exports: 'Mock'
-        },
-        'mockajax': {
-          exports: 'Mock'
-        }
+    if (Function.prototype.bind === undefined) {
+      Function.prototype.bind = function(self) {
+        var outThis = this;
+        return function() {
+          outThis.apply(self, arguments);
+        };
       }
-    });
-  </script>
-  <script>
-    require(['network', 'qunit', 'jquery', 'mockajax'], function(Network, QUnit, $, Mock) {
-      QUnit.init();
+    }
 
-      /**
-       * Tests for network.create.
-       */
-      QUnit.module('network.create', {
-        setup: function() {
-          this.oldPost = $.post;
-          this.mockAjax = Mock.mockPost();
-          $.post = this.mockAjax.post;
+    QUnit.init();
+    QUnit.stop();
+    require(['config'], function() {
+      require(['network', 'jquery', 'mockajax'], 
+          function(Network, $, Mock) {
+            console.log('loaded');
 
-          this.network = new Network();
-          this.network.join = Mock.mockFunction('Network.join');
-        },
-        teardown: function() {
-          $.post = this.oldPost;
-        }
-      });
+            /**
+             * Tests for network.create.
+             */
+            QUnit.module('network.create', {
+              setup: function() {
+                this.oldPost = $.post;
+                this.mockAjax = Mock.mockPost();
+                $.post = this.mockAjax.post;
 
-      QUnit.test('good', function(assert) {
-        Mock.forQUnit(assert);
+                this.network = new Network();
+                this.network.join = Mock.mockFunction('Network.join');
+              },
+              teardown: function() {
+                $.post = this.oldPost;
+              }
+            });
 
-        var gameId = 'Game ID';
-        Mock.do(this.mockAjax.done, function(callback) {
-          callback({gameId: gameId});
-        });
+            QUnit.test('good', function(assert) {
+              Mock.forQUnit(assert);
 
-        this.network.create();
+              var gameId = 'Game ID';
+              Mock.do(this.mockAjax.done, function(callback) {
+                callback({gameId: gameId});
+              });
 
-        Mock.verify(this.mockAjax.post)('create');
-        Mock.verify(this.network.join)();
-      });
+              this.network.create();
 
-      QUnit.start();
+              Mock.verify(this.mockAjax.post)('create');
+              Mock.verify(this.network.join)();
+              console.log('test - done');
+            });
+            console.log('loaded');
+            QUnit.start();
+          });
     });
   </script>
 </body>

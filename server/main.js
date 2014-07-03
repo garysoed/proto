@@ -7,6 +7,8 @@ var methodOverride = require('method-override');
 
 var app = express();
 var requirejs = require('requirejs');
+var config = require('./config');
+requirejs.config(config);
 
 requirejs(['server'], function(Server) {
   var server = new Server();

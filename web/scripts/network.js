@@ -23,10 +23,10 @@ define('network', ['jquery'], function($) {
   };
 
   Network.prototype.join = function() {
-    $.post('join', {gameId: this.gameId_, userId: this.userId_}).done(function() {
+    $.post('join', {gameId: this.gameId_, userId: this.userId_}).done((function() {
       this.startStream_();
       this.sync_();
-    }.bind(this));
+    }).bind(this));
   };
 
 

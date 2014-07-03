@@ -1,6 +1,6 @@
 /** @module server/server */
 var requirejs = require('requirejs');
-requirejs.define('server', ['util', 'session'], function(util, Session) {
+requirejs.define('server', ['util', 'session', 'common/events'], function(util, Session, Events) {
 
   /**
    * The server class.
@@ -12,19 +12,6 @@ requirejs.define('server', ['util', 'session'], function(util, Session) {
      * @private
      */
     this.sessions_ = {};
-  };
-
-  /**
-   * Events that the server sends out.
-   * @enum {string}
-   * @readonly
-   */
-  Server.Events = {
-    MESSAGE: 'Proto.message',
-    PLAYER_ADDED: 'Proto.player_added',
-    PLAYER_REMOVED: 'Proto.player_removed',
-    SYNC: 'Proto.sync',
-    SYNC_ACK: 'Proto.sync_ack'
   };
 
   /**
@@ -48,7 +35,7 @@ requirejs.define('server', ['util', 'session'], function(util, Session) {
     }
 
     this.sessions_[gameId].addUser(userId);
-    this.sessions_[gameId].queueEvent(Server.Events.PLAYER_ADDED, {userId: userId});
+    this.sessions_[gameId].queueEvent(Events.Server.PLAYER_ADDED, {userId: userId});
   };
 
   /**
@@ -59,7 +46,7 @@ requirejs.define('server', ['util', 'session'], function(util, Session) {
   Server.prototype.leave = function(gameId, userId) {
     if (this.sessions_[gameId]) {
       this.sessions_[gameId].removeUser(userId);
-      this.sessions_[gameId].queueEvent(Server.Events.PLAYER_REMOVED, {userId: userId});
+      this.sessions_[gameId].queueEvent(Events.Server.PLAYER_REMOVED, {userId: userId});
     }
   };
 
@@ -95,7 +82,7 @@ requirejs.define('server', ['util', 'session'], function(util, Session) {
       throw 'Game ID [' + gameId + '] does not exist';
     }
 
-    this.sessions_[gameId].queueEvent(Server.Events.MESSAGE, {msg: msg});
+    this.sessions_[gameId].queueEvent(Events.Server.MESSAGE, {msg: msg});
   };
 
   /**
@@ -107,7 +94,7 @@ requirejs.define('server', ['util', 'session'], function(util, Session) {
       throw 'Game ID [' + gameId + '] does not exist';
     }
 
-    this.sessions_[gameId].queueEvent(Server.Events.SYNC, {});
+    this.sessions_[gameId].queueEvent(Events.Server.SYNC, {});
   };
 
   /**
@@ -120,7 +107,7 @@ requirejs.define('server', ['util', 'session'], function(util, Session) {
       throw 'Game ID [' + gameId + '] does not exist';
     }
 
-    this.sessions_[gameId].queueEvent(Server.Events.SYNC_ACK, {gameState: gameState});
+    this.sessions_[gameId].queueEvent(Events.Server.SYNC_ACK, {gameState: gameState});
   };
 
   return Server;

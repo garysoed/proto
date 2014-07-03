@@ -1,10 +1,7 @@
 var requirejs = require('requirejs');
-
-requirejs.config({
-  baseUrl: __dirname,
-  nodeRequire: require
-});
-requirejs(['../testing/mock', 'session', 'sseevent'], function(mock, Session, SseEvent) {
+var config = require('./config');
+requirejs.config(config);
+requirejs(['mock', 'session', 'sseevent'], function(mock, Session, SseEvent) {
   /**
    * Tests session.addUser.
    */

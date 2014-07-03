@@ -6,10 +6,10 @@ module.exports = function(grunt) {
       options: {
         proto: true
       },
-      all: ['server/**/*.js', 'web/**/*.js', '!**/bower_components/**', '!server/public/**']
+      all: ['server/**/*.js', 'web/**/*.js', '!**/bower_components/**', '!**/node_modules/**'],
     },
     'qunit': {
-      all: ['web/scripts/**/*_test.js']
+      all: ['web/scripts/**/*_test.html']
     },
     'node-qunit': {
       server: {

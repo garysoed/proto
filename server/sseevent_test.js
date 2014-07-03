@@ -1,9 +1,7 @@
 var requirejs = require('requirejs');
-requirejs.config({
-  baseUrl: __dirname,
-  nodeRequire: require
-});
-requirejs(['../testing/mock', 'sseevent'], function(mock, SseEvent) {
+var config = require('./config');
+requirejs.config(config);
+requirejs(['mock', 'sseevent'], function(mock, SseEvent) {
   /**
    * Tests event.toSseMessage
    */
