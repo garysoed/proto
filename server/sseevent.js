@@ -1,22 +1,26 @@
 /** @module server/sseevent */
+var requirejs = require('requirejs');
 
-/**
- * Constructor of Events that the server can send to the client.
- */
-SseEvent = function(id, type, data) {
-  this.id_ = id;
-  this.type_ = type;
-  this.data_ = data;
-};
+requirejs.define('sseevent', function() {
 
-/**
- * @return {string} The event as an SSE message.
- */
-SseEvent.prototype.toSseMessage = function() {
-  return 'id: ' + this.id_ + 
-      '\nevent: ' + this.type_ + 
-      '\ndata: ' + JSON.stringify(this.data_) + 
-      '\n\n';
-};
+  /**
+   * Constructor of Events that the server can send to the client.
+   */
+  SseEvent = function(id, type, data) {
+    this.id_ = id;
+    this.type_ = type;
+    this.data_ = data;
+  };
 
-module.exports = SseEvent;
+  /**
+   * @return {string} The event as an SSE message.
+   */
+  SseEvent.prototype.toSseMessage = function() {
+    return 'id: ' + this.id_ + 
+        '\nevent: ' + this.type_ + 
+        '\ndata: ' + JSON.stringify(this.data_) + 
+        '\n\n';
+  };
+
+  return SseEvent;
+});

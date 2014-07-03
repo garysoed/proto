@@ -42,4 +42,4 @@ module.exports.requireArgExists = function(value, name) {
     throw name + ' expected to not be empty object';
   }
   return value;
-}
+};
