@@ -10,6 +10,8 @@ var requirejs = require('requirejs');
 var config = require('./config');
 requirejs.config(config);
 
+console.log(__dirname);
+
 requirejs(['server'], function(Server) {
   var server = new Server();
 
@@ -17,8 +19,9 @@ requirejs(['server'], function(Server) {
   app.use(logfmt.requestLogger());
   app.use(bodyParser.urlencoded());
   app.use(methodOverride());
-  app.use('/scripts', express.static(__dirname + '/public/scripts'));
-  app.use('/bower_components', express.static(__dirname + '/public/bower_components'));
+  app.use('/scripts', express.static(__dirname + '/../web/scripts'));
+  app.use('/bower_components', express.static(__dirname + '/../bower_components'));
+  app.use('/common', express.static(__dirname + '/../common'));
 
   // Register error handling.
   app.use(function(err, req, res, next) {
@@ -30,7 +33,7 @@ requirejs(['server'], function(Server) {
 
   // Handle requests.
   app.get('/', function(req, res) {
-    res.render(__dirname + '/public/main.html');
+    res.render(__dirname + '/../web/main.html');
   });
   app.post('/create', function(req, res) {
     res.send(server.create());
@@ -58,6 +61,11 @@ requirejs(['server'], function(Server) {
   app.post('/msg', function(req, res) {
     var params = req.body;
     server.msg(params.gameId, params.msg);
+    res.send(200);
+  });
+  app.post('/sync', function(req, res) {
+    var params = req.body;
+    server.sync(params.gameId, params.gameState);
     res.send(200);
   });
   app.post('/syncack', function(req, res) {
