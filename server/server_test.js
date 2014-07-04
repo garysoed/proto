@@ -41,7 +41,6 @@ requirejs(
       });
 
       QUnit.test('good', function(assert) {
-        mock.forQUnit(assert);
         
         var mockAddUser = mock.mockFunction('addUser');
         var mockQueueEvent = mock.mockFunction('queueEvent');
@@ -56,7 +55,6 @@ requirejs(
       });
 
       QUnit.test('non existing game ID', function(assert) {
-        mock.forQUnit(assert);
         
         assert.throws(
             function() { this.server.join('non existing game Id', 'userId'); },
@@ -84,7 +82,6 @@ requirejs(
       });
 
       QUnit.test('good', function(assert) {
-        mock.forQUnit(assert);
 
         var mockRemoveUser = mock.mockFunction('removeUser');
         var mockQueueEvent = mock.mockFunction('queueEvent');
@@ -97,7 +94,6 @@ requirejs(
       });
 
       QUnit.test('non existing game', function(assert) {
-        mock.forQUnit(assert);
 
         this.server.leave('Non existing Game Id', this.userId);
         assert.ok(true, 'Does not throw exception when Game ID does not exist');
@@ -119,7 +115,6 @@ requirejs(
       });
 
       QUnit.test('no queued event', function(assert) {
-        mock.forQUnit(assert);
 
         var session = this.server.sessions_[this.gameId];
         session.popEvent = function() {
@@ -141,7 +136,6 @@ requirejs(
       });
 
       QUnit.test('has queued event', function(assert) {
-        mock.forQUnit(assert);
 
         var sseEvent = new SseEvent('id', 'type', {msg: 'data'});
         var session = this.server.sessions_[this.gameId];
@@ -154,7 +148,6 @@ requirejs(
       });
 
       QUnit.test('non existent game ID', function(assert) {
-        mock.forQUnit(assert);
         
         assert.throws(
             function() { this.server.stream('non existent Game ID', this.userId, {}); },
@@ -174,7 +167,6 @@ requirejs(
       });
 
       QUnit.test('good', function(assert) {
-        mock.forQUnit(assert);
         var session = this.server.sessions_[this.gameId];
         session.queueEvent = mock.mockFunction('queueEvent');
 
@@ -185,7 +177,6 @@ requirejs(
       });
 
       QUnit.test('non existent game ID', function(assert) {
-        mock.forQUnit(assert);
         assert.throws(
             function() { this.server.msg('non existent game ID', 'message'); },
             /Game ID/,
@@ -204,7 +195,6 @@ requirejs(
       });
 
       QUnit.test('good', function(assert) {
-        mock.forQUnit(assert);
         var session = this.server.sessions_[this.gameId];
         session.queueEvent = mock.mockFunction('queueEvent');
 
@@ -214,7 +204,6 @@ requirejs(
       });
 
       QUnit.test('non existent game ID', function(assert) {
-        mock.forQUnit(assert);
         assert.throws(
             function() { this.server.sync('non existent game ID'); },
             /Game ID/,
@@ -233,7 +222,6 @@ requirejs(
       });
 
       QUnit.test('good', function(assert) {
-        mock.forQUnit(assert);
         var session = this.server.sessions_[this.gameId];
         session.queueEvent = mock.mockFunction('queueEvent');
 
@@ -244,7 +232,6 @@ requirejs(
       });
 
       QUnit.test('non existent game ID', function(assert) {
-        mock.forQUnit(assert);
         assert.throws(
             function() { this.server.syncAck('non existent game ID', 'message'); },
             /Game ID/,

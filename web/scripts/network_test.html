@@ -28,7 +28,7 @@
     QUnit.init();
     QUnit.stop();
     require(['config'], function() {
-      require(['network', 'jquery', 'mockajax', 'common/events'], 
+      require(['network', 'jquery', 'mock', 'common/events'], 
           function(Network, $, Mock, Events) {
 
             /**
@@ -48,9 +48,6 @@
             });
 
             QUnit.test('good', function(assert) {
-              Mock.forQUnit(assert);
-              var callbackSaver = Mock.saver();
-
               var gameId = 'Game ID';
               var mockDoneCreate = Mock.mockFunction('$.post("create").done');
               Mock.when(this.mockPost)('create').doReturn({done: mockDoneCreate});
@@ -60,6 +57,7 @@
 
               this.network.create();
 
+              var callbackSaver = Mock.saver();
               Mock.verify(this.mockPost)('create');
               Mock.verify(mockDoneCreate)(callbackSaver);
               callbackSaver.arg({gameId: gameId});
@@ -84,8 +82,6 @@
             });
 
             QUnit.test('good', function(assert) {
-              Mock.forQUnit(assert);
-
               var gameId = 'Game ID';
               var callbackSaver = Mock.saver();
 
@@ -105,6 +101,63 @@
               callbackSaver.arg();
               Mock.verify(this.mockPost)('sync', {gameId: gameId});
               Mock.verify(mockEventHandler)(Mock.instanceOf($.Event, '$.Event'), {gameId: gameId});
+            });
+
+
+            /**
+             * Tests for network.leave.
+             */
+            QUnit.module('network.leave', {
+              setup: function() {
+                this.mockPost = Mock.override($, 'post', Mock.mockFunction('$.post'));
+
+                this.userId = 'User ID';
+                this.network = new Network(this.userId);
+              }, 
+              teardown: function() {
+                Mock.teardown();
+              }
+            });
+
+            QUnit.test('good', function(assert) {
+              // Join the game.
+              var gameId = 'Game ID';
+              var mockDoneJoin = Mock.mockFunction('$.post("join").done');
+              Mock.when(this.mockPost).doReturn({done: mockDoneJoin});
+              Mock.when(mockDoneJoin).do(function(callback) { callback(); });
+              this.network.join(gameId);
+
+              this.network.leave();
+              Mock.verify(this.mockPost)('leave', {gameId: gameId, userId: this.userId});
+            });
+
+
+            /**
+             * Tests for network.send.
+             */
+            QUnit.module('network.send', {
+              setup: function() {
+                this.mockPost = Mock.override($, 'post', Mock.mockFunction('$.post'));
+
+                this.userId = 'User ID';
+                this.network = new Network(this.userId);
+
+                // Join the game.
+                this.gameId = 'Game ID';
+                var mockDoneJoin = Mock.mockFunction('$.post("join").done');
+                Mock.when(this.mockPost).doReturn({done: mockDoneJoin});
+                Mock.when(mockDoneJoin).do(function(callback) { callback(); });
+                this.network.join(this.gameId);
+              }
+            })
+
+            QUnit.test('good', function(assert) {
+              var type = 'Message Type';
+              var data = {data: 'data'};
+              this.network.send(type, data);
+              Mock.verify(this.mockPost)(
+                  'msg', 
+                  {gameId: this.gameId, msg: {type: type, data:data}});
             });
 
             
@@ -136,21 +189,18 @@
             });
 
             QUnit.test('handle sync', function(assert) {
-              Mock.forQUnit(assert);
-
               var gameState = {gameState: 'Game State'};
               Mock.when(this.mockGameStateProvider).doReturn(gameState);
 
               var callbackSaver = Mock.saver();
               Mock.verify(this.mockAddEventListener)(Events.Server.SYNC, callbackSaver);
-              callbackSaver.arg();
 
+              // Send a sync event from the server. The Network should send the server a syncack.
+              callbackSaver.arg();
               Mock.verify(this.mockPost)('syncack', {gameState: gameState, gameId: this.gameId});
             });
 
             QUnit.test('handle syncack', function(assert) {
-              Mock.forQUnit(assert);
-
               var gameState = {gameState: 'Game State'};
               var callbackSaver = Mock.saver();
               Mock.verify(this.mockAddEventListener)(Events.Server.SYNC_ACK, callbackSaver);
@@ -167,6 +217,73 @@
 
               // Send another sync ack from the server. This time with an old lastEventId. There
               // should be no event dispatched to the client.
+              Mock.reset(mockEventListener);
+              callbackSaver.arg(sseEvent);
+              Mock.verifyAnyInteraction(mockEventListener, 0);
+            });
+
+            QUnit.test('handle player added', function(assert) {
+              var callbackSaver = Mock.saver();
+              Mock.verify(this.mockAddEventListener)(Events.Server.PLAYER_ADDED, callbackSaver);
+
+              var mockEventListener = Mock.mockFunction('playerAddedEventListener');
+              $(this.network).bind(Network.Events.PLAYER_ADDED, mockEventListener);
+
+              // Send the player added event from the server.
+              var userId = 'New User ID';
+              var sseEvent = {lastEventId: 2, data: JSON.stringify({userId: userId})};
+              callbackSaver.arg(sseEvent);
+              Mock.verify(mockEventListener)(Mock.instanceOf($.Event, '$.Event'), {userId: userId});
+
+              // Send another player added event from the server. This time with an old lastEventId.
+              // There should be no event dispatched to the client.
+              Mock.reset(mockEventListener);
+              callbackSaver.arg(sseEvent);
+              Mock.verifyAnyInteraction(mockEventListener, 0);
+            });
+
+            QUnit.test('handle player removed', function(assert) {
+              var callbackSaver = Mock.saver();
+              Mock.verify(this.mockAddEventListener)(Events.Server.PLAYER_REMOVED, callbackSaver);
+
+              var mockEventListener = Mock.mockFunction('playerRemovedEventListener');
+              $(this.network).bind(Network.Events.PLAYER_REMOVED, mockEventListener);
+
+              // Send the player removed event from the server.
+              var userId = 'New User ID';
+              var sseEvent = {lastEventId: 2, data: JSON.stringify({userId: userId})};
+              callbackSaver.arg(sseEvent);
+              Mock.verify(mockEventListener)(Mock.instanceOf($.Event, '$.Event'), {userId: userId});
+
+              // Send another player removed event from the server. This time with an old 
+              // lastEventId. There should be no event dispatched to the client.
+              Mock.reset(mockEventListener);
+              callbackSaver.arg(sseEvent);
+              Mock.verifyAnyInteraction(mockEventListener, 0);
+            });
+
+            QUnit.test('handle message', function(assert) {
+              var callbackSaver = Mock.saver();
+              Mock.verify(this.mockAddEventListener)(Events.Server.MESSAGE, callbackSaver);
+
+              var messageType = 'custom_message_type';
+              var data = {message: 'data'};
+              var mockEventListener = Mock.mockFunction('messageTypeListener');
+              $(this.network).bind(messageType, mockEventListener);
+
+              // Send the player removed event from the server.
+              var userId = 'New User ID';
+              var sseEvent = {
+                lastEventId: 2, 
+                data: JSON.stringify({
+                  msg: {type: messageType, data: data}
+                })
+              };
+              callbackSaver.arg(sseEvent);
+              Mock.verify(mockEventListener)(Mock.instanceOf($.Event, '$.Event'), data);
+
+              // Send another player removed event from the server. This time with an old 
+              // lastEventId. There should be no event dispatched to the client.
               Mock.reset(mockEventListener);
               callbackSaver.arg(sseEvent);
               Mock.verifyAnyInteraction(mockEventListener, 0);

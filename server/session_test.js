@@ -12,16 +12,12 @@ requirejs(['mock', 'session', 'sseevent'], function(mock, Session, SseEvent) {
   });
 
   QUnit.test('non existing user', function(assert) {
-    mock.forQUnit(assert);
-
     var userId = 'New User';
     this.session.addUser(userId);
     assert.ok(this.session.users_[userId], 'New User should be added');
   });
 
   QUnit.test('existing user', function(assert) {
-    mock.forQUnit(assert);
-
     var userId = 'User ID';
     this.session.addUser(userId);
     this.session.addUser(userId);
@@ -39,8 +35,6 @@ requirejs(['mock', 'session', 'sseevent'], function(mock, Session, SseEvent) {
   });
 
   QUnit.test('existing user', function(assert) {
-    mock.forQUnit(assert);
-    
     var userId = 'User ID';
     this.session.addUser(userId);
     this.session.removeUser(userId);
@@ -48,8 +42,6 @@ requirejs(['mock', 'session', 'sseevent'], function(mock, Session, SseEvent) {
   });
 
   QUnit.test('non existing user', function(assert) {
-    mock.forQUnit(assert);
-    this.session.removeUser('non existing user ID');
     assert.ok(true, 'Does not crash when user ID does not exist');
   });
 
@@ -68,8 +60,6 @@ requirejs(['mock', 'session', 'sseevent'], function(mock, Session, SseEvent) {
   });
 
   QUnit.test('good', function(assert) {
-    mock.forQUnit(assert);
-    
     var type = 'event Type';
     var data = {msg: 'message'};
 
@@ -115,8 +105,7 @@ requirejs(['mock', 'session', 'sseevent'], function(mock, Session, SseEvent) {
   });
 
   QUnit.test('good', function(assert) {
-    mock.forQUnit(assert);
-    var eventType = 'event type';
+    var eventType = 'Event Type';
     var eventData = 'Event Data';
 
     var sseEvent2 = new SseEvent(1, eventType, eventData);
@@ -137,8 +126,6 @@ requirejs(['mock', 'session', 'sseevent'], function(mock, Session, SseEvent) {
   });
 
   QUnit.test('non existing user', function(assert) {
-    mock.forQUnit(assert);
-    
     assert.throws(
         function() { this.session.popEvent('Non existing User ID'); },
         /User ID/,

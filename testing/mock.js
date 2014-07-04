@@ -5,8 +5,6 @@ if (typeof define !== 'function') {
 }
 
 define(['common/pretty'], function(pretty) {
-  var asserts;
-
   function toArgArray(argumentsObj) {
     return Array.prototype.slice.call(argumentsObj);
   }
@@ -16,6 +14,8 @@ define(['common/pretty'], function(pretty) {
    * @param {*} obj1 The first object to compare.
    * @param {*} obj2 The second object to compare.
    * @return {boolean} True iff the two objects are deeply equal.
+   * @static
+   * @private
    */
   function deepEqual(obj1, obj2) {
     if (!(obj1 instanceof Object) || !(obj2 instanceof Object)) {
@@ -39,8 +39,7 @@ define(['common/pretty'], function(pretty) {
   }
 
   function escape(input) {
-    return input.replace(/\n/g, '\\n')
-        .replace(/\t/g, '\\t');
+    return input.replace(/\n/g, '\\n').replace(/\t/g, '\\t');
   }
 
   /**
@@ -50,24 +49,32 @@ define(['common/pretty'], function(pretty) {
    * @param {!string} name Name of the matcher.
    * @class
    */
-  var Matcher = function(equalFn, name) {
+  Matcher = function(equalFn, name) {
     this.equals = equalFn;
 
     this.toPrettyString = function() { return name; };
     this.toString = this.toPrettyString;
   };
 
-  var Expectation = function() {
+  /**
+   * Expectation object.
+   * @class
+   */
+  Expectation = function() {
     var f = function() {
       f.matchers = toArgArray(arguments);
       return f;
     };
-    f.matches = function(args) {
-      return !f.matchers || deepEqual(f.matchers, args);
-    };
+
+    /**
+     * Sets the expectation to call the given function when the set matchers are met.
+     * @param {Function} callback Function to be called when the set matchers are met. Function 
+     *     will be called with the original arguments.
+     */
     f.do = function(callback) {
       f.callback = callback;
     };
+
     f.doReturn = function(value) {
       f.do(function() { return value; });
     };
@@ -84,15 +91,7 @@ define(['common/pretty'], function(pretty) {
   /**
    * Mock namespace.
    */
-  var Mock = {};
-
-  /**
-   * Initializes for the given QUnit asserts.
-   * @param {module:qunit.asserts} qunitAsserts The asserts object from QUnit.
-   */
-  Mock.forQUnit = function(qunitAsserts) {
-    asserts = qunitAsserts;
-  };
+  Mock = {};
 
   Mock.when = function(mock) {
     var expectation = Expectation();
@@ -139,7 +138,7 @@ define(['common/pretty'], function(pretty) {
       
       // Check for any expectations.
       var matchingExpectations = f.expectations.filter(function(expectation) {
-        return expectation.matches(args);
+        return !expectation.matchers || deepEqual(expectation.matchers, args);
       });
       if (matchingExpectations.length > 0) {
         return matchingExpectations[0].run(args);
@@ -173,19 +172,23 @@ define(['common/pretty'], function(pretty) {
       var matches = mock.interactions.filter(function(i) {
         return deepEqual(i, args);
       });
-      asserts.equal(
-          matches.length, 
-          times, 
-          '{0} call(s) for {1p}({2})'.format(times, mock.functionName, args));
+
+      var result = matches.length === times;
+      var msg = result ? 
+          '{0} call(s) for {1p}({2})'.format(times, mock.functionName, args) :
+          '{0} call(s) for {1p}({2})\nOther interactions:\n{3}'
+              .format(times, mock.functionName, args, mock.interactions);
+      QUnit.push(matches.length === times, matches.length, times, msg);
     };
   };
 
   Mock.verifyAnyInteraction = function(mock, opt_times) {
     var times = (opt_times === undefined) ? 1 : opt_times;
-    asserts.equal(
-        mock.interactions, 
+    QUnit.push(
+        mock.interactions.length === times,
+        mock.interactions.length,
         times, 
-        '{0} call(s) for {1p}(*...)'.format(times, mock.functionName));
+        '{0} call(s) for {1p}(...*)'.format(times, mock.functionName));
   };
 
   var overrides = [];

@@ -8,8 +8,6 @@ requirejs(['mock', 'sseevent'], function(mock, SseEvent) {
   QUnit.module('event.toSseMessage');
 
   QUnit.test('good', function(assert) {
-    mock.forQUnit(assert);
-    
     var id = 'eventId';
     var type = 'eventType';
     var data = {sseEvent: data};

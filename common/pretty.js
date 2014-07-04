@@ -33,13 +33,19 @@ define(function() {
       }
     }
 
-    String.prototype.format = function() {
+    /**
+     * Replace placeholders in the string with the given argument objects. Placeholders are numbers
+     * surrounded by braces, such as {0}, {1}, {2}. The arguments will be pretty printed, unless you
+     * specify a p in the placeholder. For example: {1p}.
+     * @param {...*} var_args Any objects to replace the placeholders.
+     * @return {string} The pretty printed string.
+     */
+    String.prototype.format = function(var_args) {
       var args = arguments;
       return this.replace(/{(\d+)(p?)}/g, function(match, number, isPretty) { 
         return typeof args[number] != 'undefined'
             ? (isPretty ? args[number] : pretty(args[number]))
-            : match
-        ;
+            : match;
       });
     };
 
