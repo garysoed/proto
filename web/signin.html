@@ -1,0 +1,45 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+
+<polymer-element name="pb-signin">
+  <template>
+    <div id="root">
+      User Id: <input type="text" id="userId">
+      <div>
+        <div>
+          <input type="radio" on-change="{{radioChange}}" checked name="sign-in-option">New Game
+        </div>
+
+        <div>
+          <input type="radio" on-change="{{radioChange}}" id="joinGameRadio" name="sign-in-option">
+          <div id="joinGame">
+            Join Game
+            <input type="text" id="gameId" disabled>
+          </div>
+        </div>
+        <input type="submit" on-click="{{submitClick}}" id="submit">
+      </div>
+    </div>
+  </template>
+  <script>
+    require(['jquery', 'game'], function($, Game) {
+      Polymer('pb-signin', {
+        join: false,
+        submitClick: function(event) {
+          // TODO: Block until userId is specified.
+          Game.signIn(this.$.userId.value);
+          if (this.$.joinGameRadio.checked) {
+            Game.join(this.$.gameId.value);
+          } else {
+            // TODO: Print out the game ID
+            Game.create();
+          }
+        },
+        radioChange: function(event) {
+          var joinEnabled = this.$.joinGameRadio.checked;
+          $('input', this.$.joinGame)
+              .each(function(i, el) { el.disabled = !joinEnabled; });
+        }
+      });
+    });
+  </script>
+</polymer-element>  

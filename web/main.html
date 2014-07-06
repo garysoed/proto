@@ -1,15 +1,17 @@
+<!DOCTYPE html>
 <html>
-  <script data-main="scripts/config" src="scripts/require.js"></script>
-  <script>
-    require(['config'], function() {
-      require(['main']);
-    });
-  </script>
+  <head>
+    <script data-main="scripts/config" src="scripts/require.js"></script>
+    <script>
+      require(['config'], function() {
+        require(['polymer/platform'], function() {});
+      });
+    </script>
+    <link rel="import" href="web/signin.html">
+    <link rel="import" href="web/game.html">
+  </head>
   <body>
-    <input id="userId" type="text"></input>
-    <input id="gameId" type="text"></input>
-    <input id="message" type="text"></input>
-    <input id="submit" type="button" value="Send"></input>
-    <div id="log"></div>
+    <pb-signin></pb-signin>
+    <pb-game></pb-game>
   </body>
 </html>

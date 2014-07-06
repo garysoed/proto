@@ -16,9 +16,10 @@
     "tests"
   ],
   "dependencies": {
-    "jquery": "~2.1.1"
+    "jquery": "~2.1.1",
+    "polymer": "Polymer/polymer#~0.3.3"
   },
   "devDependencies": {
-    "qunit": "~1.14.0",
+    "qunit": "~1.14.0"
   }
 }

@@ -11,9 +11,11 @@ define(['common/pretty'], function(pretty) {
 
   /**
    * Deep equals the two objects.
-   * @param {*} obj1 The first object to compare.
-   * @param {*} obj2 The second object to compare.
+   * 
+   * @param  {*} obj1 The first object to compare.
+   * @param  {*} obj2 The second object to compare.
    * @return {boolean} True iff the two objects are deeply equal.
+   * 
    * @static
    * @private
    */
@@ -44,9 +46,11 @@ define(['common/pretty'], function(pretty) {
 
   /**
    * Argument matcher.
+   * 
    * @param {!Function} equalFn Function that returns true iff the current object is equal to the 
    *     given object.
    * @param {!string} name Name of the matcher.
+   * 
    * @class
    */
   Matcher = function(equalFn, name) {
@@ -58,6 +62,7 @@ define(['common/pretty'], function(pretty) {
 
   /**
    * Expectation object.
+   * 
    * @class
    */
   Expectation = function() {
@@ -68,6 +73,7 @@ define(['common/pretty'], function(pretty) {
 
     /**
      * Sets the expectation to call the given function when the set matchers are met.
+     * 
      * @param {Function} callback Function to be called when the set matchers are met. Function 
      *     will be called with the original arguments.
      */
@@ -101,6 +107,8 @@ define(['common/pretty'], function(pretty) {
 
   /**
    * @return {!Matcher} Matcher that matches everything.
+   *
+   * @static
    */
   Mock.any = function() {
     return new Matcher(
@@ -128,8 +136,10 @@ define(['common/pretty'], function(pretty) {
   };
 
   /**
-   * @param {string} name Name of the mocked function.
+   * @param  {string} name Name of the mocked function.
    * @return {!Function} The mock function.
+   *
+   * @static
    */ 
   Mock.mockFunction = function(name) {
     var f = function() {
@@ -141,9 +151,9 @@ define(['common/pretty'], function(pretty) {
         return !expectation.matchers || deepEqual(expectation.matchers, args);
       });
       if (matchingExpectations.length > 0) {
-        return matchingExpectations[0].run(args);
+        return matchingExpectations[matchingExpectations.length - 1].run(args);
       }
-      return 
+      return;
     };
     f.interactions = [];
     f.functionName = name;

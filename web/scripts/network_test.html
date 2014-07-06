@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html>
 <head>
   <meta charset="utf-8">
@@ -193,27 +194,29 @@
               Mock.when(this.mockGameStateProvider).doReturn(gameState);
 
               var callbackSaver = Mock.saver();
-              Mock.verify(this.mockAddEventListener)(Events.Server.SYNC, callbackSaver);
+              Mock.verify(this.mockAddEventListener)('message', callbackSaver);
 
               // Send a sync event from the server. The Network should send the server a syncack.
-              callbackSaver.arg();
+              callbackSaver.arg({data: JSON.stringify([{id: 1, type: Events.Server.SYNC}])});
               Mock.verify(this.mockPost)('syncack', {gameState: gameState, gameId: this.gameId});
             });
 
             QUnit.test('handle syncack', function(assert) {
               var gameState = {gameState: 'Game State'};
               var callbackSaver = Mock.saver();
-              Mock.verify(this.mockAddEventListener)(Events.Server.SYNC_ACK, callbackSaver);
+              Mock.verify(this.mockAddEventListener)('message', callbackSaver);
 
               var mockEventListener = Mock.mockFunction('newGameStateEventListener');
               $(this.network).bind(Network.Events.NEW_GAME_STATE, mockEventListener);
 
               // Now send the sync ack from the server.
-              var sseEvent = {lastEventId: 2, data: JSON.stringify({gameState: gameState})};
+              var sseEvent = {
+                data: JSON.stringify([
+                  {id: 2, type: Events.Server.SYNC_ACK, data: {gameState: gameState}}
+                ])
+              };
               callbackSaver.arg(sseEvent);
-              Mock.verify(mockEventListener)(
-                  Mock.instanceOf($.Event, '$.Event'), 
-                  {gameState: gameState});
+              Mock.verify(mockEventListener)(Mock.instanceOf($.Event, '$.Event'), gameState);
 
               // Send another sync ack from the server. This time with an old lastEventId. There
               // should be no event dispatched to the client.
@@ -224,16 +227,20 @@
 
             QUnit.test('handle player added', function(assert) {
               var callbackSaver = Mock.saver();
-              Mock.verify(this.mockAddEventListener)(Events.Server.PLAYER_ADDED, callbackSaver);
+              Mock.verify(this.mockAddEventListener)('message', callbackSaver);
 
               var mockEventListener = Mock.mockFunction('playerAddedEventListener');
               $(this.network).bind(Network.Events.PLAYER_ADDED, mockEventListener);
 
               // Send the player added event from the server.
               var userId = 'New User ID';
-              var sseEvent = {lastEventId: 2, data: JSON.stringify({userId: userId})};
+              var sseEvent = {
+                data: JSON.stringify([
+                  {id: 2, type: Events.Server.PLAYER_ADDED, data: {userId: userId}}
+                ])
+              };
               callbackSaver.arg(sseEvent);
-              Mock.verify(mockEventListener)(Mock.instanceOf($.Event, '$.Event'), {userId: userId});
+              Mock.verify(mockEventListener)(Mock.instanceOf($.Event, '$.Event'), userId);
 
               // Send another player added event from the server. This time with an old lastEventId.
               // There should be no event dispatched to the client.
@@ -244,16 +251,20 @@
 
             QUnit.test('handle player removed', function(assert) {
               var callbackSaver = Mock.saver();
-              Mock.verify(this.mockAddEventListener)(Events.Server.PLAYER_REMOVED, callbackSaver);
+              Mock.verify(this.mockAddEventListener)('message', callbackSaver);
 
               var mockEventListener = Mock.mockFunction('playerRemovedEventListener');
               $(this.network).bind(Network.Events.PLAYER_REMOVED, mockEventListener);
 
               // Send the player removed event from the server.
               var userId = 'New User ID';
-              var sseEvent = {lastEventId: 2, data: JSON.stringify({userId: userId})};
+              var sseEvent = {
+                data: JSON.stringify([
+                  {id: 2, type: Events.Server.PLAYER_REMOVED, data: {userId: userId}}
+                ])
+              };
               callbackSaver.arg(sseEvent);
-              Mock.verify(mockEventListener)(Mock.instanceOf($.Event, '$.Event'), {userId: userId});
+              Mock.verify(mockEventListener)(Mock.instanceOf($.Event, '$.Event'), userId);
 
               // Send another player removed event from the server. This time with an old 
               // lastEventId. There should be no event dispatched to the client.
@@ -264,29 +275,50 @@
 
             QUnit.test('handle message', function(assert) {
               var callbackSaver = Mock.saver();
-              Mock.verify(this.mockAddEventListener)(Events.Server.MESSAGE, callbackSaver);
+              Mock.verify(this.mockAddEventListener)('message', callbackSaver);
 
-              var messageType = 'custom_message_type';
-              var data = {message: 'data'};
-              var mockEventListener = Mock.mockFunction('messageTypeListener');
-              $(this.network).bind(messageType, mockEventListener);
+              var messageType1 = 'custom_message_type_1';
+              var data1 = {message: 'data1'};
+              var messageType2 = 'custom_message_type_2';
+              var data2 = {message: 'data2'};
 
-              // Send the player removed event from the server.
+              var specificEventListener = Mock.mockFunction('specificEventListener');
+              var messageEventListener = Mock.mockFunction('messageEventListener');
+
+              $(this.network).bind(messageType1, specificEventListener);
+              $(this.network).bind(messageType2, specificEventListener);
+              $(this.network).bind(Network.Events.MESSAGE, messageEventListener);
+
+              // Send the event from the server.
               var userId = 'New User ID';
               var sseEvent = {
-                lastEventId: 2, 
-                data: JSON.stringify({
-                  msg: {type: messageType, data: data}
-                })
+                data: JSON.stringify([
+                  {id: 1, type: Events.Server.MESSAGE, data: {msg: {type: messageType1, data: data1}}},
+                  {id: 2, type: Events.Server.MESSAGE, data: {msg: {type: messageType2, data: data2}}},
+                  {id: 1, type: Events.Server.MESSAGE, data: {msg: {type: messageType1, data: data1}}}
+                ])
               };
               callbackSaver.arg(sseEvent);
-              Mock.verify(mockEventListener)(Mock.instanceOf($.Event, '$.Event'), data);
+
+              // Verify that specific events are fired.
+              Mock.verify(specificEventListener)(Mock.instanceOf($.Event, '$.Event'), data1);
+              Mock.verify(specificEventListener)(Mock.instanceOf($.Event, '$.Event'), data2);
+
+              // Verify that the generic events are fired.
+              Mock.verify(messageEventListener)(
+                  Mock.instanceOf($.Event, '$.Event'),
+                  {id: 1, type: messageType1, data: data1});
+              Mock.verify(messageEventListener)(
+                  Mock.instanceOf($.Event, '$.Event'),
+                  {id: 2, type: messageType2, data: data2});
 
               // Send another player removed event from the server. This time with an old 
               // lastEventId. There should be no event dispatched to the client.
-              Mock.reset(mockEventListener);
+              Mock.reset(specificEventListener);
+              Mock.reset(messageEventListener);
               callbackSaver.arg(sseEvent);
-              Mock.verifyAnyInteraction(mockEventListener, 0);
+              Mock.verifyAnyInteraction(specificEventListener, 0);
+              Mock.verifyAnyInteraction(messageEventListener, 0);
             });
 
             QUnit.start();

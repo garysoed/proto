@@ -90,17 +90,15 @@ requirejs(['mock', 'session', 'sseevent'], function(mock, Session, SseEvent) {
 
 
   /**
-   * Tests session.popEvent.
+   * Tests session.getEvents.
    */
-  QUnit.module('session.popEvent', {
+  QUnit.module('session.getEvents', {
     setup: function() {
       var eventType = 'type';
       var eventData = {msg: 'message'};
       this.userId = 'User ID';
-      this.sseEvent = new SseEvent(0, eventType, eventData);
       this.session = new Session();
       this.session.addUser(this.userId);
-      this.session.queueEvent(eventType, eventData);
     }
   });
 
@@ -108,28 +106,56 @@ requirejs(['mock', 'session', 'sseevent'], function(mock, Session, SseEvent) {
     var eventType = 'Event Type';
     var eventData = 'Event Data';
 
+    var sseEvent1 = new SseEvent(0, eventType, eventData);
     var sseEvent2 = new SseEvent(1, eventType, eventData);
+    this.session.queueEvent(eventType, eventData);
     this.session.queueEvent(eventType, eventData);
 
     assert.deepEqual(
-        this.session.popEvent(this.userId), 
-        this.sseEvent,
+        this.session.getEvents(this.userId), 
+        [sseEvent1, sseEvent2],
         'Returned SSE event from popEvent is as expected');
-    assert.deepEqual(
-        this.session.popEvent(this.userId), 
-        sseEvent2,
-        'Returned SSE event from second popEvent is as expected');
-    assert.equal(
-        this.session.popEvent(this.userId), 
-        null,
-        'Returned SSE event when there are no more events queued is null');
   });
 
   QUnit.test('non existing user', function(assert) {
     assert.throws(
-        function() { this.session.popEvent('Non existing User ID'); },
+        function() { this.session.getEvents('Non existing User ID'); },
         /User ID/,
         'Throws exception when user Id has not been added');
   });
 
+
+  /**
+   * Tests session.clearEvents.
+   */
+  QUnit.module('session.clearEvents', {
+    setup: function() {
+      this.userId = 'User ID';
+      this.session = new Session();
+      this.session.addUser(this.userId);
+    }
+  });
+
+  QUnit.test('good', function(assert) {
+    var eventType = 'Event Type';
+    var eventData = 'Event Data';
+
+    var sseEvent1 = new SseEvent(0, eventType, eventData);
+    var sseEvent2 = new SseEvent(1, eventType, eventData);
+    this.session.queueEvent(eventType, eventData);
+    this.session.queueEvent(eventType, eventData);
+
+    this.session.clearEvents(this.userId);
+    assert.deepEqual(
+        this.session.getEvents(this.userId), 
+        [],
+        'Returned SSE event from clearEvents is empty array');
+  });
+
+  QUnit.test('non existing user', function(assert) {
+    assert.throws(
+        function() { this.session.clearEvents('Non existing User ID'); },
+        /User ID/,
+        'Throws exception when user Id has not been added');
+  });
 });

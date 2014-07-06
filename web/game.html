@@ -1,0 +1,44 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+
+<polymer-element name="pb-game">
+  <template>
+    <input type="text" id="text">
+    <input type="submit" on-click="{{submitClick}}" id="submit">
+    <div id="log"></div>
+  </template>
+  <script>
+    require(['jquery', 'game'], function($, Game) {
+      var handleJoinGame = function(e, data) {
+        $(this.$.log).append('<p>Game ID: ' + data + '</p>');
+      };
+
+      var handleMessage = function(e, data) {
+        $(this.$.log).append('<p>' + data.actor + ': ' + data.value + '</p>');
+      };
+
+      var handlePlayerAdded = function(e, userId) {
+        $(this.$.log).append('<p>' + userId + ' joined</p>');
+      };
+
+      var handlePlayerRemoved = function(e, userId) {
+        $(this.$.log).append('<p>' + userId + ' left</p>');
+      };
+
+      var handle
+
+      Polymer('pb-game', {
+        ready: function() {
+          // Starts listening to Game events.
+          $(Game)
+              .bind(Game.Events.JOIN, handleJoinGame.bind(this))
+              .bind(Game.Events.PLAYER_ADDED, handlePlayerAdded.bind(this))
+              .bind(Game.Events.PLAYER_REMOVED, handlePlayerRemoved.bind(this))
+              .bind('msg.add', handleMessage.bind(this));
+        },
+        submitClick: function() {
+          Game.change('msg', 'add', this.$.text.value);
+        }
+      });
+    });
+  </script>
+</polymer-element>  

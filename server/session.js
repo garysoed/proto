@@ -1,27 +1,21 @@
-/** @module server/session */
-
 var requirejs = require('requirejs');
 
 requirejs.define('session', ['sseevent', 'events'], function(SseEvent, events) {
 
   /**
    * Represents a session.
+   * 
    * @class
    */
   Session = function() {
-    /**
-     * @private
-     */
     this.users_ = {};
-
-    /**
-     * @private
-     */
     this.nextEventId_ = 0;
   };
   Session.prototype.__proto__ = events.EventEmitter.prototype;
 
   /**
+   * Events dispatched by Session.
+   * 
    * @enum {string}
    */
   Session.Events = {
@@ -30,6 +24,7 @@ requirejs.define('session', ['sseevent', 'events'], function(SseEvent, events) {
 
   /**
    * Adds user to the session.
+   * 
    * @param {string} userId The ID of the user to be added.
    */
   Session.prototype.addUser = function(userId) {
@@ -40,6 +35,7 @@ requirejs.define('session', ['sseevent', 'events'], function(SseEvent, events) {
 
   /**
    * Removes user from the session.
+   * 
    * @param {string} userId The ID of the user to be removed.
    */
   Session.prototype.removeUser = function(userId) {
@@ -48,6 +44,7 @@ requirejs.define('session', ['sseevent', 'events'], function(SseEvent, events) {
 
   /**
    * Queues an SSE event for all of the users.
+   * 
    * @param {string} type The type of SSE event to be added.
    * @param {!Object} data The data of SSE event to be added.
    */
@@ -61,15 +58,30 @@ requirejs.define('session', ['sseevent', 'events'], function(SseEvent, events) {
     this.nextEventId_++;
   };
 
+
   /**
-   * Removes the first SSE events queued up for the user and returns them.
-   * @return {SseEvent|null} First SSE event queued up. Null if none.
+   * Gets the all SSE events queued up for the user.
+   *
+   * @param  {string} userId The User ID whose event should be returned.
+   * @return {!SseEvent[]} All SSE events queued for the user.
    */
-  Session.prototype.popEvent = function(userId) {
+  Session.prototype.getEvents = function(userId) {
     if (this.users_[userId] === undefined) {
       throw 'User ID [' + userId + '] not added';
     }
-    return this.users_[userId].shift(1);
+    return this.users_[userId];
+  };
+
+  /**
+   * Removes the all SSE events queued up for the user.
+   * 
+   * @param {string} userId The User ID whose events should be removed.
+   */
+  Session.prototype.clearEvents = function(userId) {
+    if (this.users_[userId] === undefined) {
+      throw 'User ID [' + userId + '] not added';
+    }
+    this.users_[userId] = [];
   };
 
   return Session;

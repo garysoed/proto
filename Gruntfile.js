@@ -7,8 +7,8 @@ module.exports = function(grunt) {
         proto: true
       },
       all: [
-        'server/**/*.js', 
-        'web/**/*.js', 
+        '**/*.js', 
+        '!doc/**',
         '!**/bower_components/**', 
         '!**/node_modules/**',
         '!server/public/**'
@@ -58,5 +58,6 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-jsdoc');
 
   // Register default tasks.
-  grunt.registerTask('default', ['jshint', 'node-qunit', 'qunit']);
+  grunt.registerTask('check', ['jshint', 'node-qunit', 'qunit']);
+  grunt.registerTask('default', ['check']);
 };

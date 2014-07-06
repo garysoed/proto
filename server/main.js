@@ -22,6 +22,7 @@ requirejs(['server'], function(Server) {
   app.use('/scripts', express.static(__dirname + '/../web/scripts'));
   app.use('/bower_components', express.static(__dirname + '/../bower_components'));
   app.use('/common', express.static(__dirname + '/../common'));
+  app.use('/web', express.static(__dirname + '/../web'));
 
   // Register error handling.
   app.use(function(err, req, res, next) {

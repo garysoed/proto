@@ -41,7 +41,6 @@ requirejs(
       });
 
       QUnit.test('good', function(assert) {
-        
         var mockAddUser = mock.mockFunction('addUser');
         var mockQueueEvent = mock.mockFunction('queueEvent');
         this.server.sessions_[this.gameId].addUser = mockAddUser;
@@ -55,7 +54,6 @@ requirejs(
       });
 
       QUnit.test('non existing game ID', function(assert) {
-        
         assert.throws(
             function() { this.server.join('non existing game Id', 'userId'); },
             /Game ID/,
@@ -82,7 +80,6 @@ requirejs(
       });
 
       QUnit.test('good', function(assert) {
-
         var mockRemoveUser = mock.mockFunction('removeUser');
         var mockQueueEvent = mock.mockFunction('queueEvent');
         this.server.sessions_[this.gameId].removeUser = mockRemoveUser;
@@ -94,7 +91,6 @@ requirejs(
       });
 
       QUnit.test('non existing game', function(assert) {
-
         this.server.leave('Non existing Game Id', this.userId);
         assert.ok(true, 'Does not throw exception when Game ID does not exist');
       });
@@ -115,40 +111,41 @@ requirejs(
       });
 
       QUnit.test('no queued event', function(assert) {
-
         var session = this.server.sessions_[this.gameId];
-        session.popEvent = function() {
-          return null;
-        };
+        var mockClearEvents = mock.mockFunction('Session.clearEvents');
+        session.clearEvents = mockClearEvents ;
+        var mockGetEvents = mock.mockFunction('Session.getEvents');
+        session.getEvents = mockGetEvents;
         
         var sseEvent = new SseEvent('id', 'type', {msg: 'data'});
 
+        // First try getting the first queued event and discover that none were queued.
+        mock.when(mockGetEvents).doReturn([]);
         this.server.stream(this.gameId, this.userId, this.res);
-
         mock.verify(this.res.send, 0)(mock.any());
 
-        session.popEvent = function() {
-          return sseEvent;
-        };
+        // An event was queued somewhere. This time an SSE message should be sent.
+        mock.when(mockGetEvents).doReturn([sseEvent]);
         session.emit(Session.Events.QUEUED, this.userId, sseEvent);
-
-        mock.verify(this.res.send)(sseEvent.toSseMessage());
+        mock.verify(this.res.send)(SseEvent.toSseMessage([sseEvent]));
+        mock.verify(mockClearEvents)(this.userId);
       });
 
       QUnit.test('has queued event', function(assert) {
-
         var sseEvent = new SseEvent('id', 'type', {msg: 'data'});
         var session = this.server.sessions_[this.gameId];
-        session.popEvent = function() {
-          return sseEvent;
-        };
+        var mockGetEvents = mock.mockFunction('Session.getEvents');
+        var mockClearEvents = mock.mockFunction('Session.clearEvents');
+        session.clearEvents = mockClearEvents ;
+        session.getEvents = mockGetEvents;
         
+        mock.when(mockGetEvents).doReturn([sseEvent]);
         this.server.stream(this.gameId, this.userId, this.res);
-        mock.verify(this.res.send)(sseEvent.toSseMessage());
+        mock.verify(this.res.send)(SseEvent.toSseMessage([sseEvent]));
+        mock.verify(mockClearEvents)(this.userId);
       });
 
       QUnit.test('non existent game ID', function(assert) {
-        
         assert.throws(
             function() { this.server.stream('non existent Game ID', this.userId, {}); },
             /Game ID/,
