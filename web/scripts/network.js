@@ -109,7 +109,7 @@ define(['jquery', 'common/events', 'common/pretty'], function($, Events) {
    * @private
    */
   Network.prototype.sync_ = function() {
-    $.post('sync', {gameId: this.gameId_});
+    $.post('sync', {gameId: this.gameId_, userId: this.userId_});
   };
 
   /**
@@ -118,7 +118,9 @@ define(['jquery', 'common/events', 'common/pretty'], function($, Events) {
    * @private
    */
   Network.prototype.syncAck_ = function() {
-    $.post('syncack', {gameId: this.gameId_, gameState: this.gameStateProvider_()});
+    $.post(
+        'syncack', 
+        {gameId: this.gameId_, userId: this.userId_, gameState: this.gameStateProvider_()});
   };
 
   /**

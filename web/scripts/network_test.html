@@ -100,7 +100,7 @@
 
               // Successful join.
               callbackSaver.arg();
-              Mock.verify(this.mockPost)('sync', {gameId: gameId});
+              Mock.verify(this.mockPost)('sync', {gameId: gameId, userId: this.userId});
               Mock.verify(mockEventHandler)(Mock.instanceOf($.Event, '$.Event'), {gameId: gameId});
             });
 
@@ -198,7 +198,8 @@
 
               // Send a sync event from the server. The Network should send the server a syncack.
               callbackSaver.arg({data: JSON.stringify([{id: 1, type: Events.Server.SYNC}])});
-              Mock.verify(this.mockPost)('syncack', {gameState: gameState, gameId: this.gameId});
+              Mock.verify(this.mockPost)(
+                  'syncack', {gameState: gameState, gameId: this.gameId, userId: this.userId});
             });
 
             QUnit.test('handle syncack', function(assert) {

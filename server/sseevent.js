@@ -21,11 +21,11 @@ requirejs.define('sseevent', ['common/events', 'common/pretty'], function(Events
    * Converts the array of {@link SseEvent}s to string to be sent over the wire. The ID set will
    * use the last ID of the events given. The type of event will be set to 
    * {@link Events.Server.MESSAGE}. Every event will be converted to JSON of type 
-   * {{id:string, type:string, data:!Object}}.
+   * <code>{{id:string, type:string, data:!Object}}</code>.
    *
    * @param  {!SseEvent[]} events SseEvents to be converted to string.
    * @return {string} String form of the SseEvents to be sent over the wire.
-   * 
+   *
    * @static
    */
   SseEvent.toSseMessage = function(events) {

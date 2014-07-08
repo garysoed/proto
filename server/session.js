@@ -19,7 +19,11 @@ requirejs.define('session', ['sseevent', 'events'], function(SseEvent, events) {
    * @enum {string}
    */
   Session.Events = {
-    QUEUED: 'Session.QUEUED' // Args: userId:string, sseEvent:SseEvent
+    /**
+     * An event has been queued. Event is called with <code>userId:string</code> and 
+     * <code>sseEvent:{@link SseEvent}</code>
+     */
+    QUEUED: 'Session.QUEUED'
   };
 
   /**
@@ -43,18 +47,27 @@ requirejs.define('session', ['sseevent', 'events'], function(SseEvent, events) {
   };
 
   /**
+   * @return {string[]} User IDs registered with this session.
+   */
+  Session.prototype.getUsers = function() {
+    return this.users_;
+  };
+
+  /**
    * Queues an SSE event for all of the users.
    * 
    * @param {string} type The type of SSE event to be added.
    * @param {!Object} data The data of SSE event to be added.
+   * @param {string[]=} opt_userIds User IDs to send the events to. Defaults to all registered 
+   *                                users.
    */
-  Session.prototype.queueEvent = function(type, data) {
+  Session.prototype.queueEvent = function(type, data, opt_userIds) {
     var sseEvent = new SseEvent(this.nextEventId_, type, data);
-
-    for (var userId in this.users_) {
+    var userIds = opt_userIds || Object.keys(this.users_);
+    userIds.forEach(function(userId) {
       this.users_[userId].push(sseEvent);
       this.emit(Session.Events.QUEUED, userId, sseEvent);
-    }
+    }, this);
     this.nextEventId_++;
   };
 

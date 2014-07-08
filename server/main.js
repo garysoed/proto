@@ -66,12 +66,12 @@ requirejs(['server'], function(Server) {
   });
   app.post('/sync', function(req, res) {
     var params = req.body;
-    server.sync(params.gameId, params.gameState);
+    server.sync(params.gameId, params.userId);
     res.send(200);
   });
   app.post('/syncack', function(req, res) {
     var params = req.body;
-    server.syncAck(params.gameId, params.gameState);
+    server.syncAck(params.gameId, params.userId, params.gameState);
     res.send(200);
   });
 

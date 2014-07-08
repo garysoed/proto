@@ -192,12 +192,18 @@ requirejs(
       });
 
       QUnit.test('good', function(assert) {
+        var userId = 'user Id';
+        var otherUser1Id = 'other user 1 Id';
+        var otherUser2Id = 'other user 2 Id';
         var session = this.server.sessions_[this.gameId];
         session.queueEvent = mock.mockFunction('queueEvent');
+        session.getUsers = function() {
+          return [userId, otherUser1Id, otherUser2Id];
+        };
 
-        this.server.sync(this.gameId);
+        this.server.sync(this.gameId, userId);
 
-        mock.verify(session.queueEvent)(Events.Server.SYNC, {});
+        mock.verify(session.queueEvent)(Events.Server.SYNC, {}, [otherUser1Id, otherUser2Id]);
       });
 
       QUnit.test('non existent game ID', function(assert) {
@@ -219,13 +225,20 @@ requirejs(
       });
 
       QUnit.test('good', function(assert) {
+        var userId = 'user Id';
+        var otherUser1Id = 'other user 1 Id';
+        var otherUser2Id = 'other user 2 Id';
         var session = this.server.sessions_[this.gameId];
         session.queueEvent = mock.mockFunction('queueEvent');
+        session.getUsers = function() {
+          return [userId, otherUser1Id, otherUser2Id];
+        };
 
         var gameState = {players: 1};
-        this.server.syncAck(this.gameId, gameState);
+        this.server.syncAck(this.gameId, userId, gameState);
 
-        mock.verify(session.queueEvent)(Events.Server.SYNC_ACK, {gameState: gameState});
+        mock.verify(session.queueEvent)(
+            Events.Server.SYNC_ACK, {gameState: gameState}, [otherUser1Id, otherUser2Id]);
       });
 
       QUnit.test('non existent game ID', function(assert) {

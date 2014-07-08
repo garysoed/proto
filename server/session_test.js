@@ -88,6 +88,26 @@ requirejs(['mock', 'session', 'sseevent'], function(mock, Session, SseEvent) {
         'Queued SSE events are as expected for userId2');
   });
 
+  QUnit.test('custom user list', function(assert) {
+    var type = 'event Type';
+    var data = {msg: 'message'};
+
+    var eventListener = mock.mockFunction('eventListener');
+
+    this.session.on(Session.Events.QUEUED, eventListener);
+
+    var expectedSseEvent = new SseEvent(0, type, data);
+    
+    this.session.queueEvent(type, data, [this.userId1]);
+    mock.verify(eventListener)(this.userId1, expectedSseEvent);
+    mock.verify(eventListener, 0)(this.userId2, expectedSseEvent);
+
+    assert.deepEqual(
+        this.session.users_[this.userId1], 
+        [expectedSseEvent],
+        'Queued SSE events are as expected for userId1');
+  });
+
 
   /**
    * Tests session.getEvents.

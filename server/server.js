@@ -58,7 +58,7 @@ requirejs.define(
        * 
        * @param {string} gameId The game ID to open the stream for.
        * @param {string} userId The user ID to open the stream for.
-       * @param {express:Response} res The Response object.
+       * @param {modele:express.Response} res The Response object.
        */
       Server.prototype.stream = function(gameId, userId, res) {
         if (!this.sessions_[gameId]) {
@@ -103,27 +103,35 @@ requirejs.define(
        * Sends a message to all participants of the given game to sync up.
        * 
        * @param {string} gameId ID of the game to be synced.
+       * @param {string} userId ID of the user requesting the sync.
        */
-      Server.prototype.sync = function(gameId) {
+      Server.prototype.sync = function(gameId, userId) {
         if (!this.sessions_[gameId]) {
           throw 'Game ID [' + gameId + '] does not exist';
         }
 
-        this.sessions_[gameId].queueEvent(Events.Server.SYNC, {});
+        var userIds = this.sessions_[gameId].getUsers().filter(function(id) {
+          return id !== userId;
+        });
+        this.sessions_[gameId].queueEvent(Events.Server.SYNC, {}, userIds);
       };
 
       /**
        * Sends the current game state to all participants of the given game.
        * 
        * @param {string} gameId ID of the game to send the game state to.
+       * @param {string} userId ID of the user that sent the ack.
        * @param {!Object} gameState The game state to be broadcast.
        */
-      Server.prototype.syncAck = function(gameId, gameState) {
+      Server.prototype.syncAck = function(gameId, userId, gameState) {
         if (!this.sessions_[gameId]) {
           throw 'Game ID [' + gameId + '] does not exist';
         }
 
-        this.sessions_[gameId].queueEvent(Events.Server.SYNC_ACK, {gameState: gameState});
+        var userIds = this.sessions_[gameId].getUsers().filter(function(id) {
+          return id !== userId;
+        });
+        this.sessions_[gameId].queueEvent(Events.Server.SYNC_ACK, {gameState: gameState}, userIds);
       };
 
       return Server;
