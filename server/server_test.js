@@ -54,9 +54,10 @@ requirejs(
       });
 
       QUnit.test('non existing game ID', function(assert) {
+        var gameId = 'non existing game Id';
         assert.throws(
-            function() { this.server.join('non existing game Id', 'userId'); },
-            /Game ID/,
+            function() { this.server.join(gameId, 'userId'); },
+            gameId,
             'Throws error for non existing gameId');
       });
 
@@ -174,9 +175,10 @@ requirejs(
       });
 
       QUnit.test('non existent game ID', function(assert) {
+        var gameId = 'non existing game Id';
         assert.throws(
-            function() { this.server.msg('non existent game ID', 'message'); },
-            /Game ID/,
+            function() { this.server.msg(gameId, 'message'); },
+            gameId,
             'Throws error when Game ID does not exist');
       });
 
@@ -207,9 +209,10 @@ requirejs(
       });
 
       QUnit.test('non existent game ID', function(assert) {
+        var gameId = 'non existing game Id';
         assert.throws(
-            function() { this.server.sync('non existent game ID'); },
-            /Game ID/,
+            function() { this.server.sync(gameId); },
+            gameId,
             'Throws error when Game ID does not exist');
       });
 
@@ -242,9 +245,10 @@ requirejs(
       });
 
       QUnit.test('non existent game ID', function(assert) {
+        var gameId = 'non existing game Id';
         assert.throws(
-            function() { this.server.syncAck('non existent game ID', 'message'); },
-            /Game ID/,
+            function() { this.server.syncAck(gameId, 'message'); },
+            gameId,
             'Throws error when Game ID does not exist');
       });
 });

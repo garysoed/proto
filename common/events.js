@@ -1,4 +1,3 @@
-/** @module common/events */
 if (typeof define !== 'function') {
   var define = require('amdefine')(module); 
 }
@@ -12,11 +11,12 @@ define(function() {
    * @readonly
    */
   Events.Server = {
+    ERROR: 'Proto.error',
     MESSAGE: 'Proto.message',
     PLAYER_ADDED: 'Proto.player_added',
     PLAYER_REMOVED: 'Proto.player_removed',
     SYNC: 'Proto.sync',
-    SYNC_ACK: 'Proto.sync_ack'
+    SYNC_ACK: 'Proto.sync_ack',
   };
 
   return Events;

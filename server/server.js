@@ -1,9 +1,8 @@
-/** @module server */
 var requirejs = require('requirejs');
 requirejs.define(
     'server', 
-    ['util', 'session', 'sseevent', 'common/events'], 
-    function(util, Session, SseEvent, Events) {
+    ['util', 'session', 'sseevent', 'common/events', 'common/clienterror'], 
+    function(util, Session, SseEvent, Events, ClientError) {
 
       /**
        * The server class.
@@ -33,7 +32,7 @@ requirejs.define(
        */
       Server.prototype.join = function(gameId, userId) {
         if (!this.sessions_[gameId]) {
-          throw 'Game ID [' + gameId + '] does not exist';
+          throw new ClientError(ClientError.Code.UNRECOGNIZED_GAME_ID, gameId);
         }
 
         this.sessions_[gameId].addUser(userId);
@@ -62,7 +61,7 @@ requirejs.define(
        */
       Server.prototype.stream = function(gameId, userId, res) {
         if (!this.sessions_[gameId]) {
-          throw 'Game ID [' + gameId + '] does not exist';
+          throw new ClientError(ClientError.Code.UNRECOGNIZED_GAME_ID, gameId);
         }
 
         var session = this.sessions_[gameId];
@@ -93,7 +92,7 @@ requirejs.define(
        */
       Server.prototype.msg = function(gameId, msg) {
         if (!this.sessions_[gameId]) {
-          throw 'Game ID [' + gameId + '] does not exist';
+          throw new ClientError(ClientError.Code.UNRECOGNIZED_GAME_ID, gameId);
         }
 
         this.sessions_[gameId].queueEvent(Events.Server.MESSAGE, {msg: msg});
@@ -107,7 +106,7 @@ requirejs.define(
        */
       Server.prototype.sync = function(gameId, userId) {
         if (!this.sessions_[gameId]) {
-          throw 'Game ID [' + gameId + '] does not exist';
+          throw new ClientError(ClientError.Code.UNRECOGNIZED_GAME_ID, gameId);
         }
 
         var userIds = this.sessions_[gameId].getUsers().filter(function(id) {
@@ -125,7 +124,7 @@ requirejs.define(
        */
       Server.prototype.syncAck = function(gameId, userId, gameState) {
         if (!this.sessions_[gameId]) {
-          throw 'Game ID [' + gameId + '] does not exist';
+          throw new ClientError(ClientError.Code.UNRECOGNIZED_GAME_ID, gameId);
         }
 
         var userIds = this.sessions_[gameId].getUsers().filter(function(id) {

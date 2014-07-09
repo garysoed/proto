@@ -138,9 +138,10 @@ requirejs(['mock', 'session', 'sseevent'], function(mock, Session, SseEvent) {
   });
 
   QUnit.test('non existing user', function(assert) {
+    var userId = 'Non existing User ID';
     assert.throws(
-        function() { this.session.getEvents('Non existing User ID'); },
-        /User ID/,
+        function() { this.session.getEvents(userId); },
+        userId,
         'Throws exception when user Id has not been added');
   });
 
@@ -173,8 +174,9 @@ requirejs(['mock', 'session', 'sseevent'], function(mock, Session, SseEvent) {
   });
 
   QUnit.test('non existing user', function(assert) {
+    var userId = 'Non existing User ID';
     assert.throws(
-        function() { this.session.clearEvents('Non existing User ID'); },
+        function() { this.session.clearEvents(userId); },
         /User ID/,
         'Throws exception when user Id has not been added');
   });

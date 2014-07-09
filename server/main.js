@@ -12,7 +12,7 @@ requirejs.config(config);
 
 console.log(__dirname);
 
-requirejs(['server'], function(Server) {
+requirejs(['server', 'common/uris', 'common/clienterror'], function(Server, Uris, ClientError) {
   var server = new Server();
 
   // Register middlewares.
@@ -24,32 +24,26 @@ requirejs(['server'], function(Server) {
   app.use('/common', express.static(__dirname + '/../common'));
   app.use('/web', express.static(__dirname + '/../web'));
 
-  // Register error handling.
-  app.use(function(err, req, res, next) {
-    console.error(err.stack);
-    res.send(400, err.stack);
-  });
-
   app.engine('html', ejs.renderFile);
 
   // Handle requests.
   app.get('/', function(req, res) {
     res.render(__dirname + '/../web/main.html');
   });
-  app.post('/create', function(req, res) {
+  app.post('/' + Uris.Request.CREATE, function(req, res) {
     res.send(server.create());
   });
-  app.post('/join', function(req, res) {
+  app.post('/' + Uris.Request.JOIN, function(req, res, next) {
     var params = req.body;
     server.join(params.gameId, params.userId);
     res.send(200);
   });
-  app.post('/leave', function(req, res) {
+  app.post('/' + Uris.Request.LEAVE, function(req, res) {
     var params = req.body;
     server.leave(params.gameId, params.userId);
     res.send(200);
   });
-  app.get('/stream', function(req, res) {
+  app.get('/' + Uris.Request.STREAM, function(req, res) {
     res.set({
       'Content-Type': 'text/event-stream',
       'Cache-Control': 'no-cache',
@@ -59,20 +53,33 @@ requirejs(['server'], function(Server) {
     var params = req.query;
     server.stream(params.gameId, params.userId, res);
   });
-  app.post('/msg', function(req, res) {
+  app.post('/' + Uris.Request.MESSAGE, function(req, res) {
     var params = req.body;
     server.msg(params.gameId, params.msg);
     res.send(200);
   });
-  app.post('/sync', function(req, res) {
+  app.post('/' + Uris.Request.SYNC, function(req, res) {
     var params = req.body;
     server.sync(params.gameId, params.userId);
     res.send(200);
   });
-  app.post('/syncack', function(req, res) {
+  app.post('/' + Uris.Request.SYNC_ACK, function(req, res) {
     var params = req.body;
     server.syncAck(params.gameId, params.userId, params.gameState);
     res.send(200);
+  });
+  app.get('*', function(req, res, next) {
+    res.send(404);
+  });
+
+  // Register error handling.
+  app.use(function(err, req, res, next) {
+    if (err instanceof ClientError) {
+      console.dir(err.stack);
+      res.send(400, {code: err.code, message: err.message, debug: err.stack});
+    } else {
+      res.send(500, {code: 500, message: err.message});
+    }
   });
 
 
@@ -81,5 +88,4 @@ requirejs(['server'], function(Server) {
   app.listen(port, function() {
     console.log('Listening on ' + port);
   });
-
 });
