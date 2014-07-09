@@ -78,7 +78,7 @@ requirejs(['server', 'common/uris', 'common/clienterror'], function(Server, Uris
       console.dir(err.stack);
       res.send(400, {code: err.code, message: err.message, debug: err.stack});
     } else {
-      res.send(500, {code: 500, message: err.message});
+      res.send(500, {code: 500, message: err.message, debug: err.stack});
     }
   });
 

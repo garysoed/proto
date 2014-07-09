@@ -171,7 +171,7 @@ requirejs(
         var msg = {msg: 'Message to be sent'};
         this.server.msg(this.gameId, msg);
 
-        mock.verify(session.queueEvent)(Events.Server.MESSAGE, {msg: msg});
+        mock.verify(session.queueEvent)(Events.Server.MESSAGE, msg);
       });
 
       QUnit.test('non existent game ID', function(assert) {

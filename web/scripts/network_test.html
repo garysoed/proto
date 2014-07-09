@@ -294,9 +294,9 @@
               var userId = 'New User ID';
               var sseEvent = {
                 data: JSON.stringify([
-                  {id: 1, type: Events.Server.MESSAGE, data: {msg: {type: messageType1, data: data1}}},
-                  {id: 2, type: Events.Server.MESSAGE, data: {msg: {type: messageType2, data: data2}}},
-                  {id: 1, type: Events.Server.MESSAGE, data: {msg: {type: messageType1, data: data1}}}
+                  {id: 1, type: Events.Server.MESSAGE, data: {type: messageType1, data: data1}},
+                  {id: 2, type: Events.Server.MESSAGE, data: {type: messageType2, data: data2}},
+                  {id: 1, type: Events.Server.MESSAGE, data: {type: messageType1, data: data1}}
                 ])
               };
               callbackSaver.arg(sseEvent);

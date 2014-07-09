@@ -163,8 +163,7 @@ define(['jquery', 'common/events', 'common/pretty'], function($, Events) {
   };
 
   Network.prototype.handleMessage_ = function(event) {
-    // TODO: Make this shallower.
-    var data = event.data.msg;
+    var data = event.data;
     $(this).trigger(data.type, data.data);
     $(this).trigger(Network.Events.MESSAGE, data);
   };

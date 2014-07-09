@@ -95,7 +95,7 @@ requirejs.define(
           throw new ClientError(ClientError.Code.UNRECOGNIZED_GAME_ID, gameId);
         }
 
-        this.sessions_[gameId].queueEvent(Events.Server.MESSAGE, {msg: msg});
+        this.sessions_[gameId].queueEvent(Events.Server.MESSAGE, msg);
       };
 
       /**

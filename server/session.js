@@ -53,7 +53,11 @@ requirejs.define(
        * @return {string[]} User IDs registered with this session.
        */
       Session.prototype.getUsers = function() {
-        return this.users_;
+        var users = [];
+        for (var user in this.users_) {
+          users.push(user);
+        }
+        return users;
       };
 
       /**

@@ -58,6 +58,6 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-jsdoc');
 
   // Register default tasks.
-  grunt.registerTask('check', ['jshint', 'node-qunit', 'qunit']);
+  grunt.registerTask('check', ['node-qunit', 'qunit', 'jshint']);
   grunt.registerTask('default', ['check']);
 };

@@ -26,6 +26,24 @@ requirejs(['mock', 'session', 'sseevent'], function(mock, Session, SseEvent) {
 
 
   /**
+   * Tests session.getUsers.
+   */
+  QUnit.module('session.getUsers', {
+    setup: function() {
+      this.session = new Session();
+    }
+  });
+
+  QUnit.test('good', function(assert) {
+    var userId1 = 'User ID 1';
+    var userId2 = 'User ID 2';
+    this.session.addUser(userId1);
+    this.session.addUser(userId2);
+    assert.deepEqual([userId1, userId2], this.session.getUsers());
+  });
+
+
+  /**
    * Tests session.removeUser.
    */
   QUnit.module('session.removeUser', {
@@ -93,7 +111,6 @@ requirejs(['mock', 'session', 'sseevent'], function(mock, Session, SseEvent) {
     var data = {msg: 'message'};
 
     var eventListener = mock.mockFunction('eventListener');
-
     this.session.on(Session.Events.QUEUED, eventListener);
 
     var expectedSseEvent = new SseEvent(0, type, data);
