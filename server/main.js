@@ -10,8 +10,6 @@ var requirejs = require('requirejs');
 var config = require('./config');
 requirejs.config(config);
 
-console.log(__dirname);
-
 requirejs(['server', 'common/uris', 'common/clienterror'], function(Server, Uris, ClientError) {
   var server = new Server();
 

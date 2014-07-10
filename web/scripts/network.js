@@ -1,6 +1,6 @@
 /** @module web */
 
-define(['jquery', 'common/events', 'common/pretty'], function($, Events) {
+define(['jquery', 'common/events', 'common/uris', 'common/pretty'], function($, Events, Uris) {
 
   /**
    * A component that is responsible for communicating with the server.
@@ -11,13 +11,9 @@ define(['jquery', 'common/events', 'common/pretty'], function($, Events) {
    */ 
   function Network(userId, gameStateProvider) {
     this.userId_ = userId;
-
     this.gameId_ = null;
-
     this.gameStateProvider_ = gameStateProvider;
-
     this.source_ = null;
-
     this.lastEventId_ = -1;
   }
 
@@ -39,7 +35,7 @@ define(['jquery', 'common/events', 'common/pretty'], function($, Events) {
    */
   Network.prototype.create = function() {
     // TODO sign out if there's a current game going on.
-    $.post('create')
+    $.post(Uris.Request.CREATE)
         .done(function(data) {
           this.gameId_ = data.gameId;
           this.join(data.gameId);
@@ -53,7 +49,7 @@ define(['jquery', 'common/events', 'common/pretty'], function($, Events) {
    */
   Network.prototype.join = function(gameId) {
     // TODO sign out if there's a current game going on.
-    $.post('join', {gameId: gameId, userId: this.userId_}).done(function() {
+    $.post(Uris.Request.JOIN, {gameId: gameId, userId: this.userId_}).done(function() {
       this.gameId_ = gameId;
       this.startStream_();
       this.sync_();
@@ -66,7 +62,7 @@ define(['jquery', 'common/events', 'common/pretty'], function($, Events) {
    */
   Network.prototype.leave = function() {
     if (this.gameId_) {
-      $.post('leave', {gameId: this.gameId_, userId: this.userId_});
+      $.post(Uris.Request.LEAVE, {gameId: this.gameId_, userId: this.userId_});
     }
   };
 
@@ -77,7 +73,7 @@ define(['jquery', 'common/events', 'common/pretty'], function($, Events) {
    * @param {!Object} data Data to be sent to the server.
    */
   Network.prototype.send = function(type, data) {
-    $.post('msg', {gameId: this.gameId_, msg: {type: type, data: data}});
+    $.post(Uris.Request.MESSAGE, {gameId: this.gameId_, msg: {type: type, data: data}});
   };
 
   /**
@@ -85,7 +81,8 @@ define(['jquery', 'common/events', 'common/pretty'], function($, Events) {
    * @private
    */
   Network.prototype.startStream_ = function() {
-    this.source_ = new EventSource('stream?userId=' + this.userId_ + '&gameId=' + this.gameId_);
+    this.source_ = new EventSource(
+        Uris.Request.STREAM + '?userId=' + this.userId_ + '&gameId=' + this.gameId_);
     this.source_.addEventListener('message', this.handleEvents_.bind(this));
   };
 
@@ -109,7 +106,7 @@ define(['jquery', 'common/events', 'common/pretty'], function($, Events) {
    * @private
    */
   Network.prototype.sync_ = function() {
-    $.post('sync', {gameId: this.gameId_, userId: this.userId_});
+    $.post(Uris.Request.SYNC, {gameId: this.gameId_, userId: this.userId_});
   };
 
   /**
@@ -119,7 +116,7 @@ define(['jquery', 'common/events', 'common/pretty'], function($, Events) {
    */
   Network.prototype.syncAck_ = function() {
     $.post(
-        'syncack', 
+        Uris.Request.SYNC_ACK, 
         {gameId: this.gameId_, userId: this.userId_, gameState: this.gameStateProvider_()});
   };
 

@@ -29,8 +29,8 @@
     QUnit.init();
     QUnit.stop();
     require(['config'], function() {
-      require(['network', 'jquery', 'mock', 'common/events'], 
-          function(Network, $, Mock, Events) {
+      require(['network', 'jquery', 'mock', 'common/events', 'common/uris'], 
+          function(Network, $, Mock, Events, Uris) {
 
             /**
              * Tests for network.create.
@@ -51,19 +51,19 @@
             QUnit.test('good', function(assert) {
               var gameId = 'Game ID';
               var mockDoneCreate = Mock.mockFunction('$.post("create").done');
-              Mock.when(this.mockPost)('create').doReturn({done: mockDoneCreate});
+              Mock.when(this.mockPost)(Uris.Request.CREATE).doReturn({done: mockDoneCreate});
               
               var mockDoneJoin = Mock.mockFunction('$.post("join").done');
-              Mock.when(this.mockPost)('join').doReturn({done: mockDoneJoin});
+              Mock.when(this.mockPost)(Uris.Request.JOIN).doReturn({done: mockDoneJoin});
 
               this.network.create();
 
               var callbackSaver = Mock.saver();
-              Mock.verify(this.mockPost)('create');
+              Mock.verify(this.mockPost)(Uris.Request.CREATE);
               Mock.verify(mockDoneCreate)(callbackSaver);
               callbackSaver.arg({gameId: gameId});
 
-              Mock.verify(this.mockPost)('join', {userId: this.userId, gameId: gameId});
+              Mock.verify(this.mockPost)(Uris.Request.JOIN, {userId: this.userId, gameId: gameId});
             });
 
 
@@ -95,12 +95,12 @@
               $(this.network).bind(Network.Events.JOIN, mockEventHandler);
 
               this.network.join(gameId);
-              Mock.verify(this.mockPost)('join', {userId: this.userId, gameId: gameId});
+              Mock.verify(this.mockPost)(Uris.Request.JOIN, {userId: this.userId, gameId: gameId});
               Mock.verify(mockDoneJoin)(callbackSaver);
 
               // Successful join.
               callbackSaver.arg();
-              Mock.verify(this.mockPost)('sync', {gameId: gameId, userId: this.userId});
+              Mock.verify(this.mockPost)(Uris.Request.SYNC, {gameId: gameId, userId: this.userId});
               Mock.verify(mockEventHandler)(Mock.instanceOf($.Event, '$.Event'), {gameId: gameId});
             });
 
@@ -129,7 +129,7 @@
               this.network.join(gameId);
 
               this.network.leave();
-              Mock.verify(this.mockPost)('leave', {gameId: gameId, userId: this.userId});
+              Mock.verify(this.mockPost)(Uris.Request.LEAVE, {gameId: gameId, userId: this.userId});
             });
 
 
@@ -157,7 +157,7 @@
               var data = {data: 'data'};
               this.network.send(type, data);
               Mock.verify(this.mockPost)(
-                  'msg', 
+                  Uris.Request.MESSAGE, 
                   {gameId: this.gameId, msg: {type: type, data:data}});
             });
 
@@ -176,7 +176,7 @@
 
                 var mockDoneJoin = Mock.mockFunction('$.post("join").done');
                 Mock.when(mockDoneJoin).do(function(callback) { callback(); });
-                Mock.when(this.mockPost)('join').doReturn({done: mockDoneJoin});
+                Mock.when(this.mockPost)(Uris.Request.JOIN).doReturn({done: mockDoneJoin});
 
                 this.userId = 'User ID';
                 this.gameId = 'Game ID';
@@ -199,7 +199,8 @@
               // Send a sync event from the server. The Network should send the server a syncack.
               callbackSaver.arg({data: JSON.stringify([{id: 1, type: Events.Server.SYNC}])});
               Mock.verify(this.mockPost)(
-                  'syncack', {gameState: gameState, gameId: this.gameId, userId: this.userId});
+                  Uris.Request.SYNC_ACK, 
+                  {gameState: gameState, gameId: this.gameId, userId: this.userId});
             });
 
             QUnit.test('handle syncack', function(assert) {
