@@ -4,7 +4,11 @@
     <script data-main="scripts/config" src="scripts/require.js"></script>
     <script>
       require(['config'], function() {
-        require(['polymer/platform'], function() {});
+        require(['jquery', 'game', 'polymer/platform'], function($, Game) {
+          $(window).unload(function() {
+            Game.leave();
+          });
+        });
       });
     </script>
     <link rel="import" href="web/signin.html">
