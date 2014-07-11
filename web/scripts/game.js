@@ -37,6 +37,11 @@ define(['jquery', 'network'], function($, Network) {
 
   Game = {};
 
+  /**
+   * Events that the Game can trigger.
+   *
+   * @enum {string}
+   */
   Game.Events = {
     JOIN: 'Game.Events.join',
     NEW_GAME_STATE: 'Game.Events.new_game_state',
@@ -44,6 +49,11 @@ define(['jquery', 'network'], function($, Network) {
     PLAYER_REMOVED: 'Game.Events.player_removed'
   };
 
+  /**
+   * Sign into the game.
+   *
+   * @param {string} userId The User ID to sign in.
+   */
   Game.signIn = function(userId) {
     if (network) {
       network.leave();

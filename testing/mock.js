@@ -4,7 +4,7 @@ if (typeof define !== 'function') {
   var define = require('amdefine')(module); 
 }
 
-define(['common/pretty'], function(pretty) {
+define(['common/pretty'], function(Pretty) {
   function toArgArray(argumentsObj) {
     return Array.prototype.slice.call(argumentsObj);
   }
@@ -153,13 +153,19 @@ define(['common/pretty'], function(pretty) {
       if (matchingExpectations.length > 0) {
         return matchingExpectations[matchingExpectations.length - 1].run(args);
       }
-      return;
     };
     f.interactions = [];
     f.functionName = name;
     f.expectations = [];
-
     return f;
+  };
+
+  Mock.spy = function(scope, name) {
+    var handler = scope[name];
+    var mock = Mock.mockFunction(name);
+    Mock.when(mock).run(handler);
+    Mock.override(scope, name, mock);
+    return mock;
   };
 
   /**
@@ -185,20 +191,30 @@ define(['common/pretty'], function(pretty) {
 
       var result = matches.length === times;
       var msg = result ? 
-          '{0} call(s) for {1p}({2})'.format(times, mock.functionName, args) :
-          '{0} call(s) for {1p}({2})\nOther interactions:\n{3}'
-              .format(times, mock.functionName, args, mock.interactions);
+          '{0} call(s) for {1}({2})'.format(times, mock.functionName, Pretty.prettify(args)) :
+          '{0} call(s) for {1}({2})\nOther interactions:\n{3}'.formatPretty(
+              times, 
+              mock.functionName, 
+              Pretty.prettify(args), 
+              Pretty.prettify(mock.interactions));
       QUnit.push(matches.length === times, matches.length, times, msg);
     };
   };
 
+  /**
+   * Verifies the mock for any kind of interaction. Use this if you don't care about the number of
+   * arguments passed to the mock
+   *
+   * @param  {!Function} mock The mock to be verified.
+   * @param  {number=} opt_times The number of times the mock is expected to be called.
+   */
   Mock.verifyAnyInteraction = function(mock, opt_times) {
     var times = (opt_times === undefined) ? 1 : opt_times;
     QUnit.push(
         mock.interactions.length === times,
         mock.interactions.length,
         times, 
-        '{0} call(s) for {1p}(...*)'.format(times, mock.functionName));
+        '{0} call(s) for {1}(...*)'.format(times, mock.functionName));
   };
 
   var overrides = [];

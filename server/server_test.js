@@ -37,14 +37,13 @@ requirejs(
         },
         teardown: function() {
           Date.now = this.oldDateNow;
+          Mock.teardown();
         }
       });
 
       QUnit.test('good', function(assert) {
-        var mockAddUser = mock.mockFunction('addUser');
-        var mockQueueEvent = mock.mockFunction('queueEvent');
-        this.server.sessions_[this.gameId].addUser = mockAddUser;
-        this.server.sessions_[this.gameId].queueEvent = mockQueueEvent;
+        var mockAddUser = Mock.spy(this.server.sessions_[this.gameId], 'addUser');
+        var mockQueueEvent = Mock.spy(this.server.sessions_[this.gameId], 'queueEvent');
 
         var userId = 'User ID';
         this.server.join(this.gameId, userId);

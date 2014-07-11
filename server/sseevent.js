@@ -1,6 +1,6 @@
 var requirejs = require('requirejs');
 
-requirejs.define('sseevent', ['common/events', 'common/pretty'], function(Events) {
+requirejs.define('sseevent', ['common/events', 'common/pretty'], function(Events, Pretty) {
   
   /**
    * Constructor for SSE Event.
@@ -36,7 +36,7 @@ requirejs.define('sseevent', ['common/events', 'common/pretty'], function(Events
       var eventObjs = events.map(function(event) {
         return {id: event.id_, type: event.type_, data: event.data_};
       });
-      return 'id: {0}\ndata: {1p}\n\n'.format(id, JSON.stringify(eventObjs));
+      return 'id: {0}\ndata: {1}\n\n'.format(Pretty.prettify(id), JSON.stringify(eventObjs));
     }
   };
 

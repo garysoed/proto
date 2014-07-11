@@ -10,7 +10,7 @@ define(function() {
           .replace(/\t/g, '\\t');
     };
 
-    var pretty = function(value) {
+    var prettify = function(value) {
       switch (typeof value) {
         case 'number':
           return value;
@@ -23,7 +23,7 @@ define(function() {
           if (value instanceof Array) {
             return value
                 .map(function(entry) {
-                  return pretty(entry);
+                  return prettify(entry);
                 })
                 .join(',');
           } else if (value.toPrettyString instanceof Function) {
@@ -35,20 +35,18 @@ define(function() {
 
     /**
      * Replace placeholders in the string with the given argument objects. Placeholders are numbers
-     * surrounded by braces, such as {0}, {1}, {2}. The arguments will be pretty printed, unless you
-     * specify a p in the placeholder. For example: {1p}.
+     * surrounded by braces, such as {0}, {1}, {2}.
      * 
      * @param  {...*} var_args Any objects to replace the placeholders.
-     * @return {string} The pretty printed string.
+     * @return {string} The formatted string.
      */
     String.prototype.format = function(var_args) {
       var args = arguments;
-      return this.replace(/{(\d+)(p?)}/g, function(match, number, isPretty) { 
-        return typeof args[number] != 'undefined' ? 
-            (isPretty ? args[number] : pretty(args[number])) : match;
+      return this.replace(/{(\d+)}/g, function(match, number) { 
+        return typeof args[number] != 'undefined' ? args[number] : match;
       });
     };
 
-    return {pretty: pretty};
+    return {prettify: prettify};
   }
 });
