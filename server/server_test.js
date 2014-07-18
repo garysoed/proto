@@ -4,6 +4,7 @@ requirejs.config(config);
 requirejs(
     ['mock', 'util', 'server', 'session', 'sseevent', 'common/events'], 
     function(mock, util, Server, Session, SseEvent, Events) {
+
       /**
        * Tests server.create.
        */
@@ -37,7 +38,6 @@ requirejs(
         },
         teardown: function() {
           Date.now = this.oldDateNow;
-          Mock.teardown();
         }
       });
 

@@ -4,7 +4,8 @@ module.exports = function(grunt) {
     pkg: grunt.file.readJSON('package.json'),
     'jshint': {
       options: {
-        proto: true
+        proto: true,
+        extract: 'auto'
       },
       all: [
         '**/*.js', 

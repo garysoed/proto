@@ -131,7 +131,7 @@
                 Mock.when(mockDoneJoin).do(function(callback) { callback(); });
                 this.network.join(this.gameId);
               }
-            })
+            });
 
             QUnit.test('good', function(assert) {
               var type = 'Message Type';

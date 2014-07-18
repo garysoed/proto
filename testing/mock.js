@@ -5,6 +5,15 @@ if (typeof define !== 'function') {
 }
 
 define(['common/pretty'], function(Pretty) {
+  if (typeof Function.prototype.bind !== 'function') {
+    Function.prototype.bind = function(scope) {
+      var func = this;
+      return function() {
+        return func.apply(scope, arguments);
+      };
+    };
+  }
+
   function toArgArray(argumentsObj) {
     return Array.prototype.slice.call(argumentsObj);
   }
@@ -160,7 +169,7 @@ define(['common/pretty'], function(Pretty) {
   };
 
   Mock.spy = function(scope, name) {
-    var handler = scope[name];
+    var handler = scope[name].bind(scope);
     var mock = Mock.mockFunction(name);
     Mock.when(mock).do(handler);
     Mock.override(scope, name, mock);
