@@ -1,0 +1,181 @@
+.pb-card {
+  perspective: 1000;
+  -webkit-perspective: 1000;
+  -moz-perspective: 1000;
+  cursor: pointer;
+  position: relative;
+}
+.pb-card .face {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  -moz-backface-visibility: hidden;
+  border: 1px solid black;
+}
+.pb-card .pad {
+  visibility: hidden;
+}
+.pb-card .front {
+  transform: rotateY(-180deg);
+  -webkit-transform: rotateY(-180deg);
+  -moz-transform: rotateY(-180deg);
+  transform-style: preserve-3d;
+  -webkit-transform-style: preserve-3d;
+  -moz-transform-style: preserve-3d;
+  transition-duration: 0.5s;
+  -webkit-transition-duration: 0.5s;
+  -moz-transition-duration: 0.5s;
+  transition-property: transform;
+  -webkit-transition-property: transform;
+  -moz-transition-property: transform;
+}
+.pb-card .back {
+  transform: rotateY(0);
+  -webkit-transform: rotateY(0);
+  -moz-transform: rotateY(0);
+  transform-style: preserve-3d;
+  -webkit-transform-style: preserve-3d;
+  -moz-transform-style: preserve-3d;
+  transition-duration: 0.5s;
+  -webkit-transition-duration: 0.5s;
+  -moz-transition-duration: 0.5s;
+  transition-property: transform;
+  -webkit-transition-property: transform;
+  -moz-transition-property: transform;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+.pb-card.showFront .front {
+  transform: rotateY(0deg);
+  -webkit-transform: rotateY(0deg);
+  -moz-transform: rotateY(0deg);
+  transform-style: preserve-3d;
+  -webkit-transform-style: preserve-3d;
+  -moz-transform-style: preserve-3d;
+  transition-duration: 0.5s;
+  -webkit-transition-duration: 0.5s;
+  -moz-transition-duration: 0.5s;
+  transition-property: transform;
+  -webkit-transition-property: transform;
+  -moz-transition-property: transform;
+}
+.pb-card.showFront .back {
+  transform: rotateY(180deg);
+  -webkit-transform: rotateY(180deg);
+  -moz-transform: rotateY(180deg);
+  transform-style: preserve-3d;
+  -webkit-transform-style: preserve-3d;
+  -moz-transform-style: preserve-3d;
+  transition-duration: 0.5s;
+  -webkit-transition-duration: 0.5s;
+  -moz-transition-duration: 0.5s;
+  transition-property: transform;
+  -webkit-transition-property: transform;
+  -moz-transition-property: transform;
+}
+
+
+
+.pb-standard-card.face {
+  height: 380px;
+  padding: 10px;
+  width: 300px;
+}
+.pb-standard-card.front {
+  display: -webkit-flex;
+  display: flex;
+  background-color: white;
+  font-family: Helvetica, Arial, sans-serif;
+  font-size: 20px;
+}
+.pb-standard-card.front.heart,
+.pb-standard-card.front.diamond {
+  color: red;
+}
+.pb-standard-card.front.heart .symbol,
+.pb-standard-card.front.diamond .symbol {
+  fill: red;
+}
+.pb-standard-card.front .symbol {
+  width: 30px;
+  height: 20px;
+  display: inline-block;
+}
+.pb-standard-card.front .value {
+  width: 30px;
+  height: 20px;
+  margin-bottom: 10px;
+  text-align: center;
+  text-transform: uppercase;
+}
+.pb-standard-card.front .main {
+  flex: 1;
+  -webkit-flex: 1;
+  -moz-flex: 1;
+  display: -webkit-flex;
+  display: flex;
+  align-items: center;
+  -webkit-align-items: center;
+}
+.pb-standard-card.front .symbols {
+  flex: 1;
+  -webkit-flex: 1;
+  -moz-flex: 1;
+  display: -webkit-flex;
+  display: flex;
+  align-items: center;
+  -webkit-align-items: center;
+}
+.pb-standard-card.front .symbols > div {
+  display: -webkit-flex;
+  display: flex;
+  flex-direction: column;
+  -webkit-flex-direction: column;
+  -moz-flex-direction: column;
+  align-items: center;
+  -webkit-align-items: center;
+  flex: 1;
+  -webkit-flex: 1;
+  -moz-flex: 1;
+}
+.pb-standard-card.front .symbols.value-a .symbol {
+  width: 50px;
+  height: 50px;
+}
+.pb-standard-card.front .symbols.value-2 .symbol,
+.pb-standard-card.front .symbols.value-3 .symbol,
+.pb-standard-card.front .symbols.value-4 .symbol,
+.pb-standard-card.front .symbols.value-5 .symbol,
+.pb-standard-card.front .symbols.value-6 .symbol,
+.pb-standard-card.front .symbols.value-7 .symbol,
+.pb-standard-card.front .symbols.value-8 .symbol,
+.pb-standard-card.front .symbols.value-9 .symbol,
+.pb-standard-card.front .symbols.value-10 .symbol {
+  width: 37.5px;
+  height: 37.5px;
+  margin-bottom: 50px;
+}
+.pb-standard-card.front .symbols.value-5 .symbol {
+  margin-bottom: 150px;
+}
+.pb-standard-card.front .symbols .value-letter {
+  text-transform: uppercase;
+  font-size: 400%;
+}
+.pb-standard-card.front .symbols .symbol:last-child {
+  margin-bottom: 0;
+}
+.pb-standard-card.front .margin-right {
+  position: relative;
+  width: 30px;
+}
+.pb-standard-card.front .margin-right .container {
+  transform: rotateZ(180deg);
+  -webkit-transform: rotateZ(180deg);
+  -moz-transform: rotateZ(180deg);
+  position: absolute;
+  bottom: 0;
+}
+.pb-standard-card.back {
+  background-color: green;
+}

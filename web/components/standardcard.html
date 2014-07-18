@@ -1,0 +1,91 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="card.html">
+
+<polymer-element name="pb-standardcard" attributes="face value">
+  <template>
+    <link rel="stylesheet" href="css/all.css">
+
+    <pb-card>
+      <!-- The front face -->
+      <div id="front" class="pb-standard-card front face {{face}}">
+        <div class="margin-left">
+          <div class="value">{{value}}</div>
+          <div class="symbol"></div>
+        </div>
+
+        <div class="main">
+          <div id="symbols" class="symbols value-{{value}}"></div>
+        </div>
+
+        <div class="margin-right">
+          <div class="container">
+            <div class="value">{{value}}</div>
+            <div class="symbol"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- The back face -->
+      <div class="pb-standard-card back face">BACK</div>
+    </pb-card>
+  </template>
+  <script>
+    require(['jquery', 'svg', 'common/pretty'], function($, svg) {
+      Polymer('pb-standardcard', {
+        created: function() {
+          this.face = '';
+          this.value = '';
+        },
+        ready: function() {
+          this.updateSymbols();
+        },
+        valueChanged: function(oldValue, newValue) {
+          // TODO: validate
+          var $symbols = $(this.$.symbols);
+          $symbols.empty();
+
+          if (newValue === 'a') {
+            newValue = 1;
+          }
+
+          var valueInt = Number.parseInt(newValue);
+          if (Number.isNaN(valueInt)) {
+            $symbols.append($('<div class="value-letter">{0}</div>'.format(newValue)));
+          } else {
+            var addSymbols = function($parent, count) {
+              if (count === 10) {
+                addSymbols($parent, 4);
+                addSymbols($parent, 2);
+                addSymbols($parent, 4);
+              } else if (count > 4) {
+                var remainder = count % 2;
+                var divided = Math.floor(count / 2);
+
+                addSymbols($parent, divided);
+                if (remainder) {
+                  addSymbols($parent, remainder);
+                }
+                addSymbols($parent, divided);
+              } else  {
+                var $div = $('<div></div>');
+                for (var i = 0; i < count; i++) {
+                  $div.append('<div class="symbol"></symbol>');
+                }
+                $parent.append($div);
+              }
+            };
+
+            addSymbols($symbols, valueInt);
+          }
+
+          this.updateSymbols();
+        },
+
+        updateSymbols: function() {
+          $('.symbol', this.$.front)
+              .each(svg.appendSvg('assets/{0}.svg'.format(this.face)));
+        }
+      });
+    });
+  </script>
+</polymer-element>

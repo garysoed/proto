@@ -1,0 +1,49 @@
+@import "css/compat.less";
+@import "css/base.less";
+
+.pb-card {
+  // Mixins
+  .transition() {
+    .transform-style(preserve-3d);
+    .transition-duration(@transition-duration);
+    .transition-property(transform);
+  }
+
+  .perspective(1000);
+  cursor: pointer;
+  position: relative;
+
+  .face {
+    .backface-visibility(hidden);
+    border: 1px solid black;
+  }
+
+  .pad {
+    visibility: hidden;
+  }
+
+  .front {
+    .transform(rotateY(-180deg));
+    .transition();
+  }
+
+  .back {
+    .transform(rotateY(0));
+    .transition();
+    position: absolute;
+    top: 0;
+    left: 0;
+  }
+
+  &.showFront {
+    .front {
+      .transform(rotateY(0deg));
+      .transition();
+    }
+
+    .back {
+      .transform(rotateY(180deg));
+      .transition();
+    }
+  }
+}

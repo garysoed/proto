@@ -1,0 +1,25 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<polymer-element name="pb-cardpreviewerhandler">
+  <template>
+    <link rel="stylesheet" href="css/all.css">
+    
+    <div id="root" class="pb-cardpreviewerhandler">
+      
+    </div>
+  </template>
+  <script>
+    require(['jquery'], function($) {
+      var eventType = 'changed';
+      var $target = $({});
+      Polymer('pb-cardpreviewerhandler', {
+        listen: function(handler) {
+          $target.bind(eventType, handler);
+        },
+        setCard: function(card) {
+          $target.trigger(eventType, card);
+        }
+      });
+    });
+  </script>
+</polymer-element>

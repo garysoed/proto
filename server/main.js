@@ -21,6 +21,7 @@ requirejs(['server', 'common/uris', 'common/clienterror'], function(Server, Uris
   app.use('/bower_components', express.static(__dirname + '/../bower_components'));
   app.use('/common', express.static(__dirname + '/../common'));
   app.use('/web', express.static(__dirname + '/../web'));
+  app.use('/assets', express.static(__dirname + '/../web/assets'));
 
   app.engine('html', ejs.renderFile);
 

@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Unit test for pb-game-logic</title>
+  <link rel="stylesheet" href="../../bower_components/qunit/qunit/qunit.css">
+
+  <script src="../../bower_components/platform/platform.js"></script>
+  <script src="../../bower_components/qunit/qunit/qunit.js"></script>
+  <script src="../scripts/require.js"></script>
+  <script src="../scripts/config.js"></script>
+
+  <link rel="import" href="game-logic.html">
+  <style>
+    .qunit-assert-list {
+      font-family: "Lucida Console", Monaco, monospace;
+    }
+  </style>
+</head>
+<body>
+  <div id="qunit"></div>
+  <div id="qunit-fixture"></div>
+
+  <pb-game-logic id="game"></pb-game-logic>
+  <script>
+    QUnit.init();
+    QUnit.stop();
+    require(['../scripts/config'], function() {
+      console.log('config loaded');
+      require(['jquery', 'mock', 'common/events', 'common/uris'], function($, Mock, Events, Uris) {
+        var game = $('#game')[0];
+        console.log('main loaded');
+
+        QUnit.testDone(function() { game.reset(); });
+
+        /**
+         * Tests for pb-game-logic.signIn
+         */
+        QUnit.module('pb-game-logic.signIn');
+        QUnit.test('good', function(asserts) {
+          var userId = 'User ID';
+          game.signIn(userId);
+          asserts.ok(true, 'Test ran with no errors');
+        });
+
+        QUnit.test('existing game', function(asserts) {
+          var userId = 'user ID';
+          var gameId = 'Game ID';
+          var postSpy = Mock.spy($, 'post');
+          Mock.when(postSpy)(Uris.Request.CREATE).doReturn({
+            done: function(callback) { callback({gameId: gameId}); }
+          });
+
+          game.signIn(userId);
+          game.create();
+
+          game.signIn('User ID 2');
+          Mock.verify(postSpy)(Uris.Request.LEAVE, {gameId: gameId, userId: userId});
+        });
+
+
+        /**
+         * Tests for pb-game-logic.create.
+         */
+        QUnit.module('pb-game-logic.create');
+        QUnit.test('good', function(asserts) {
+          var postSpy = Mock.spy($, 'post');
+          var userId = 'userId';
+          game.signIn(userId);
+          game.create();
+          Mock.verify(postSpy)(Uris.Request.CREATE);
+        });
+
+        QUnit.test('not signed in', function(asserts) {
+          asserts.throws(
+              function() { game.create(); },
+              /sign in/,
+              'Throws exception when not signed in.');
+        });
+
+
+        /**
+         * Tests for pb-game-logic.join.
+         */
+        QUnit.module('pb-game-logic.join');
+        QUnit.test('good', function(asserts) {
+          var postSpy = Mock.spy($, 'post');
+          var userId = 'User ID';
+          var gameId = 'Game ID';
+
+          var mockListener = Mock.mockFunction('gameListener');
+          game.addEventListener(game.Events.JOIN, mockListener);
+
+          game.signIn(userId);
+
+          Mock.when(postSpy).doReturn({
+            done: function(callback) { callback(); }
+          });
+
+          game.join(gameId);
+
+          Mock.verify(postSpy)(Uris.Request.JOIN, {gameId: gameId, userId: userId});
+
+          var eventSaver = Mock.saver();
+          Mock.verify(mockListener)(eventSaver);
+          asserts.deepEqual(eventSaver.arg.detail, {gameId: gameId});
+        });
+
+        QUnit.test('not signed in', function(asserts) {
+          asserts.throws(
+              function() { game.join('game ID'); },
+              /sign in/,
+              'Throws exception when not signed in.');
+        });
+
+
+        /**
+         * Tests for pb-game-logic.leave.4087610027
+         */
+        QUnit.module('pb-game-logic.leave');
+        QUnit.test('good', function(asserts) {
+          var userId = 'User ID';
+          var gameId = 'Game ID';
+          var spyPost = Mock.spy($, 'post');
+          Mock.when(spyPost)(Uris.Request.CREATE).doReturn({
+            done: function(callback) { callback({gameId: gameId}); }
+          });
+
+          game.signIn(userId);
+          game.create();
+          game.leave();
+
+          Mock.verify(spyPost)(Uris.Request.LEAVE, {userId: userId, gameId: gameId});
+        });
+
+        QUnit.test('not signed in', function(asserts) {
+          game.leave();
+          asserts.ok(true, 'Should not throw exception when not signed in');
+        });
+
+
+        /**
+         * Tests for pb-game-logic.change.
+         */
+        QUnit.module('pb-game-logic.change');
+        QUnit.test('good', function(asserts) {
+          var userId = 'User ID';
+          var gameId = 'Game ID';
+          var field = 'field';
+          var change = game.ChangeType.ADD;
+          var value = {value: 1};
+
+          var spyPost = Mock.spy($, 'post');
+          Mock.when(spyPost)(Uris.Request.CREATE).doReturn({
+            done: function(callback) { callback({gameId: gameId}); }
+          });
+
+          game.signIn(userId);
+          game.create();
+          game.change(field, change, value);
+
+          Mock.verify(spyPost)(Uris.Request.MESSAGE, {
+            userId: userId, 
+            gameId: gameId, 
+            msg: {
+              type: field,
+              data: {
+                actor: userId, 
+                change: change, 
+                value: value
+              }
+            }});
+        });
+
+        QUnit.test('not signed in', function(asserts) {
+          asserts.throws(
+              function() { game.change('field', 'change', 'value'); },
+              /sign in/,
+              'Throws exception when not signed in.');
+        });
+
+
+        /**
+         * Tests for pb-game-logic event handling from Network.
+         */
+        QUnit.module('pb-game-logic Network event handling after JOIN', {
+          setup: function() {
+            this.mockListener = Mock.mockFunction('listener');
+            this.userId = 'User ID';
+            var mockAddEventListener = Mock.override(
+                EventSource.prototype, 
+                'addEventListener', 
+                Mock.mockFunction('EventSource.addEventListener'));
+            game.signIn(this.userId);
+
+            var spyPost = Mock.spy($, 'post');
+            var savedCallback = null;
+            Mock.when(spyPost)(Uris.Request.JOIN, Mock.any()).doReturn({
+              done: function(callback) {
+                savedCallback = callback;
+              }
+            });
+
+            this.startStreaming = function(eventType, data) {
+              Mock.when(mockAddEventListener)('message', Mock.any())
+                  .do(function(_, callback) {
+                    callback({
+                      data: JSON.stringify([{
+                        id: 2,
+                        type: eventType,
+                        data: data
+                      }])
+                    });
+                  });
+              savedCallback();
+            };
+            game.join('Game ID');
+          }
+        });
+
+        QUnit.test('handle Network.MESSAGE', function(asserts) {
+          var field = 'fieldname';
+          var changeType = game.ChangeType.ADD;
+          var actor = 'actorId';
+          var value = {value: 1};
+
+          game.addEventListener('{0}.{1}'.format(field, changeType), this.mockListener);
+
+          this.startStreaming(
+              Events.Server.MESSAGE, 
+              {
+                type: field,
+                data: {
+                  actor: actor,
+                  change: changeType,
+                  value: value
+                }
+              });
+
+          var eventSaver = Mock.saver();
+          Mock.verify(this.mockListener)(eventSaver);
+          asserts.deepEqual(eventSaver.arg.detail, {actor: actor, value: value});
+
+          var expectedState = {};
+          expectedState[field] = value;
+          asserts.deepEqual(game.getState(), expectedState);
+        });
+
+        QUnit.test('handle Network.PLAYER_ADDED', function(asserts) {
+          var newUserId = 'newUserId';
+          game.addEventListener(game.Events.PLAYER_ADDED, this.mockListener);
+
+          this.startStreaming(Events.Server.PLAYER_ADDED, {userId: newUserId});
+
+          var eventSaver = Mock.saver();
+          Mock.verify(this.mockListener)(eventSaver);
+          asserts.deepEqual(eventSaver.arg.detail, {userId: newUserId});
+        });
+
+        QUnit.test('handle Network.PLAYER_REMOVED', function(asserts) {
+          var removedUserId = 'removedUserId';
+          game.addEventListener(game.Events.PLAYER_REMOVED, this.mockListener);
+
+          this.startStreaming(Events.Server.PLAYER_REMOVED, {userId: removedUserId});
+
+          var eventSaver = Mock.saver();
+          Mock.verify(this.mockListener)(eventSaver);
+          asserts.deepEqual(eventSaver.arg.detail, {userId: removedUserId});
+        });
+
+        QUnit.test('handle Network.NEW_GAME_STATE', function(asserts) {
+          var gameState = {first: 1, second: 2};
+          game.addEventListener(game.Events.NEW_GAME_STATE, this.mockListener);
+          
+          this.startStreaming(Events.Server.SYNC_ACK, {
+            gameState: gameState
+          });
+
+          Mock.verify(this.mockListener)(Mock.any());
+          asserts.deepEqual(game.getState(), gameState);
+        });
+
+        console.log('start');
+        QUnit.start();
+      });
+    });
+  </script>
+</body>
+</html>

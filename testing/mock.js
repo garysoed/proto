@@ -117,7 +117,7 @@ define(['common/pretty'], function(Pretty) {
   };
 
   Mock.saver = function(opt_matcher) {
-    var m = new Matcher(
+    return new Matcher(
         function(other) {
           var matches = !opt_matcher || opt_matcher.equals(other);
           if (matches) {
@@ -126,7 +126,6 @@ define(['common/pretty'], function(Pretty) {
           return matches;
         },
         'saver(' + (opt_matcher ? opt_matcher.toString() : '*') + ')');
-    return m;
   };
 
   Mock.instanceOf = function(type, name) {
@@ -163,7 +162,7 @@ define(['common/pretty'], function(Pretty) {
   Mock.spy = function(scope, name) {
     var handler = scope[name];
     var mock = Mock.mockFunction(name);
-    Mock.when(mock).run(handler);
+    Mock.when(mock).do(handler);
     Mock.override(scope, name, mock);
     return mock;
   };
@@ -192,7 +191,7 @@ define(['common/pretty'], function(Pretty) {
       var result = matches.length === times;
       var msg = result ? 
           '{0} call(s) for {1}({2})'.format(times, mock.functionName, Pretty.prettify(args)) :
-          '{0} call(s) for {1}({2})\nOther interactions:\n{3}'.formatPretty(
+          '{0} call(s) for {1}({2})\nOther interactions:\n{3}'.format(
               times, 
               mock.functionName, 
               Pretty.prettify(args), 
@@ -229,6 +228,8 @@ define(['common/pretty'], function(Pretty) {
       override.scope[override.name] = override.value;
     });
   };
+
+  QUnit.testDone(Mock.teardown);
 
   return Mock;
 });

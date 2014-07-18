@@ -1,0 +1,26 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<polymer-element name="pb-hand">
+  <template>
+    <link rel="stylesheet" href="css/all.css">
+    
+    <div id="container" class="pb-hand">
+      <content></content>
+    </div>
+  </template>
+  <script>
+    require(['jquery', 'jquery-ui/sortable'], function($) {
+      Polymer('pb-hand', {
+        created: function() {
+          this.width = '100px';
+          this.height = '100px';
+        },
+        ready: function() {
+        },
+        cardClick: function() {
+          $(this.$.root).toggleClass('showFront');
+        }
+      });
+    });
+  </script>
+</polymer-element>

@@ -2,30 +2,21 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>Unit test for network</title>
+  <title>Unit test for Network</title>
   <link rel="stylesheet" href="../../bower_components/qunit/qunit/qunit.css">
   <style>
     .qunit-assert-list {
       font-family: "Lucida Console", Monaco, monospace;
     }
   </style>
+  <script src="../../bower_components/qunit/qunit/qunit.js"></script>
+  <script src="require.js"></script>
+  <script src="config.js"></script>
 </head>
 <body>
   <div id="qunit"></div>
   <div id="qunit-fixture"></div>
-  <script src="../../bower_components/qunit/qunit/qunit.js"></script>
-  <script src="require.js"></script>
-  <script src="config.js"></script>
   <script>
-    if (Function.prototype.bind === undefined) {
-      Function.prototype.bind = function(self) {
-        var outThis = this;
-        return function() {
-          outThis.apply(self, arguments);
-        };
-      }
-    }
-
     QUnit.init();
     QUnit.stop();
     require(['config'], function() {
@@ -33,18 +24,14 @@
           function(Network, $, Mock, Events, Uris) {
 
             /**
-             * Tests for network.create.
+             * Tests for Network.create.
              */
-            QUnit.module('network.create', {
+            QUnit.module('Network.create', {
               setup: function() {
                 this.mockPost = Mock.override($, 'post', Mock.mockFunction('$.post'));
 
                 this.userId = 'User ID';
-                this.oldPost = $.post;
                 this.network = new Network(this.userId);
-              },
-              teardown: function() {
-                Mock.teardown();
               }
             });
 
@@ -68,17 +55,14 @@
 
 
             /** 
-             * Tests for network.join.
+             * Tests for Network.join.
              */
-            QUnit.module('network.join', {
+            QUnit.module('Network.join', {
               setup: function() {
                 this.mockPost = Mock.override($, 'post', Mock.mockFunction('$.post'));
 
                 this.userId = 'User ID';
                 this.network = new Network(this.userId);
-              },
-              teardown: function() {
-                Mock.teardown();
               }
             });
 
@@ -106,17 +90,14 @@
 
 
             /**
-             * Tests for network.leave.
+             * Tests for Network.leave.
              */
-            QUnit.module('network.leave', {
+            QUnit.module('Network.leave', {
               setup: function() {
                 this.mockPost = Mock.override($, 'post', Mock.mockFunction('$.post'));
 
                 this.userId = 'User ID';
                 this.network = new Network(this.userId);
-              }, 
-              teardown: function() {
-                Mock.teardown();
               }
             });
 
@@ -134,9 +115,9 @@
 
 
             /**
-             * Tests for network.send.
+             * Tests for Network.send.
              */
-            QUnit.module('network.send', {
+            QUnit.module('Network.send', {
               setup: function() {
                 this.mockPost = Mock.override($, 'post', Mock.mockFunction('$.post'));
 
@@ -163,9 +144,9 @@
 
             
             /**
-             * Tests for network.handleEvents.
+             * Tests for Network.handleEvents.
              */
-            QUnit.module('network.handleEvents', {
+            QUnit.module('Network.handleEvents', {
               setup: function() {
                 this.mockAddEventListener = Mock.override(
                     EventSource.prototype, 
@@ -183,9 +164,6 @@
                 this.network = new Network(this.userId, this.mockGameStateProvider);
 
                 this.network.join(this.gameId);
-              },
-              teardown: function() {
-                Mock.teardown();
               }
             });
 

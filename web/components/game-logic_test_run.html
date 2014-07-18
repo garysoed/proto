@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Unit test for pb-game-logic</title>
+  <link rel="stylesheet" href="../../bower_components/qunit/qunit/qunit.css">
+
+  <script src="../../bower_components/platform/platform.js"></script>
+  <script src="../../bower_components/qunit/qunit/qunit.js"></script>
+  <script src="../scripts/require.js"></script>
+  <script src="../scripts/config.js"></script>
+
+  <div hidden><!--
+Copyright (c) 2014 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<!--
+Copyright (c) 2014 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+<style shim-shadowdom="">
+/*******************************
+          Flex Layout
+*******************************/
+
+html /deep/ [layout][horizontal], html /deep/ [layout][vertical] {
+  display: -ms-flexbox;
+  display: -webkit-flex;
+  display: flex;
+}
+
+html /deep/ [layout][horizontal][inline], html /deep/ [layout][vertical][inline] {
+  display: -ms-inline-flexbox;
+  display: -webkit-inline-flex;
+  display: inline-flex;
+}
+
+html /deep/ [layout][horizontal] {
+  -ms-flex-direction: row;
+  -webkit-flex-direction: row;
+  flex-direction: row;
+}
+
+html /deep/ [layout][horizontal][reverse] {
+  -ms-flex-direction: row-reverse;
+  -webkit-flex-direction: row-reverse;
+  flex-direction: row-reverse;
+}
+
+html /deep/ [layout][vertical] {
+  -ms-flex-direction: column;
+  -webkit-flex-direction: column;
+  flex-direction: column;
+}
+
+html /deep/ [layout][vertical][reverse] {
+  -ms-flex-direction: column-reverse;
+  -webkit-flex-direction: column-reverse;
+  flex-direction: column-reverse;
+}
+
+html /deep/ [layout][wrap] {
+  -ms-flex-wrap: wrap;
+  -webkit-flex-wrap: wrap;
+  flex-wrap: wrap;
+}
+
+html /deep/ [layout][wrap-reverse] {
+  -ms-flex-wrap: wrap-reverse;
+  -webkit-flex-wrap: wrap-reverse;
+  flex-wrap: wrap-reverse;
+}
+
+html /deep/ [flex] {
+  -ms-flex: 1;
+  -webkit-flex: 1;
+  flex: 1;
+}
+
+html /deep/ [flex][auto] {
+  -ms-flex: 1 1 auto;
+  -webkit-flex: 1 1 auto;
+  flex: 1 1 auto;
+}
+
+html /deep/ [flex][none] {
+  -ms-flex: none;
+  -webkit-flex: none;
+  flex: none;
+}
+
+html /deep/ [flex][one] {
+  -ms-flex: 1;
+  -webkit-flex: 1;
+  flex: 1;
+}
+
+html /deep/ [flex][two] {
+  -ms-flex: 2;
+  -webkit-flex: 2;
+  flex: 2;
+}
+
+html /deep/ [flex][three] {
+  -ms-flex: 3;
+  -webkit-flex: 3;
+  flex: 3;
+}
+
+html /deep/ [flex][four] {
+  -ms-flex: 4;
+  -webkit-flex: 4;
+  flex: 4;
+}
+
+html /deep/ [flex][five] {
+  -ms-flex: 5;
+  -webkit-flex: 5;
+  flex: 5;
+}
+
+html /deep/ [flex][six] {
+  -ms-flex: 6;
+  -webkit-flex: 6;
+  flex: 6;
+}
+
+html /deep/ [flex][seven] {
+  -ms-flex: 7;
+  -webkit-flex: 7;
+  flex: 7;
+}
+
+html /deep/ [flex][eight] {
+  -ms-flex: 8;
+  -webkit-flex: 8;
+  flex: 8;
+}
+
+html /deep/ [flex][nine] {
+  -ms-flex: 9;
+  -webkit-flex: 9;
+  flex: 9;
+}
+
+html /deep/ [flex][ten] {
+  -ms-flex: 10;
+  -webkit-flex: 10;
+  flex: 10;
+}
+
+html /deep/ [flex][eleven] {
+  -ms-flex: 11;
+  -webkit-flex: 11;
+  flex: 11;
+}
+
+html /deep/ [flex][twelve] {
+  -ms-flex: 12;
+  -webkit-flex: 12;
+  flex: 12;
+}
+
+/* alignment in cross axis */
+
+html /deep/ [layout][start] {
+  -ms-flex-align: start;
+  -webkit-align-items: flex-start;
+  align-items: flex-start;
+}
+
+html /deep/ [layout][center] {
+  -ms-flex-align: center;
+  -webkit-align-items: center;
+  align-items: center;
+}
+
+html /deep/ [layout][end] {
+  -ms-flex-align: end;
+  -webkit-align-items: flex-end;
+  align-items: flex-end;
+}
+
+/* alignment in main axis */
+
+html /deep/ [layout][start-justified] {
+  -ms-flex-pack: start;
+  -webkit-justify-content: flex-start;
+  justify-content: flex-start;
+}
+
+html /deep/ [layout][center-justified] {
+  -ms-flex-pack: center;
+  -webkit-justify-content: center;
+  justify-content: center;
+}
+
+html /deep/ [layout][end-justified] {
+  -ms-flex-pack: end;
+  -webkit-justify-content: flex-end;
+  justify-content: flex-end;
+}
+
+html /deep/ [layout][around-justified] {
+  -ms-flex-pack: around;
+  -webkit-justify-content: space-around;
+  justify-content: space-around;
+}
+
+html /deep/ [layout][justified] {
+  -ms-flex-pack: justify;
+  -webkit-justify-content: space-between;
+  justify-content: space-between;
+}
+
+/* self alignment */
+
+html /deep/ [self-start] {
+  -ms-align-self: flex-start;
+  -webkit-align-self: flex-start;
+  align-self: flex-start;
+}
+
+html /deep/ [self-center] {
+  -ms-align-self: center;
+  -webkit-align-self: center;
+  align-self: center;
+}
+
+html /deep/ [self-end] {
+  -ms-align-self: flex-end;
+  -webkit-align-self: flex-end;
+  align-self: flex-end;
+}
+
+html /deep/ [self-stretch] {
+  -ms-align-self: stretch;
+  -webkit-align-self: stretch;
+  align-self: stretch;
+}
+
+/*******************************
+          Other Layout
+*******************************/
+
+html /deep/ [block] {
+  display: block;
+}
+
+/* ie support for hidden */
+html /deep/ [hidden] {
+  display: none !important;
+}
+
+html /deep/ [relative] {
+  position: relative;
+}
+
+html /deep/ [fit] {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+}
+
+body[fullbleed] {
+  margin: 0;
+  height: 100vh;
+}
+
+/*******************************
+            Other
+*******************************/
+
+html /deep/ [segment], html /deep/ segment {
+  display: block;
+  position: relative;
+  -webkit-box-sizing: border-box;
+  -ms-box-sizing: border-box;
+  box-sizing: border-box;
+  margin: 1em 0.5em;
+  padding: 1em;
+  background-color: white;
+  -webkit-box-shadow: 0px 0px 0px 1px rgba(0, 0, 0, 0.1);
+  box-shadow: 0px 0px 0px 1px rgba(0, 0, 0, 0.1);
+  border-radius: 5px 5px 5px 5px;
+}
+
+</style>
+
+<script src="../../bower_components/polymer/polymer.js"></script>
+<!--<link rel="import" href="../polymer-dev/polymer.html">--> 
+
+<polymer-element name="pb-game-logic" assetpath="">
+  <template></template>
+  <script>
+    require(['jquery', '../scripts/network', 'common/pretty'], function($, Network) {
+
+      var network = null;
+      var state = {};
+
+      /**
+       * Events that the game dispatches.
+       *
+       * @enum {string}
+       */
+      var Events = {
+        JOIN: 'Game.Events.join',
+        NEW_GAME_STATE: 'Game.Events.new_game_state',
+        PLAYER_ADDED: 'Game.Events.player_added',
+        PLAYER_REMOVED: 'Game.Events.player_removed'
+      };
+
+      /**
+       * Types of changes that the game can handle.
+       *
+       * @enum {string}
+       */
+      var ChangeType = {
+        ADD: 'ADD',
+        DELETE: 'DELETE',
+        UPDATE: 'UPDATE'
+      };
+
+      /**
+       * Asserts that the user has signed in.
+       */
+      function assertSignedIn() {
+        if (!network) {
+          throw 'Need to sign in first';
+        }
+      }
+
+      function handleMessage(e, msg) {
+        // TODO: Pass to processor / game logic.
+        state[msg.type] = msg.data.value;
+        this.fire(
+            '{0}.{1}'.format(msg.type, msg.data.change), 
+            {actor: msg.data.actor, value: msg.data.value});
+      }
+
+      function handleNewGameState(e, gameState) {
+        state = gameState || {};
+        this.fire(Events.NEW_GAME_STATE);
+      }
+
+      function handleJoin() {
+        this.fire(Events.JOIN, {gameId: network.getGameId()});
+      }
+
+      function handlePlayerAdded(e, userId) {
+        this.fire(Events.PLAYER_ADDED, {userId: userId});
+      }
+
+      function handlePlayerRemoved(e, userId) {
+        this.fire(Events.PLAYER_REMOVED, {userId: userId});
+      }
+
+      Polymer('pb-game-logic', {
+        /**
+         * Resets the state of the game, signing out if necessary.
+         */
+        reset: function() {
+          this.leave();
+          network = null;
+          state = {};
+        },
+
+        /**
+         * Signs into the game.
+         *
+         * @param  {string} userId The User ID to sign in with.
+         */
+        signIn: function(userId) {
+          this.leave();
+          network = new Network(userId, this.getState);
+          $(network)
+              .bind(Network.Events.MESSAGE, handleMessage.bind(this))
+              .bind(Network.Events.NEW_GAME_STATE, handleNewGameState.bind(this))
+              .bind(Network.Events.JOIN, handleJoin.bind(this))
+              .bind(Network.Events.PLAYER_ADDED, handlePlayerAdded.bind(this))
+              .bind(Network.Events.PLAYER_REMOVED, handlePlayerRemoved.bind(this));
+        },
+
+        /**
+         * Creates a new game. SignIn must have been called.
+         */
+        create: function() {
+          assertSignedIn();
+          network.create();
+        },
+
+        /**
+         * Joins the given game ID. SignIn must have been called.
+         *
+         * @param  {string} gameId Game ID to join.
+         */
+        join: function(gameId) {
+          assertSignedIn();
+          network.join(gameId);
+        },
+
+        /**
+         * Leaves the game if signed in. Noop if not signed in.
+         */
+        leave: function() {
+          if (network) {
+            network.leave();
+          }
+        },
+
+        /**
+         * Sends a change to the server.
+         *
+         * @param  {string} field The field that is changed.
+         * @param  {pb-game-logic.ChangeType} change The change type.
+         * @param  {Object} value The new value of the field.
+         */
+        change: function(field, change, value) {
+          // TODO add validator
+          assertSignedIn();
+          network.send(field, {actor: network.getUserId(), change: change, value: value});
+        },
+
+        /**
+         * Returns the state of the game.
+         *
+         * @return {Object} Current state of the game.
+         */
+        getState: function() {
+          return state;
+        },
+
+        /**
+         * Events that the Game can trigger.
+         *
+         * @enum {string}
+         */
+        Events: Events,
+        ChangeType: ChangeType
+      });
+    });
+  </script>
+</polymer-element></div>
+  <style>
+    .qunit-assert-list {
+      font-family: "Lucida Console", Monaco, monospace;
+    }
+  </style>
+</head>
+<body>
+  <div id="qunit"></div>
+  <div id="qunit-fixture"></div>
+
+  <pb-game-logic id="game"></pb-game-logic>
+  <script>
+    QUnit.init();
+    QUnit.stop();
+    require(['../scripts/config'], function() {
+      console.log('config loaded');
+      require(['jquery', 'mock', 'common/events', 'common/uris'], function($, Mock, Events, Uris) {
+        var game = $('#game')[0];
+        console.log('main loaded');
+
+        QUnit.testDone(function() { game.reset(); });
+
+        /**
+         * Tests for pb-game-logic.signIn
+         */
+        QUnit.module('pb-game-logic.signIn');
+        QUnit.test('good', function(asserts) {
+          var userId = 'User ID';
+          game.signIn(userId);
+          asserts.ok(true, 'Test ran with no errors');
+        });
+
+        QUnit.test('existing game', function(asserts) {
+          var userId = 'user ID';
+          var gameId = 'Game ID';
+          var postSpy = Mock.spy($, 'post');
+          Mock.when(postSpy)(Uris.Request.CREATE).doReturn({
+            done: function(callback) { callback({gameId: gameId}); }
+          });
+
+          game.signIn(userId);
+          game.create();
+
+          game.signIn('User ID 2');
+          Mock.verify(postSpy)(Uris.Request.LEAVE, {gameId: gameId, userId: userId});
+        });
+
+
+        /**
+         * Tests for pb-game-logic.create.
+         */
+        QUnit.module('pb-game-logic.create');
+        QUnit.test('good', function(asserts) {
+          var postSpy = Mock.spy($, 'post');
+          var userId = 'userId';
+          game.signIn(userId);
+          game.create();
+          Mock.verify(postSpy)(Uris.Request.CREATE);
+        });
+
+        QUnit.test('not signed in', function(asserts) {
+          asserts.throws(
+              function() { game.create(); },
+              /sign in/,
+              'Throws exception when not signed in.');
+        });
+
+
+        /**
+         * Tests for pb-game-logic.join.
+         */
+        QUnit.module('pb-game-logic.join');
+        QUnit.test('good', function(asserts) {
+          var postSpy = Mock.spy($, 'post');
+          var userId = 'User ID';
+          var gameId = 'Game ID';
+
+          var mockListener = Mock.mockFunction('gameListener');
+          game.addEventListener(game.Events.JOIN, mockListener);
+
+          game.signIn(userId);
+
+          Mock.when(postSpy).doReturn({
+            done: function(callback) { callback(); }
+          });
+
+          game.join(gameId);
+
+          Mock.verify(postSpy)(Uris.Request.JOIN, {gameId: gameId, userId: userId});
+
+          var eventSaver = Mock.saver();
+          Mock.verify(mockListener)(eventSaver);
+          asserts.deepEqual(eventSaver.arg.detail, {gameId: gameId});
+        });
+
+        QUnit.test('not signed in', function(asserts) {
+          asserts.throws(
+              function() { game.join('game ID'); },
+              /sign in/,
+              'Throws exception when not signed in.');
+        });
+
+
+        /**
+         * Tests for pb-game-logic.leave.4087610027
+         */
+        QUnit.module('pb-game-logic.leave');
+        QUnit.test('good', function(asserts) {
+          var userId = 'User ID';
+          var gameId = 'Game ID';
+          var spyPost = Mock.spy($, 'post');
+          Mock.when(spyPost)(Uris.Request.CREATE).doReturn({
+            done: function(callback) { callback({gameId: gameId}); }
+          });
+
+          game.signIn(userId);
+          game.create();
+          game.leave();
+
+          Mock.verify(spyPost)(Uris.Request.LEAVE, {userId: userId, gameId: gameId});
+        });
+
+        QUnit.test('not signed in', function(asserts) {
+          game.leave();
+          asserts.ok(true, 'Should not throw exception when not signed in');
+        });
+
+
+        /**
+         * Tests for pb-game-logic.change.
+         */
+        QUnit.module('pb-game-logic.change');
+        QUnit.test('good', function(asserts) {
+          var userId = 'User ID';
+          var gameId = 'Game ID';
+          var field = 'field';
+          var change = game.ChangeType.ADD;
+          var value = {value: 1};
+
+          var spyPost = Mock.spy($, 'post');
+          Mock.when(spyPost)(Uris.Request.CREATE).doReturn({
+            done: function(callback) { callback({gameId: gameId}); }
+          });
+
+          game.signIn(userId);
+          game.create();
+          game.change(field, change, value);
+
+          Mock.verify(spyPost)(Uris.Request.MESSAGE, {
+            userId: userId, 
+            gameId: gameId, 
+            msg: {
+              type: field,
+              data: {
+                actor: userId, 
+                change: change, 
+                value: value
+              }
+            }});
+        });
+
+        QUnit.test('not signed in', function(asserts) {
+          asserts.throws(
+              function() { game.change('field', 'change', 'value'); },
+              /sign in/,
+              'Throws exception when not signed in.');
+        });
+
+
+        /**
+         * Tests for pb-game-logic event handling from Network.
+         */
+        QUnit.module('pb-game-logic Network event handling after JOIN', {
+          setup: function() {
+            this.mockListener = Mock.mockFunction('listener');
+            this.userId = 'User ID';
+            var mockAddEventListener = Mock.override(
+                EventSource.prototype, 
+                'addEventListener', 
+                Mock.mockFunction('EventSource.addEventListener'));
+            game.signIn(this.userId);
+
+            var spyPost = Mock.spy($, 'post');
+            var savedCallback = null;
+            Mock.when(spyPost)(Uris.Request.JOIN, Mock.any()).doReturn({
+              done: function(callback) {
+                savedCallback = callback;
+              }
+            });
+
+            this.startStreaming = function(eventType, data) {
+              Mock.when(mockAddEventListener)('message', Mock.any())
+                  .do(function(_, callback) {
+                    callback({
+                      data: JSON.stringify([{
+                        id: 2,
+                        type: eventType,
+                        data: data
+                      }])
+                    });
+                  });
+              savedCallback();
+            };
+            game.join('Game ID');
+          }
+        });
+
+        QUnit.test('handle Network.MESSAGE', function(asserts) {
+          var field = 'fieldname';
+          var changeType = game.ChangeType.ADD;
+          var actor = 'actorId';
+          var value = {value: 1};
+
+          game.addEventListener('{0}.{1}'.format(field, changeType), this.mockListener);
+
+          this.startStreaming(
+              Events.Server.MESSAGE, 
+              {
+                type: field,
+                data: {
+                  actor: actor,
+                  change: changeType,
+                  value: value
+                }
+              });
+
+          var eventSaver = Mock.saver();
+          Mock.verify(this.mockListener)(eventSaver);
+          asserts.deepEqual(eventSaver.arg.detail, {actor: actor, value: value});
+
+          var expectedState = {};
+          expectedState[field] = value;
+          asserts.deepEqual(game.getState(), expectedState);
+        });
+
+        QUnit.test('handle Network.PLAYER_ADDED', function(asserts) {
+          var newUserId = 'newUserId';
+          game.addEventListener(game.Events.PLAYER_ADDED, this.mockListener);
+
+          this.startStreaming(Events.Server.PLAYER_ADDED, {userId: newUserId});
+
+          var eventSaver = Mock.saver();
+          Mock.verify(this.mockListener)(eventSaver);
+          asserts.deepEqual(eventSaver.arg.detail, {userId: newUserId});
+        });
+
+        QUnit.test('handle Network.PLAYER_REMOVED', function(asserts) {
+          var removedUserId = 'removedUserId';
+          game.addEventListener(game.Events.PLAYER_REMOVED, this.mockListener);
+
+          this.startStreaming(Events.Server.PLAYER_REMOVED, {userId: removedUserId});
+
+          var eventSaver = Mock.saver();
+          Mock.verify(this.mockListener)(eventSaver);
+          asserts.deepEqual(eventSaver.arg.detail, {userId: removedUserId});
+        });
+
+        QUnit.test('handle Network.NEW_GAME_STATE', function(asserts) {
+          var gameState = {first: 1, second: 2};
+          game.addEventListener(game.Events.NEW_GAME_STATE, this.mockListener);
+          
+          this.startStreaming(Events.Server.SYNC_ACK, {
+            gameState: gameState
+          });
+
+          Mock.verify(this.mockListener)(Mock.any());
+          asserts.deepEqual(game.getState(), gameState);
+        });
+
+        console.log('start');
+        QUnit.start();
+      });
+    });
+  </script>
+</body>
+</html>

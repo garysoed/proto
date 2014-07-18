@@ -21,11 +21,15 @@ define(function() {
           return functionName + '()';
         default:
           if (value instanceof Array) {
-            return value
-                .map(function(entry) {
-                  return prettify(entry);
-                })
-                .join(',');
+            if (value.length === 0) {
+              return '[]';
+            } else {
+              return value
+                  .map(function(entry) {
+                    return prettify(entry);
+                  })
+                  .join(',');
+            }
           } else if (value.toPrettyString instanceof Function) {
             return value.toPrettyString();
           }

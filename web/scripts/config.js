@@ -1,12 +1,11 @@
 require.config({
   paths: {
     'jquery': '../../bower_components/jquery/dist/jquery',
+    'jquery-ui': '../../bower_components/jquery-ui/ui',
+    'polymer/platform': '../../bower_components/platform/platform',
+    'common': '../../common',
     'mock': '../../testing/mock',
     'mockajax': '../../testing/mockajax',
-    'polymer/platform': '../../bower_components/platform/platform',
-    'common/events': '../../common/events',
-    'common/pretty': '../../common/pretty',
-    'common/uris': '../../common/uris'
   },
   shim : {
     'jquery': {

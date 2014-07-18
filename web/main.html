@@ -13,9 +13,20 @@
     </script>
     <link rel="import" href="web/signin.html">
     <link rel="import" href="web/game.html">
+    <link rel="import" href="web/components/standardcard.html">
+    <link rel="import" href="web/components/hand.html">
+    <link rel="import" href="web/components/cardpreviewer.html">
+    <link rel="import" href="web/components/gamelogic.html">
   </head>
   <body>
     <pb-signin></pb-signin>
     <pb-game></pb-game>
+    <pb-cardpreviewer></pb-cardpreviewer>
+    <pb-hand>
+      <pb-standardcard face="heart" value="a" style="display:inline-block;"></pb-standardcard>
+      <pb-standardcard face="spade" value="j" style="display:inline-block;"></pb-standardcard>
+      <pb-standardcard face="diamond" value="q" style="display:inline-block;"></pb-standardcard>
+      <pb-standardcard face="club" value="k" style="display:inline-block;"></pb-standardcard>
+    </pb-hand>
   </body>
 </html>

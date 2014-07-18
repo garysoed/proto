@@ -1,0 +1,30 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="cardpreviewerhandler.html">
+
+<polymer-element name="pb-card">
+  <template>
+    <link rel="stylesheet" href="css/all.css">
+    <pb-cardpreviewerhandler id="previewerHandler"></pb-cardpreviewerhandler>
+    
+    <div id="root" class="pb-card" on-click="{{onClick}}" on-mouseover="{{onMouseOver}}">
+      <div class="face front">
+        <content select=".front"></content>
+      </div>
+      <div class="face back">
+        <content select=".back"></content>
+      </div>
+    </div>
+  </template>
+  <script>
+    require(['jquery'], function($) {
+      Polymer('pb-card', {
+        onClick: function() {
+          $(this.$.root).toggleClass('showFront');
+        },
+        onMouseOver: function() {
+          this.$.previewerHandler.setCard(this.$.root);
+        }
+      });
+    });
+  </script>
+</polymer-element>

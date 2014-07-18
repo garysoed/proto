@@ -1,0 +1,28 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="cardpreviewerhandler.html">
+<link rel="import" href="gamelogic.html">
+
+<polymer-element name="pb-cardpreviewer">
+  <template>
+    <link rel="stylesheet" href="css/all.css">
+    <pb-cardpreviewerhandler id="handler"></pb-cardpreviewerhandler>
+    <pb-game-logic id="game"></pb-game-logic>
+
+    <div id="root" class="pb-cardpreviewer">
+      
+    </div>
+  </template>
+  <script>
+    require(['jquery'], function($) {
+      Polymer('pb-cardpreviewer', {
+        ready: function() {
+          this.handler = this.$.handler;
+          this.handler.listen(this.handleCardChange.bind(this));
+        },
+        handleCardChange: function(e, card) {
+
+        }
+      });
+    });
+  </script>
+</polymer-element>

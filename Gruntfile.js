@@ -8,6 +8,8 @@ module.exports = function(grunt) {
       },
       all: [
         '**/*.js', 
+        '**/*.html',
+        '!**/*_test_run.html',
         '!doc/**',
         '!**/bower_components/**', 
         '!**/node_modules/**',
@@ -15,7 +17,7 @@ module.exports = function(grunt) {
       ],
     },
     'qunit': {
-      all: ['web/scripts/**/*_test.html']
+      scripts: ['web/scripts/**/*_test.html']
     },
     'node-qunit': {
       server: {
@@ -49,6 +51,32 @@ module.exports = function(grunt) {
           private: false
         }
       }
+    },
+    'less': {
+      development: {
+        files: {
+          'web/components/css/all.css': ['web/components/**/*.less']
+        }
+      }
+    },
+    'vulcanize': {
+      default: {
+        files: {
+          'web/components/game-logic_test_run.html': 'web/components/game-logic_test.html'
+        }
+      }
+    },
+    'watch': {
+      webtests: {
+        files: [
+          'web/components/**/*_test.html', 
+          'web/components/**/*.html', 
+          '!web/components/**/*_test_run.html'],
+        tasks: ['vulcanize'],
+        options: {
+          atBegin: true
+        }
+      }
     }
   });
 
@@ -56,8 +84,11 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-qunit');
   grunt.loadNpmTasks('grunt-node-qunit');
   grunt.loadNpmTasks('grunt-jsdoc');
+  grunt.loadNpmTasks('grunt-contrib-less');
+  grunt.loadNpmTasks('grunt-vulcanize');
+  grunt.loadNpmTasks('grunt-contrib-watch');
 
   // Register default tasks.
-  grunt.registerTask('check', ['node-qunit', 'qunit', 'jshint']);
+  grunt.registerTask('check', ['node-qunit', 'qunit:scripts', 'jshint']);
   grunt.registerTask('default', ['check']);
 };

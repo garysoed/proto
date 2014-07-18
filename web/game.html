@@ -8,6 +8,8 @@
   </template>
   <script>
     require(['jquery', 'game'], function($, Game) {
+      var game = new Game();
+
       var handleJoinGame = function(e, data) {
         $(this.$.log).append('<p>Game ID: ' + data + '</p>');
       };
@@ -24,19 +26,17 @@
         $(this.$.log).append('<p>' + userId + ' left</p>');
       };
 
-      var handle
-
       Polymer('pb-game', {
         ready: function() {
           // Starts listening to Game events.
-          $(Game)
+          $(game)
               .bind(Game.Events.JOIN, handleJoinGame.bind(this))
               .bind(Game.Events.PLAYER_ADDED, handlePlayerAdded.bind(this))
               .bind(Game.Events.PLAYER_REMOVED, handlePlayerRemoved.bind(this))
               .bind('msg.add', handleMessage.bind(this));
         },
         submitClick: function() {
-          Game.change('msg', 'add', this.$.text.value);
+          game.change('msg', 'add', this.$.text.value);
         }
       });
     });
