@@ -1,0 +1,140 @@
+@import "css/compat.less";
+
+.pb-standard-card {
+  @margin: 10px;
+  @symbol-hw-ratio: 2 / 3;
+
+  &.face {
+    height: 400px - 2 * @margin;
+    padding: @margin;
+    width: 300px;
+  }
+
+  &.front.preview, &.front {
+    @side-width: 30px;
+
+    .display(flex);
+    
+    background-color: white;
+    font-family: Helvetica, Arial, sans-serif;
+    font-size: 20px;
+
+
+    &.heart, &.diamond {
+      & .symbol {
+        fill: red;
+      }
+
+      color: red;
+    }
+
+    .symbol {
+      width: @side-width;
+      height: @side-width * @symbol-hw-ratio;
+      display: inline-block;
+    }
+
+    .value {
+      width: @side-width;
+      height: 20px;
+      margin-bottom: 10px;
+      text-align: center;
+      text-transform: uppercase;
+    }
+
+    .main {
+      .flex(1);
+      .display(flex);
+      .align-items(center);
+    }
+
+    .symbols {
+      .flex(1);
+      .display(flex);
+      .align-items(center);
+      
+      & > div {
+        .display(flex);
+        .flex-direction(column);
+        .align-items(center);
+        .flex(1);
+      }
+
+      .value-letter {
+        text-transform: uppercase;
+        font-size: 400%;
+      }
+
+      .symbol:last-child {
+        margin-bottom: 0;
+      }
+    }
+
+    .margin-right {
+      position: relative;
+      width: @side-width;
+
+      .container {
+        .transform(rotateZ(180deg));
+
+        position: absolute;
+        bottom: 0;
+      }
+    }
+  }
+
+  &.front.preview .symbols {
+    @symbol-size: 50px;
+
+    .size(@width) {
+      width: @width;
+      height: @width * @symbol-hw-ratio;
+    }
+
+    &.value-a .symbol {
+      .size(@symbol-size);
+    }
+
+    &.value-2 .symbol,
+    &.value-3 .symbol,
+    &.value-4 .symbol,
+    &.value-5 .symbol,
+    &.value-6 .symbol,
+    &.value-7 .symbol,
+    &.value-8 .symbol,
+    &.value-9 .symbol,
+    &.value-10 .symbol {
+      .size(@symbol-size * 0.75);
+      margin-bottom: @symbol-size;
+    }
+
+    &.value-5 .symbol {
+      margin-bottom: @symbol-size * 3;
+    }
+  }
+
+  &.back.preview, &.back {
+    background-color: green;
+  }
+
+  &.front, &.back {
+    width: 30px;
+    height: 40px;
+    padding: 0;
+  }
+
+  &.front {
+    .margin-left, .margin-right {
+      display: none;
+    }
+
+    .value-a .symbol {
+      width: 10px;
+      height: 10px * @symbol-hw-ratio;
+    }
+  }
+
+  pb-card .preview {
+    display: none;
+  }
+}

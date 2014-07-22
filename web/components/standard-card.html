@@ -1,0 +1,122 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<link rel="import" href="card.html">
+<link rel="import" href="scripts.html">
+
+<polymer-element name="pb-standard-card" attributes="face value">
+  <template>
+    <pb-scripts id="scripts"></pb-scripts>
+
+    <link rel="stylesheet" href="css/all.css">
+
+    <pb-card id="card">
+      <!-- The front preview face -->
+      <div id="frontPreview" class="pb-standard-card front preview face {{face}}">
+        <div class="margin-left">
+          <div class="value">{{value}}</div>
+          <div class="symbol"></div>
+        </div>
+
+        <div class="main">
+          <div id="symbols" class="symbols value-{{value}}"></div>
+        </div>
+
+        <div class="margin-right">
+          <div class="container">
+            <div class="value">{{value}}</div>
+            <div class="symbol"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- The back preview face -->
+      <div id="backPreview" class="pb-standard-card back preview face"></div>
+    </pb-card>
+  </template>
+  <script>
+    var updateSymbols = function() {
+      this.$.scripts.$('.symbol', this.$.card)
+          .each(this.$.scripts.svg.appendSvg('assets/{0}.svg'.format(this.face)));
+    };
+
+    var cloneFaces = function() {
+      var $ = this.$.scripts.$;
+
+      // Remove the old clones.
+      $('.front.small', this.$.card).remove();
+      $('.back.small', this.$.card).remove();
+
+      // Clone the faces.
+      var frontClone = $(this.$.frontPreview)
+          .clone(false)
+          .removeAttr('id')
+          .removeClass('preview')
+          .addClass('small')[0];
+      var backClone = $(this.$.backPreview)
+          .clone(false)
+          .removeAttr('id')
+          .removeClass('preview')
+          .addClass('small')[0];
+      $(this.$.card).append(frontClone);
+      $(this.$.card).append(backClone);
+    };
+
+
+    Polymer('pb-standard-card', {
+      created: function() {
+        this.face = '';
+        this.value = '';
+      },
+      ready: function() {
+        cloneFaces.bind(this)();
+        updateSymbols.bind(this)();
+        this.$.card.setCard(this);
+      },
+
+      valueChanged: function(oldValue, newValue) {
+        var $ = this.$.scripts.$;
+
+        // TODO: validate
+        var $symbols = $(this.$.symbols);
+        $symbols.empty();
+
+        if (newValue === 'a') {
+          newValue = 1;
+        }
+
+        var valueInt = Number.parseInt(newValue);
+        if (Number.isNaN(valueInt)) {
+          $symbols.append($('<div class="value-letter">{0}</div>'.format(newValue)));
+        } else {
+          var addSymbols = function($parent, count) {
+            if (count === 10) {
+              addSymbols($parent, 4);
+              addSymbols($parent, 2);
+              addSymbols($parent, 4);
+            } else if (count > 4) {
+              var remainder = count % 2;
+              var divided = Math.floor(count / 2);
+
+              addSymbols($parent, divided);
+              if (remainder) {
+                addSymbols($parent, remainder);
+              }
+              addSymbols($parent, divided);
+            } else  {
+              var $div = $('<div></div>');
+              for (var i = 0; i < count; i++) {
+                $div.append('<div class="symbol"></symbol>');
+              }
+              $parent.append($div);
+            }
+          };
+
+          addSymbols($symbols, valueInt);
+        }
+
+        cloneFaces.bind(this)();
+        updateSymbols.bind(this)();
+      }
+    });
+  </script>
+</polymer-element>
