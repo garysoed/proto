@@ -1,4 +1,4 @@
-define(['jquery'], function($) {
+var svg = (function() {
 
   /**
    * Returns a function to be passed into jQuery's each() to append the given SVG to each element.
@@ -30,4 +30,4 @@ define(['jquery'], function($) {
   };
 
   return { appendSvg: appendSvg };
-});
+})();

@@ -17,11 +17,17 @@ requirejs(['server', 'common/uris', 'common/clienterror'], function(Server, Uris
   app.use(logfmt.requestLogger());
   app.use(bodyParser.urlencoded());
   app.use(methodOverride());
-  app.use('/scripts', express.static(__dirname + '/../web/scripts'));
-  app.use('/bower_components', express.static(__dirname + '/../bower_components'));
-  app.use('/common', express.static(__dirname + '/../common'));
-  app.use('/web', express.static(__dirname + '/../web'));
-  app.use('/assets', express.static(__dirname + '/../web/assets'));
+
+  var statics = {
+    'scripts': '/../web/scripts',
+    'bower_components': '/../bower_components',
+    'common': '/../common',
+    'web': '/../web',
+    'assets': '/../web/assets'
+  };
+  for (var key in statics) {
+    app.use('/' + key, express.static(__dirname + statics[key]));
+  }
 
   app.engine('html', ejs.renderFile);
 

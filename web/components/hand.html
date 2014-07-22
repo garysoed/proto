@@ -1,5 +1,3 @@
-<link rel="import" href="../../bower_components/polymer/polymer.html">
-
 <polymer-element name="pb-hand">
   <template>
     <link rel="stylesheet" href="css/all.css">
@@ -9,7 +7,8 @@
     </div>
   </template>
   <script>
-    require(['jquery', 'jquery-ui/sortable'], function($) {
+  require(['config'], function() {
+    define('hand', ['jquery', 'jquery-ui/sortable', 'polymer'], function($) {
       Polymer('pb-hand', {
         created: function() {
           this.width = '100px';
@@ -22,5 +21,6 @@
         }
       });
     });
+  });
   </script>
 </polymer-element>

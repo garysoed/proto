@@ -10,6 +10,8 @@
   <script src="../scripts/require.js"></script>
   <script src="../scripts/config.js"></script>
 
+  <script src="../../testing/mock.js"></script>
+  
   <div hidden><!--
 Copyright (c) 2014 The Polymer Project Authors. All rights reserved.
 This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
@@ -301,154 +303,176 @@ html /deep/ [segment], html /deep/ segment {
 <script src="../../bower_components/polymer/polymer.js"></script>
 <!--<link rel="import" href="../polymer-dev/polymer.html">--> 
 
-<polymer-element name="pb-game-logic" assetpath="">
-  <template></template>
+
+
+<polymer-element name="pb-scripts" assetpath="">
+  <script src="../../bower_components/jquery/dist/jquery.js"></script>
   <script>
-    require(['jquery', '../scripts/network', 'common/pretty'], function($, Network) {
+    var define = function(callback) {
+      callback();
+    };
+  </script>
+  <script src="../../common/events.js"></script>
+  <script src="../../common/uris.js"></script>
+  <script src="../../common/pretty.js"></script>
+  <script src="../scripts/network.js"></script>
+  <script src="../scripts/svg.js"></script>
+  
+  <script>
+    Polymer('pb-scripts', {
+      created: function() {
+        this.$ = $;
+        this.Network = Network;
+        this.svg = svg;
+      }
+    });
+  </script>
+</polymer-element>
 
-      var network = null;
-      var state = {};
+<polymer-element name="pb-game-logic" assetpath="">
+  <template>
+    <pb-scripts id="scripts"></pb-scripts>
+  </template>
+  <script>
+    var network = null;
+    var state = {};
+
+    /**
+     * Events that the game dispatches.
+     *
+     * @enum {string}
+     */
+    var Events = {
+      JOIN: 'Game.Events.join',
+      NEW_GAME_STATE: 'Game.Events.new_game_state',
+      PLAYER_ADDED: 'Game.Events.player_added',
+      PLAYER_REMOVED: 'Game.Events.player_removed'
+    };
+
+    /**
+     * Types of changes that the game can handle.
+     *
+     * @enum {string}
+     */
+    var ChangeType = {
+      ADD: 'ADD',
+      DELETE: 'DELETE',
+      UPDATE: 'UPDATE'
+    };
+
+    function assertSignedIn() {
+      if (!network) {
+        throw 'Need to sign in first';
+      }
+    }
+
+    function handleMessage(e, msg) {
+      // TODO: Pass to processor / game logic.
+      state[msg.type] = msg.data.value;
+      this.fire(
+          '{0}.{1}'.format(msg.type, msg.data.change), 
+          {actor: msg.data.actor, value: msg.data.value});
+    }
+
+    function handleNewGameState(e, gameState) {
+      state = gameState || {};
+      this.fire(Events.NEW_GAME_STATE);
+    }
+
+    function handleJoin() {
+      this.fire(Events.JOIN, {gameId: network.getGameId()});
+    }
+
+    function handlePlayerAdded(e, userId) {
+      this.fire(Events.PLAYER_ADDED, {userId: userId});
+    }
+
+    function handlePlayerRemoved(e, userId) {
+      this.fire(Events.PLAYER_REMOVED, {userId: userId});
+    }
+
+    Polymer('pb-game-logic', {
+      /**
+       * Resets the state of the game, signing out if necessary.
+       */
+      reset: function() {
+        this.leave();
+        network = null;
+        state = {};
+      },
 
       /**
-       * Events that the game dispatches.
+       * Signs into the game.
        *
-       * @enum {string}
+       * @param  {string} userId The User ID to sign in with.
        */
-      var Events = {
-        JOIN: 'Game.Events.join',
-        NEW_GAME_STATE: 'Game.Events.new_game_state',
-        PLAYER_ADDED: 'Game.Events.player_added',
-        PLAYER_REMOVED: 'Game.Events.player_removed'
-      };
+      signIn: function(userId) {
+        this.leave();
+        network = new this.$.scripts.Network(userId, this.getState);
+        $(network)
+            .bind(this.$.scripts.Network.Events.MESSAGE, handleMessage.bind(this))
+            .bind(this.$.scripts.Network.Events.NEW_GAME_STATE, handleNewGameState.bind(this))
+            .bind(this.$.scripts.Network.Events.JOIN, handleJoin.bind(this))
+            .bind(this.$.scripts.Network.Events.PLAYER_ADDED, handlePlayerAdded.bind(this))
+            .bind(this.$.scripts.Network.Events.PLAYER_REMOVED, handlePlayerRemoved.bind(this));
+      },
 
       /**
-       * Types of changes that the game can handle.
+       * Creates a new game. SignIn must have been called.
+       */
+      create: function() {
+        assertSignedIn();
+        network.create();
+      },
+
+      /**
+       * Joins the given game ID. SignIn must have been called.
        *
-       * @enum {string}
+       * @param  {string} gameId Game ID to join.
        */
-      var ChangeType = {
-        ADD: 'ADD',
-        DELETE: 'DELETE',
-        UPDATE: 'UPDATE'
-      };
+      join: function(gameId) {
+        assertSignedIn();
+        network.join(gameId);
+      },
 
       /**
-       * Asserts that the user has signed in.
+       * Leaves the game if signed in. Noop if not signed in.
        */
-      function assertSignedIn() {
-        if (!network) {
-          throw 'Need to sign in first';
+      leave: function() {
+        if (network) {
+          network.leave();
         }
-      }
+      },
 
-      function handleMessage(e, msg) {
-        // TODO: Pass to processor / game logic.
-        state[msg.type] = msg.data.value;
-        this.fire(
-            '{0}.{1}'.format(msg.type, msg.data.change), 
-            {actor: msg.data.actor, value: msg.data.value});
-      }
+      /**
+       * Sends a change to the server.
+       *
+       * @param  {string}                   field  The field that is changed.
+       * @param  {pb-game-logic.ChangeType} change The change type.
+       * @param  {Object}                   value  The new value of the field.
+       */
+      change: function(field, change, value) {
+        // TODO add validator
+        assertSignedIn();
+        network.send(field, {actor: network.getUserId(), change: change, value: value});
+      },
 
-      function handleNewGameState(e, gameState) {
-        state = gameState || {};
-        this.fire(Events.NEW_GAME_STATE);
-      }
+      /**
+       * Returns the state of the game.
+       *
+       * @return {Object} Current state of the game.
+       */
+      getState: function() {
+        return state;
+      },
 
-      function handleJoin() {
-        this.fire(Events.JOIN, {gameId: network.getGameId()});
-      }
-
-      function handlePlayerAdded(e, userId) {
-        this.fire(Events.PLAYER_ADDED, {userId: userId});
-      }
-
-      function handlePlayerRemoved(e, userId) {
-        this.fire(Events.PLAYER_REMOVED, {userId: userId});
-      }
-
-      Polymer('pb-game-logic', {
-        /**
-         * Resets the state of the game, signing out if necessary.
-         */
-        reset: function() {
-          this.leave();
-          network = null;
-          state = {};
-        },
-
-        /**
-         * Signs into the game.
-         *
-         * @param  {string} userId The User ID to sign in with.
-         */
-        signIn: function(userId) {
-          this.leave();
-          network = new Network(userId, this.getState);
-          $(network)
-              .bind(Network.Events.MESSAGE, handleMessage.bind(this))
-              .bind(Network.Events.NEW_GAME_STATE, handleNewGameState.bind(this))
-              .bind(Network.Events.JOIN, handleJoin.bind(this))
-              .bind(Network.Events.PLAYER_ADDED, handlePlayerAdded.bind(this))
-              .bind(Network.Events.PLAYER_REMOVED, handlePlayerRemoved.bind(this));
-        },
-
-        /**
-         * Creates a new game. SignIn must have been called.
-         */
-        create: function() {
-          assertSignedIn();
-          network.create();
-        },
-
-        /**
-         * Joins the given game ID. SignIn must have been called.
-         *
-         * @param  {string} gameId Game ID to join.
-         */
-        join: function(gameId) {
-          assertSignedIn();
-          network.join(gameId);
-        },
-
-        /**
-         * Leaves the game if signed in. Noop if not signed in.
-         */
-        leave: function() {
-          if (network) {
-            network.leave();
-          }
-        },
-
-        /**
-         * Sends a change to the server.
-         *
-         * @param  {string} field The field that is changed.
-         * @param  {pb-game-logic.ChangeType} change The change type.
-         * @param  {Object} value The new value of the field.
-         */
-        change: function(field, change, value) {
-          // TODO add validator
-          assertSignedIn();
-          network.send(field, {actor: network.getUserId(), change: change, value: value});
-        },
-
-        /**
-         * Returns the state of the game.
-         *
-         * @return {Object} Current state of the game.
-         */
-        getState: function() {
-          return state;
-        },
-
-        /**
-         * Events that the Game can trigger.
-         *
-         * @enum {string}
-         */
-        Events: Events,
-        ChangeType: ChangeType
-      });
+      /**
+       * Events that the Game can trigger.
+       *
+       * @enum {string}
+       */
+      Events: Events,
+      ChangeType: ChangeType
     });
   </script>
 </polymer-element></div>
@@ -466,265 +490,261 @@ html /deep/ [segment], html /deep/ segment {
   <script>
     QUnit.init();
     QUnit.stop();
-    require(['../scripts/config'], function() {
-      console.log('config loaded');
-      require(['jquery', 'mock', 'common/events', 'common/uris'], function($, Mock, Events, Uris) {
-        var game = $('#game')[0];
-        console.log('main loaded');
 
-        QUnit.testDone(function() { game.reset(); });
+    var game = $('#game')[0];
+    console.log('main loaded');
 
-        /**
-         * Tests for pb-game-logic.signIn
-         */
-        QUnit.module('pb-game-logic.signIn');
-        QUnit.test('good', function(asserts) {
-          var userId = 'User ID';
-          game.signIn(userId);
-          asserts.ok(true, 'Test ran with no errors');
-        });
+    QUnit.testDone(function() { game.reset(); });
 
-        QUnit.test('existing game', function(asserts) {
-          var userId = 'user ID';
-          var gameId = 'Game ID';
-          var postSpy = Mock.spy($, 'post');
-          Mock.when(postSpy)(Uris.Request.CREATE).doReturn({
-            done: function(callback) { callback({gameId: gameId}); }
-          });
+    /**
+     * Tests for pb-game-logic.signIn
+     */
+    QUnit.module('pb-game-logic.signIn');
+    QUnit.test('good', function(asserts) {
+      var userId = 'User ID';
+      game.signIn(userId);
+      asserts.ok(true, 'Test ran with no errors');
+    });
 
-          game.signIn(userId);
-          game.create();
+    QUnit.test('existing game', function(asserts) {
+      var userId = 'user ID';
+      var gameId = 'Game ID';
+      var postSpy = Mock.spy($, 'post');
+      Mock.when(postSpy)(Uris.Request.CREATE).doReturn({
+        done: function(callback) { callback({gameId: gameId}); }
+      });
 
-          game.signIn('User ID 2');
-          Mock.verify(postSpy)(Uris.Request.LEAVE, {gameId: gameId, userId: userId});
-        });
+      game.signIn(userId);
+      game.create();
+
+      game.signIn('User ID 2');
+      Mock.verify(postSpy)(Uris.Request.LEAVE, {gameId: gameId, userId: userId});
+    });
 
 
-        /**
-         * Tests for pb-game-logic.create.
-         */
-        QUnit.module('pb-game-logic.create');
-        QUnit.test('good', function(asserts) {
-          var postSpy = Mock.spy($, 'post');
-          var userId = 'userId';
-          game.signIn(userId);
-          game.create();
-          Mock.verify(postSpy)(Uris.Request.CREATE);
-        });
+    /**
+     * Tests for pb-game-logic.create.
+     */
+    QUnit.module('pb-game-logic.create');
+    QUnit.test('good', function(asserts) {
+      var postSpy = Mock.spy($, 'post');
+      var userId = 'userId';
+      game.signIn(userId);
+      game.create();
+      Mock.verify(postSpy)(Uris.Request.CREATE);
+    });
 
-        QUnit.test('not signed in', function(asserts) {
-          asserts.throws(
-              function() { game.create(); },
-              /sign in/,
-              'Throws exception when not signed in.');
-        });
-
-
-        /**
-         * Tests for pb-game-logic.join.
-         */
-        QUnit.module('pb-game-logic.join');
-        QUnit.test('good', function(asserts) {
-          var postSpy = Mock.spy($, 'post');
-          var userId = 'User ID';
-          var gameId = 'Game ID';
-
-          var mockListener = Mock.mockFunction('gameListener');
-          game.addEventListener(game.Events.JOIN, mockListener);
-
-          game.signIn(userId);
-
-          Mock.when(postSpy).doReturn({
-            done: function(callback) { callback(); }
-          });
-
-          game.join(gameId);
-
-          Mock.verify(postSpy)(Uris.Request.JOIN, {gameId: gameId, userId: userId});
-
-          var eventSaver = Mock.saver();
-          Mock.verify(mockListener)(eventSaver);
-          asserts.deepEqual(eventSaver.arg.detail, {gameId: gameId});
-        });
-
-        QUnit.test('not signed in', function(asserts) {
-          asserts.throws(
-              function() { game.join('game ID'); },
-              /sign in/,
-              'Throws exception when not signed in.');
-        });
+    QUnit.test('not signed in', function(asserts) {
+      asserts.throws(
+          function() { game.create(); },
+          /sign in/,
+          'Throws exception when not signed in.');
+    });
 
 
-        /**
-         * Tests for pb-game-logic.leave.4087610027
-         */
-        QUnit.module('pb-game-logic.leave');
-        QUnit.test('good', function(asserts) {
-          var userId = 'User ID';
-          var gameId = 'Game ID';
-          var spyPost = Mock.spy($, 'post');
-          Mock.when(spyPost)(Uris.Request.CREATE).doReturn({
-            done: function(callback) { callback({gameId: gameId}); }
-          });
+    /**
+     * Tests for pb-game-logic.join.
+     */
+    QUnit.module('pb-game-logic.join');
+    QUnit.test('good', function(asserts) {
+      var postSpy = Mock.spy($, 'post');
+      var userId = 'User ID';
+      var gameId = 'Game ID';
 
-          game.signIn(userId);
-          game.create();
-          game.leave();
+      var mockListener = Mock.mockFunction('gameListener');
+      game.addEventListener(game.Events.JOIN, mockListener);
 
-          Mock.verify(spyPost)(Uris.Request.LEAVE, {userId: userId, gameId: gameId});
-        });
+      game.signIn(userId);
 
-        QUnit.test('not signed in', function(asserts) {
-          game.leave();
-          asserts.ok(true, 'Should not throw exception when not signed in');
-        });
+      Mock.when(postSpy).doReturn({
+        done: function(callback) { callback(); }
+      });
 
+      game.join(gameId);
 
-        /**
-         * Tests for pb-game-logic.change.
-         */
-        QUnit.module('pb-game-logic.change');
-        QUnit.test('good', function(asserts) {
-          var userId = 'User ID';
-          var gameId = 'Game ID';
-          var field = 'field';
-          var change = game.ChangeType.ADD;
-          var value = {value: 1};
+      Mock.verify(postSpy)(Uris.Request.JOIN, {gameId: gameId, userId: userId});
 
-          var spyPost = Mock.spy($, 'post');
-          Mock.when(spyPost)(Uris.Request.CREATE).doReturn({
-            done: function(callback) { callback({gameId: gameId}); }
-          });
+      var eventSaver = Mock.saver();
+      Mock.verify(mockListener)(eventSaver);
+      asserts.deepEqual(eventSaver.arg.detail, {gameId: gameId});
+    });
 
-          game.signIn(userId);
-          game.create();
-          game.change(field, change, value);
-
-          Mock.verify(spyPost)(Uris.Request.MESSAGE, {
-            userId: userId, 
-            gameId: gameId, 
-            msg: {
-              type: field,
-              data: {
-                actor: userId, 
-                change: change, 
-                value: value
-              }
-            }});
-        });
-
-        QUnit.test('not signed in', function(asserts) {
-          asserts.throws(
-              function() { game.change('field', 'change', 'value'); },
-              /sign in/,
-              'Throws exception when not signed in.');
-        });
+    QUnit.test('not signed in', function(asserts) {
+      asserts.throws(
+          function() { game.join('game ID'); },
+          /sign in/,
+          'Throws exception when not signed in.');
+    });
 
 
-        /**
-         * Tests for pb-game-logic event handling from Network.
-         */
-        QUnit.module('pb-game-logic Network event handling after JOIN', {
-          setup: function() {
-            this.mockListener = Mock.mockFunction('listener');
-            this.userId = 'User ID';
-            var mockAddEventListener = Mock.override(
-                EventSource.prototype, 
-                'addEventListener', 
-                Mock.mockFunction('EventSource.addEventListener'));
-            game.signIn(this.userId);
+    /**
+     * Tests for pb-game-logic.leave.4087610027
+     */
+    QUnit.module('pb-game-logic.leave');
+    QUnit.test('good', function(asserts) {
+      var userId = 'User ID';
+      var gameId = 'Game ID';
+      var spyPost = Mock.spy($, 'post');
+      Mock.when(spyPost)(Uris.Request.CREATE).doReturn({
+        done: function(callback) { callback({gameId: gameId}); }
+      });
 
-            var spyPost = Mock.spy($, 'post');
-            var savedCallback = null;
-            Mock.when(spyPost)(Uris.Request.JOIN, Mock.any()).doReturn({
-              done: function(callback) {
-                savedCallback = callback;
-              }
-            });
+      game.signIn(userId);
+      game.create();
+      game.leave();
 
-            this.startStreaming = function(eventType, data) {
-              Mock.when(mockAddEventListener)('message', Mock.any())
-                  .do(function(_, callback) {
-                    callback({
-                      data: JSON.stringify([{
-                        id: 2,
-                        type: eventType,
-                        data: data
-                      }])
-                    });
-                  });
-              savedCallback();
-            };
-            game.join('Game ID');
+      Mock.verify(spyPost)(Uris.Request.LEAVE, {userId: userId, gameId: gameId});
+    });
+
+    QUnit.test('not signed in', function(asserts) {
+      game.leave();
+      asserts.ok(true, 'Should not throw exception when not signed in');
+    });
+
+
+    /**
+     * Tests for pb-game-logic.change.
+     */
+    QUnit.module('pb-game-logic.change');
+    QUnit.test('good', function(asserts) {
+      var userId = 'User ID';
+      var gameId = 'Game ID';
+      var field = 'field';
+      var change = game.ChangeType.ADD;
+      var value = {value: 1};
+
+      var spyPost = Mock.spy($, 'post');
+      Mock.when(spyPost)(Uris.Request.CREATE).doReturn({
+        done: function(callback) { callback({gameId: gameId}); }
+      });
+
+      game.signIn(userId);
+      game.create();
+      game.change(field, change, value);
+
+      Mock.verify(spyPost)(Uris.Request.MESSAGE, {
+        userId: userId, 
+        gameId: gameId, 
+        msg: {
+          type: field,
+          data: {
+            actor: userId, 
+            change: change, 
+            value: value
+          }
+        }});
+    });
+
+    QUnit.test('not signed in', function(asserts) {
+      asserts.throws(
+          function() { game.change('field', 'change', 'value'); },
+          /sign in/,
+          'Throws exception when not signed in.');
+    });
+
+
+    /**
+     * Tests for pb-game-logic event handling from Network.
+     */
+    QUnit.module('pb-game-logic Network event handling after JOIN', {
+      setup: function() {
+        this.mockListener = Mock.mockFunction('listener');
+        this.userId = 'User ID';
+        var mockAddEventListener = Mock.override(
+            EventSource.prototype, 
+            'addEventListener', 
+            Mock.mockFunction('EventSource.addEventListener'));
+        game.signIn(this.userId);
+
+        var spyPost = Mock.spy($, 'post');
+        var savedCallback = null;
+        Mock.when(spyPost)(Uris.Request.JOIN, Mock.any()).doReturn({
+          done: function(callback) {
+            savedCallback = callback;
           }
         });
 
-        QUnit.test('handle Network.MESSAGE', function(asserts) {
-          var field = 'fieldname';
-          var changeType = game.ChangeType.ADD;
-          var actor = 'actorId';
-          var value = {value: 1};
-
-          game.addEventListener('{0}.{1}'.format(field, changeType), this.mockListener);
-
-          this.startStreaming(
-              Events.Server.MESSAGE, 
-              {
-                type: field,
-                data: {
-                  actor: actor,
-                  change: changeType,
-                  value: value
-                }
+        this.startStreaming = function(eventType, data) {
+          Mock.when(mockAddEventListener)('message', Mock.any())
+              .do(function(_, callback) {
+                callback({
+                  data: JSON.stringify([{
+                    id: 2,
+                    type: eventType,
+                    data: data
+                  }])
+                });
               });
+          savedCallback();
+        };
+        game.join('Game ID');
+      }
+    });
 
-          var eventSaver = Mock.saver();
-          Mock.verify(this.mockListener)(eventSaver);
-          asserts.deepEqual(eventSaver.arg.detail, {actor: actor, value: value});
+    QUnit.test('handle Network.MESSAGE', function(asserts) {
+      var field = 'fieldname';
+      var changeType = game.ChangeType.ADD;
+      var actor = 'actorId';
+      var value = {value: 1};
 
-          var expectedState = {};
-          expectedState[field] = value;
-          asserts.deepEqual(game.getState(), expectedState);
-        });
+      game.addEventListener('{0}.{1}'.format(field, changeType), this.mockListener);
 
-        QUnit.test('handle Network.PLAYER_ADDED', function(asserts) {
-          var newUserId = 'newUserId';
-          game.addEventListener(game.Events.PLAYER_ADDED, this.mockListener);
-
-          this.startStreaming(Events.Server.PLAYER_ADDED, {userId: newUserId});
-
-          var eventSaver = Mock.saver();
-          Mock.verify(this.mockListener)(eventSaver);
-          asserts.deepEqual(eventSaver.arg.detail, {userId: newUserId});
-        });
-
-        QUnit.test('handle Network.PLAYER_REMOVED', function(asserts) {
-          var removedUserId = 'removedUserId';
-          game.addEventListener(game.Events.PLAYER_REMOVED, this.mockListener);
-
-          this.startStreaming(Events.Server.PLAYER_REMOVED, {userId: removedUserId});
-
-          var eventSaver = Mock.saver();
-          Mock.verify(this.mockListener)(eventSaver);
-          asserts.deepEqual(eventSaver.arg.detail, {userId: removedUserId});
-        });
-
-        QUnit.test('handle Network.NEW_GAME_STATE', function(asserts) {
-          var gameState = {first: 1, second: 2};
-          game.addEventListener(game.Events.NEW_GAME_STATE, this.mockListener);
-          
-          this.startStreaming(Events.Server.SYNC_ACK, {
-            gameState: gameState
+      this.startStreaming(
+          Events.Server.MESSAGE, 
+          {
+            type: field,
+            data: {
+              actor: actor,
+              change: changeType,
+              value: value
+            }
           });
 
-          Mock.verify(this.mockListener)(Mock.any());
-          asserts.deepEqual(game.getState(), gameState);
-        });
+      var eventSaver = Mock.saver();
+      Mock.verify(this.mockListener)(eventSaver);
+      asserts.deepEqual(eventSaver.arg.detail, {actor: actor, value: value});
 
-        console.log('start');
-        QUnit.start();
-      });
+      var expectedState = {};
+      expectedState[field] = value;
+      asserts.deepEqual(game.getState(), expectedState);
     });
+
+    QUnit.test('handle Network.PLAYER_ADDED', function(asserts) {
+      var newUserId = 'newUserId';
+      game.addEventListener(game.Events.PLAYER_ADDED, this.mockListener);
+
+      this.startStreaming(Events.Server.PLAYER_ADDED, {userId: newUserId});
+
+      var eventSaver = Mock.saver();
+      Mock.verify(this.mockListener)(eventSaver);
+      asserts.deepEqual(eventSaver.arg.detail, {userId: newUserId});
+    });
+
+    QUnit.test('handle Network.PLAYER_REMOVED', function(asserts) {
+      var removedUserId = 'removedUserId';
+      game.addEventListener(game.Events.PLAYER_REMOVED, this.mockListener);
+
+      this.startStreaming(Events.Server.PLAYER_REMOVED, {userId: removedUserId});
+
+      var eventSaver = Mock.saver();
+      Mock.verify(this.mockListener)(eventSaver);
+      asserts.deepEqual(eventSaver.arg.detail, {userId: removedUserId});
+    });
+
+    QUnit.test('handle Network.NEW_GAME_STATE', function(asserts) {
+      var gameState = {first: 1, second: 2};
+      game.addEventListener(game.Events.NEW_GAME_STATE, this.mockListener);
+      
+      this.startStreaming(Events.Server.SYNC_ACK, {
+        gameState: gameState
+      });
+
+      Mock.verify(this.mockListener)(Mock.any());
+      asserts.deepEqual(game.getState(), gameState);
+    });
+
+    console.log('start');
+    QUnit.start();
   </script>
 </body>
 </html>

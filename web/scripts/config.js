@@ -2,20 +2,17 @@ require.config({
   paths: {
     'jquery': '../../bower_components/jquery/dist/jquery',
     'jquery-ui': '../../bower_components/jquery-ui/ui',
-    'polymer/platform': '../../bower_components/platform/platform',
+    'polymer-platform': '../../bower_components/platform/platform',
+    'polymer': '../../bower_components/polymer/polymer',
     'common': '../../common',
-    'mock': '../../testing/mock',
-    'mockajax': '../../testing/mockajax',
+    'mock': '../../testing/mock'
   },
   shim : {
     'jquery': {
       exports: '$'
     },
-    'mock': {
-      exports: 'Mock'
-    },
-    'mockajax': {
-      exports: 'Mock'
+    'polymer': {
+      deps: ['polymer-platform']
     }
   }
 });

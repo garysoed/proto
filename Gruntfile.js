@@ -43,13 +43,15 @@ module.exports = function(grunt) {
           'server/**/*.js', 
           'common/**/*.js', 
           'web/**/*.js', 
+          'web/**/*.html',
           'testing/**/*.js',
           '!**/require.js',
           '!server/public/**'
         ], 
         options: {
           destination: 'doc',
-          private: false
+          private: false,
+          explain: true
         }
       }
     },
@@ -74,6 +76,15 @@ module.exports = function(grunt) {
           'web/components/**/*.html', 
           '!web/components/**/*_test_run.html'],
         tasks: ['vulcanize'],
+        options: {
+          atBegin: true
+        }
+      },
+      less: {
+        files: [
+          'web/**/*.less'
+        ],
+        tasks: ['less'],
         options: {
           atBegin: true
         }

@@ -1,5 +1,3 @@
-<link rel="import" href="../bower_components/polymer/polymer.html">
-
 <polymer-element name="pb-signin">
   <template>
     <div id="root">
@@ -21,24 +19,5 @@
     </div>
   </template>
   <script>
-    require(['jquery', 'game'], function($, Game) {
-      Polymer('pb-signin', {
-        join: false,
-        submitClick: function(event) {
-          // TODO: Block until userId is specified.
-          Game.signIn(this.$.userId.value);
-          if (this.$.joinGameRadio.checked) {
-            Game.join(this.$.gameId.value);
-          } else {
-            Game.create();
-          }
-        },
-        radioChange: function(event) {
-          var joinEnabled = this.$.joinGameRadio.checked;
-          $('input', this.$.joinGame)
-              .each(function(i, el) { el.disabled = !joinEnabled; });
-        }
-      });
-    });
   </script>
 </polymer-element>  

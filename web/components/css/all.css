@@ -1,20 +1,20 @@
-.pb-card {
+pb-card::shadow #root {
   perspective: 1000;
   -webkit-perspective: 1000;
   -moz-perspective: 1000;
   cursor: pointer;
   position: relative;
 }
-.pb-card .face {
+pb-card::shadow #root .face {
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
   -moz-backface-visibility: hidden;
   border: 1px solid black;
 }
-.pb-card .pad {
+pb-card::shadow #root .pad {
   visibility: hidden;
 }
-.pb-card .front {
+pb-card::shadow #root .front {
   transform: rotateY(-180deg);
   -webkit-transform: rotateY(-180deg);
   -moz-transform: rotateY(-180deg);
@@ -28,7 +28,7 @@
   -webkit-transition-property: transform;
   -moz-transition-property: transform;
 }
-.pb-card .back {
+pb-card::shadow #root .back {
   transform: rotateY(0);
   -webkit-transform: rotateY(0);
   -moz-transform: rotateY(0);
@@ -45,7 +45,7 @@
   top: 0;
   left: 0;
 }
-.pb-card.showFront .front {
+pb-card::shadow #root.showFront .front {
   transform: rotateY(0deg);
   -webkit-transform: rotateY(0deg);
   -moz-transform: rotateY(0deg);
@@ -59,7 +59,7 @@
   -webkit-transition-property: transform;
   -moz-transition-property: transform;
 }
-.pb-card.showFront .back {
+pb-card::shadow #root.showFront .back {
   transform: rotateY(180deg);
   -webkit-transform: rotateY(180deg);
   -moz-transform: rotateY(180deg);
@@ -73,6 +73,10 @@
   -webkit-transition-property: transform;
   -moz-transition-property: transform;
 }
+pb-card::shadow #root .preview {
+  display: none;
+}
+
 
 
 
@@ -81,6 +85,7 @@
   padding: 10px;
   width: 300px;
 }
+.pb-standard-card.front.preview,
 .pb-standard-card.front {
   display: -webkit-flex;
   display: flex;
@@ -88,19 +93,25 @@
   font-family: Helvetica, Arial, sans-serif;
   font-size: 20px;
 }
+.pb-standard-card.front.preview.heart,
 .pb-standard-card.front.heart,
+.pb-standard-card.front.preview.diamond,
 .pb-standard-card.front.diamond {
   color: red;
 }
+.pb-standard-card.front.preview.heart .symbol,
 .pb-standard-card.front.heart .symbol,
+.pb-standard-card.front.preview.diamond .symbol,
 .pb-standard-card.front.diamond .symbol {
   fill: red;
 }
+.pb-standard-card.front.preview .symbol,
 .pb-standard-card.front .symbol {
   width: 30px;
   height: 20px;
   display: inline-block;
 }
+.pb-standard-card.front.preview .value,
 .pb-standard-card.front .value {
   width: 30px;
   height: 20px;
@@ -108,6 +119,7 @@
   text-align: center;
   text-transform: uppercase;
 }
+.pb-standard-card.front.preview .main,
 .pb-standard-card.front .main {
   flex: 1;
   -webkit-flex: 1;
@@ -117,6 +129,7 @@
   align-items: center;
   -webkit-align-items: center;
 }
+.pb-standard-card.front.preview .symbols,
 .pb-standard-card.front .symbols {
   flex: 1;
   -webkit-flex: 1;
@@ -126,6 +139,7 @@
   align-items: center;
   -webkit-align-items: center;
 }
+.pb-standard-card.front.preview .symbols > div,
 .pb-standard-card.front .symbols > div {
   display: -webkit-flex;
   display: flex;
@@ -138,37 +152,21 @@
   -webkit-flex: 1;
   -moz-flex: 1;
 }
-.pb-standard-card.front .symbols.value-a .symbol {
-  width: 50px;
-  height: 50px;
-}
-.pb-standard-card.front .symbols.value-2 .symbol,
-.pb-standard-card.front .symbols.value-3 .symbol,
-.pb-standard-card.front .symbols.value-4 .symbol,
-.pb-standard-card.front .symbols.value-5 .symbol,
-.pb-standard-card.front .symbols.value-6 .symbol,
-.pb-standard-card.front .symbols.value-7 .symbol,
-.pb-standard-card.front .symbols.value-8 .symbol,
-.pb-standard-card.front .symbols.value-9 .symbol,
-.pb-standard-card.front .symbols.value-10 .symbol {
-  width: 37.5px;
-  height: 37.5px;
-  margin-bottom: 50px;
-}
-.pb-standard-card.front .symbols.value-5 .symbol {
-  margin-bottom: 150px;
-}
+.pb-standard-card.front.preview .symbols .value-letter,
 .pb-standard-card.front .symbols .value-letter {
   text-transform: uppercase;
   font-size: 400%;
 }
+.pb-standard-card.front.preview .symbols .symbol:last-child,
 .pb-standard-card.front .symbols .symbol:last-child {
   margin-bottom: 0;
 }
+.pb-standard-card.front.preview .margin-right,
 .pb-standard-card.front .margin-right {
   position: relative;
   width: 30px;
 }
+.pb-standard-card.front.preview .margin-right .container,
 .pb-standard-card.front .margin-right .container {
   transform: rotateZ(180deg);
   -webkit-transform: rotateZ(180deg);
@@ -176,6 +174,44 @@
   position: absolute;
   bottom: 0;
 }
+.pb-standard-card.front.preview .symbols.value-a .symbol {
+  width: 50px;
+  height: 33.33333333px;
+}
+.pb-standard-card.front.preview .symbols.value-2 .symbol,
+.pb-standard-card.front.preview .symbols.value-3 .symbol,
+.pb-standard-card.front.preview .symbols.value-4 .symbol,
+.pb-standard-card.front.preview .symbols.value-5 .symbol,
+.pb-standard-card.front.preview .symbols.value-6 .symbol,
+.pb-standard-card.front.preview .symbols.value-7 .symbol,
+.pb-standard-card.front.preview .symbols.value-8 .symbol,
+.pb-standard-card.front.preview .symbols.value-9 .symbol,
+.pb-standard-card.front.preview .symbols.value-10 .symbol {
+  width: 37.5px;
+  height: 25px;
+  margin-bottom: 50px;
+}
+.pb-standard-card.front.preview .symbols.value-5 .symbol {
+  margin-bottom: 150px;
+}
+.pb-standard-card.back.preview,
 .pb-standard-card.back {
   background-color: green;
+}
+.pb-standard-card.front,
+.pb-standard-card.back {
+  width: 30px;
+  height: 40px;
+  padding: 0;
+}
+.pb-standard-card.front .margin-left,
+.pb-standard-card.front .margin-right {
+  display: none;
+}
+.pb-standard-card.front .value-a .symbol {
+  width: 10px;
+  height: 6.66666667px;
+}
+.pb-standard-card pb-card .preview {
+  display: none;
 }

@@ -1,30 +1,52 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
-<link rel="import" href="cardpreviewerhandler.html">
+
+<link rel="import" href="card-previewer-handler.html">
+<link rel="import" href="scripts.html">
 
 <polymer-element name="pb-card">
   <template>
     <link rel="stylesheet" href="css/all.css">
-    <pb-cardpreviewerhandler id="previewerHandler"></pb-cardpreviewerhandler>
+
+    <pb-card-previewer-handler id="previewerHandler"></pb-card-previewer-handler>
+    <pb-scripts id="scripts"></pb-scripts>
     
-    <div id="root" class="pb-card" on-click="{{onClick}}" on-mouseover="{{onMouseOver}}">
+    <div id="root" on-click="{{onClick}}" on-mouseover="{{onMouseOver}}">
       <div class="face front">
-        <content select=".front"></content>
+        <content select=".front.small"></content>
       </div>
       <div class="face back">
-        <content select=".back"></content>
+        <content select=".back.small"></content>
+      </div>
+      <div class="preview">
+        <content id="frontPreview" select=".front.preview"></content>
+        <content id="backPreview" select=".back.preview"></content>
       </div>
     </div>
   </template>
   <script>
-    require(['jquery'], function($) {
-      Polymer('pb-card', {
-        onClick: function() {
-          $(this.$.root).toggleClass('showFront');
-        },
-        onMouseOver: function() {
-          this.$.previewerHandler.setCard(this.$.root);
-        }
-      });
+    var updatePreviewer = function() {
+      // TODO: get the id properly.
+      if (this.$.scripts.$(this.$.root).hasClass('showFront')) {
+        this.$.previewerHandler.setCard('front', this.$.frontPreview.getDistributedNodes()[0]);
+      } else {
+        this.$.previewerHandler.setCard('back', this.$.backPreview.getDistributedNodes()[0]);
+      }
+    };
+
+    Polymer('pb-card', {
+      create: function() {
+        this.card = null;
+      },
+      onClick: function() {
+        this.$.scripts.$(this.$.root).toggleClass('showFront');
+        updatePreviewer.bind(this)();
+      },
+      onMouseOver: function() {
+        updatePreviewer.bind(this)();
+      },
+      setCard: function(card) {
+        this.card = card;
+      }
     });
   </script>
 </polymer-element>

@@ -63,9 +63,9 @@ requirejs.define(
       /**
        * Queues an SSE event for all of the users.
        * 
-       * @param {string} type The type of SSE event to be added.
-       * @param {!Object} data The data of SSE event to be added.
-       * @param {string[]=} opt_userIds User IDs to send the events to. Defaults to all registered 
+       * @param {string}    type        The type of SSE event to be added.
+       * @param {!Object}   data        The data of SSE event to be added.
+       * @param {string[]?} opt_userIds User IDs to send the events to. Defaults to all registered 
        *                                users.
        */
       Session.prototype.queueEvent = function(type, data, opt_userIds) {

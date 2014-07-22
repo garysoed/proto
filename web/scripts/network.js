@@ -1,7 +1,6 @@
 /** @module web */
 
-define(['jquery', 'common/events', 'common/uris', 'common/pretty'], function($, Events, Uris) {
-
+Network = (function() {
   /**
    * A component that is responsible for communicating with the server.
    * 
@@ -194,4 +193,4 @@ define(['jquery', 'common/events', 'common/uris', 'common/pretty'], function($, 
   };
 
   return Network;
-});
+})();

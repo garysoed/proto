@@ -1,32 +1,15 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <script data-main="scripts/config" src="scripts/require.js"></script>
-    <script>
-      require(['config'], function() {
-        require(['jquery', 'game', 'polymer/platform'], function($, Game) {
-          $(window).unload(function() {
-            Game.leave();
-          });
-        });
-      });
-    </script>
-    <link rel="import" href="web/signin.html">
-    <link rel="import" href="web/game.html">
-    <link rel="import" href="web/components/standardcard.html">
-    <link rel="import" href="web/components/hand.html">
-    <link rel="import" href="web/components/cardpreviewer.html">
-    <link rel="import" href="web/components/gamelogic.html">
+    <script src="../../bower_components/platform/platform.js"></script>
+
+    <link rel="import" href="web/components/card-previewer.html">
+    <link rel="import" href="web/components/standard-card.html">
   </head>
   <body>
-    <pb-signin></pb-signin>
-    <pb-game></pb-game>
-    <pb-cardpreviewer></pb-cardpreviewer>
-    <pb-hand>
-      <pb-standardcard face="heart" value="a" style="display:inline-block;"></pb-standardcard>
-      <pb-standardcard face="spade" value="j" style="display:inline-block;"></pb-standardcard>
-      <pb-standardcard face="diamond" value="q" style="display:inline-block;"></pb-standardcard>
-      <pb-standardcard face="club" value="k" style="display:inline-block;"></pb-standardcard>
-    </pb-hand>
+    <pb-card-previewer></pb-card-previewer>
+    <!--<pb-hand>-->
+      <pb-standard-card face="heart" value="a" style="display:inline-block;"></pb-standard-card>
+    <!--</pb-hand>-->
   </body>
 </html>

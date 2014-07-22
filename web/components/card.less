@@ -1,7 +1,7 @@
 @import "css/compat.less";
 @import "css/base.less";
 
-.pb-card {
+pb-card::shadow #root {
   // Mixins
   .transition() {
     .transform-style(preserve-3d);
@@ -45,5 +45,9 @@
       .transform(rotateY(180deg));
       .transition();
     }
+  }
+
+  .preview {
+    display: none;
   }
 }
