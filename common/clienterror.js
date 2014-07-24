@@ -1,17 +1,11 @@
-if (typeof define !== 'function') {
-  var define = require('amdefine')(module); 
-}
-
-define(function() {
-  var ClientError = {};
-
+(function() {
   /**
    * Errors caused by the client.
    *
    * @param {ClientError.Code} code The error code for the client.
    * @param {string} message Message detailing the error.
    */
-  ClientError = function(code, message) {
+  var ClientError = function(code, message) {
     this.code = code;
     this.message = message;
     Error.captureStackTrace(this, arguments.callee);
@@ -29,5 +23,11 @@ define(function() {
     UNRECOGNIZED_USER_ID: 'UNRECOGNIZED_USER_ID'
   };
 
-  return ClientError;
-});
+  if (typeof exports !== 'undefined') {
+    if (typeof module !== 'undefined' && module.exports) {
+      module.exports = ClientError;
+    }
+  } else {
+    this.ClientError = ClientError;
+  }
+}).call(this);

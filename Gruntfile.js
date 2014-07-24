@@ -5,20 +5,22 @@ module.exports = function(grunt) {
     'jshint': {
       options: {
         proto: true,
-        extract: 'auto'
+        extract: 'auto',
+        reporter: require('jshint-stylish')
       },
       all: [
         '**/*.js', 
         '**/*.html',
-        '!**/*_test_run.html',
+        '!tests/**/*_test.html',
         '!doc/**',
         '!**/bower_components/**', 
         '!**/node_modules/**',
-        '!server/public/**'
+        '!server/public/**',
+        '!Gruntfile.js'
       ],
     },
     'qunit': {
-      scripts: ['web/scripts/**/*_test.html']
+      scripts: ['test_gen/web/scripts/*_test.html']
     },
     'node-qunit': {
       server: {
@@ -65,16 +67,17 @@ module.exports = function(grunt) {
     'vulcanize': {
       default: {
         files: {
-          'web/components/game-logic_test_run.html': 'web/components/game-logic_test.html'
+          'test_gen/web/components/game-logic_test.html': 'web/components/game-logic_test.html',
+          'test_gen/web/scripts/network_test.html': 'web/scripts/network_test.html'
         }
       }
     },
     'watch': {
       webtests: {
         files: [
-          'web/components/**/*_test.html', 
-          'web/components/**/*.html', 
-          '!web/components/**/*_test_run.html'],
+          'web/**/*_test.html', 
+          'web/**/*.html', 
+          '!web/**/*_test_run.html'],
         tasks: ['vulcanize'],
         options: {
           atBegin: true

@@ -1,8 +1,4 @@
-if (typeof define !== 'function') {
-  var define = require('amdefine')(module); 
-}
-
-define(function() {
+(function() {
   var Events = {};
 
   /**
@@ -19,5 +15,11 @@ define(function() {
     SYNC_ACK: 'Proto.sync_ack',
   };
 
-  return Events;
-});
+  if (typeof exports !== 'undefined') {
+    if (typeof module !== 'undefined' && module.exports) {
+      module.exports = Events;
+    }
+  } else {
+    this.Events = Events;
+  }
+}).call(this);

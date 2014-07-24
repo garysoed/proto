@@ -1,10 +1,14 @@
-/** @module testing/mock */
+(function() {
+  var Pretty = this.Pretty;
 
-if (typeof define !== 'function') {
-  var define = require('amdefine')(module); 
-}
+  if (typeof Pretty === 'undefined') {
+    if (typeof require !== 'undefined') {
+      Pretty = require('../common/pretty');
+    } else {
+      throw new Error('Cannot find module Pretty');
+    }
+  }
 
-define(['common/pretty'], function(Pretty) {
   if (typeof Function.prototype.bind !== 'function') {
     Function.prototype.bind = function(scope) {
       var func = this;
@@ -62,7 +66,7 @@ define(['common/pretty'], function(Pretty) {
    * 
    * @class
    */
-  Matcher = function(equalFn, name) {
+  var Matcher = function(equalFn, name) {
     this.equals = equalFn;
 
     this.toPrettyString = function() { return name; };
@@ -74,7 +78,7 @@ define(['common/pretty'], function(Pretty) {
    * 
    * @class
    */
-  Expectation = function() {
+  var Expectation = function() {
     var f = function() {
       f.matchers = toArgArray(arguments);
       return f;
@@ -106,7 +110,7 @@ define(['common/pretty'], function(Pretty) {
   /**
    * Mock namespace.
    */
-  Mock = {};
+  var Mock = {};
 
   Mock.when = function(mock) {
     var expectation = Expectation();
@@ -240,5 +244,11 @@ define(['common/pretty'], function(Pretty) {
 
   QUnit.testDone(Mock.teardown);
 
-  return Mock;
-});
+  if (typeof exports !== 'undefined') {
+    if (typeof module !== 'undefined' && module.exports) {
+      module.exports = Mock;
+    }
+  } else {
+    this.Mock = Mock;
+  }
+}).call(this);

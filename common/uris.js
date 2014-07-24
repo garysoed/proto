@@ -1,8 +1,4 @@
-if (typeof define !== 'function') {
-  var define = require('amdefine')(module); 
-}
-
-define(function() {
+(function() {
   var Uris = {};
 
   /**
@@ -20,5 +16,11 @@ define(function() {
     SYNC_ACK: 'syncack',
   };
 
-  return Uris;
-});
+  if (typeof exports !== 'undefined') {
+    if (typeof module !== 'undefined' && module.exports) {
+      module.exports = Uris;
+    }
+  } else {
+    this.Uris = Uris;
+  }
+}).call(this);

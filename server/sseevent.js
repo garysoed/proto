@@ -1,4 +1,4 @@
-var Pretty = require('common/pretty');
+var Pretty = require('../common/pretty');
 
 /**
  * Constructor for SSE Event.
@@ -9,7 +9,7 @@ var Pretty = require('common/pretty');
  *
  * @class
  */
-SseEvent = function(id, type, data) {
+var SseEvent = function(id, type, data) {
   this.id_ = id;
   this.type_ = type;
   this.data_ = data;
@@ -38,4 +38,4 @@ SseEvent.toSseMessage = function(events) {
   }
 };
 
-modules.export = SseEvent;
+module.exports = SseEvent;
