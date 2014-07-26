@@ -3,7 +3,7 @@
 <link rel="import" href="card-previewer-handler.html">
 <link rel="import" href="scripts.html">
 
-<polymer-element name="pb-card">
+<polymer-element name="pb-card" attributes="previewId">
   <template>
     <link rel="stylesheet" href="css/all.css">
 
@@ -17,25 +17,25 @@
       <div class="face back">
         <content select=".back.small"></content>
       </div>
-      <div class="preview">
-        <content id="frontPreview" select=".front.preview"></content>
-        <content id="backPreview" select=".back.preview"></content>
-      </div>
+    </div>
+    <div class="preview">
+      <content id="frontPreview" select=".front.preview"></content>
+      <content id="backPreview" select=".back.preview"></content>
     </div>
   </template>
   <script>
     var updatePreviewer = function() {
       // TODO: get the id properly.
       if (this.$.scripts.$(this.$.root).hasClass('showFront')) {
-        this.$.previewerHandler.setCard('front', this.$.frontPreview.getDistributedNodes()[0]);
+        this.$.previewerHandler.setCard(this.previewId + '-front', this.$.frontPreview.getDistributedNodes()[0]);
       } else {
-        this.$.previewerHandler.setCard('back', this.$.backPreview.getDistributedNodes()[0]);
+        this.$.previewerHandler.setCard(this.previewId + '-back', this.$.backPreview.getDistributedNodes()[0]);
       }
     };
 
     Polymer('pb-card', {
-      create: function() {
-        this.card = null;
+      created: function() {
+        this.previewId = '';
       },
       onClick: function() {
         this.$.scripts.$(this.$.root).toggleClass('showFront');
@@ -43,9 +43,6 @@
       },
       onMouseOver: function() {
         updatePreviewer.bind(this)();
-      },
-      setCard: function(card) {
-        this.card = card;
       }
     });
   </script>

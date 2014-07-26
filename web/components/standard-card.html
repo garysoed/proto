@@ -9,10 +9,10 @@
 
     <link rel="stylesheet" href="css/all.css">
 
-    <pb-card id="card">
+    <pb-card id="card" previewId="{{face}}_{{value}}">
       <!-- The front preview face -->
-      <div id="frontPreview" class="pb-standard-card front preview face {{face}}">
-        <div class="margin-left">
+      <div id="front" class="pb-standard-card front preview {{face}}">
+        <div class="margin">
           <div class="value">{{value}}</div>
           <div class="symbol"></div>
         </div>
@@ -21,7 +21,7 @@
           <div id="symbols" class="symbols value-{{value}}"></div>
         </div>
 
-        <div class="margin-right">
+        <div class="margin right">
           <div class="container">
             <div class="value">{{value}}</div>
             <div class="symbol"></div>
@@ -30,7 +30,10 @@
       </div>
 
       <!-- The back preview face -->
-      <div id="backPreview" class="pb-standard-card back preview face"></div>
+      <div id="back" class="pb-standard-card back preview"></div>
+
+      <div class="pb-standard-card front small"></div>
+      <div class="pb-standard-card back small"></div>
     </pb-card>
   </template>
   <script>
@@ -43,22 +46,18 @@
       var $ = this.$.scripts.$;
 
       // Remove the old clones.
-      $('.front.small', this.$.card).remove();
-      $('.back.small', this.$.card).remove();
+      $('.front.small', this.$.card).empty();
+      $('.back.small', this.$.card).empty();
 
       // Clone the faces.
-      var frontClone = $(this.$.frontPreview)
+      var frontClone = $(this.$.front)
           .clone(false)
-          .removeAttr('id')
-          .removeClass('preview')
-          .addClass('small')[0];
-      var backClone = $(this.$.backPreview)
+          .removeAttr('id')[0];
+      var backClone = $(this.$.back)
           .clone(false)
-          .removeAttr('id')
-          .removeClass('preview')
-          .addClass('small')[0];
-      $(this.$.card).append(frontClone);
-      $(this.$.card).append(backClone);
+          .removeAttr('id')[0];
+      $('.front.small', this.$.card).append(frontClone);
+      $('.back.small', this.$.card).append(backClone);
     };
 
 
@@ -70,7 +69,6 @@
       ready: function() {
         cloneFaces.bind(this)();
         updateSymbols.bind(this)();
-        this.$.card.setCard(this);
       },
 
       valueChanged: function(oldValue, newValue) {
