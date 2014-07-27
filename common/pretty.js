@@ -18,12 +18,16 @@
           if (value.length === 0) {
             return '[]';
           } else {
-            return value
-                .map(function(entry) {
-                  return prettify(entry);
-                })
-                .join(',');
+            return '[' 
+                + value
+                    .map(function(entry) {
+                      return prettify(entry);
+                    })
+                    .join(',')
+                + ']';
           }
+        } else if (value instanceof Node) {
+          return value.toString();
         } else if (value.toPrettyString instanceof Function) {
           return value.toPrettyString();
         }

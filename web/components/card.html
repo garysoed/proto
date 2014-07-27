@@ -1,16 +1,25 @@
+<!--
+Base component for interactable card.
+
+To use this, create the pb-card element and pass in 4 elements:
+- Element with .front.preview. This is the front face used for previewing the card.
+- Element with .back.preview. This is the back face used for previewing the card.
+- Element with .front.small. This is the front small face displayed on the card.
+- Element with .back.small. This is the back small face displayed on the card.
+-->
+
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 
 <link rel="import" href="card-previewer-handler.html">
-<link rel="import" href="scripts.html">
 
-<polymer-element name="pb-card" attributes="previewId">
+<polymer-element name="pb-card" attributes="previewId showFront">
   <template>
     <link rel="stylesheet" href="css/all.css">
 
     <pb-card-previewer-handler id="previewerHandler"></pb-card-previewer-handler>
-    <pb-scripts id="scripts"></pb-scripts>
     
-    <div id="root" on-click="{{onClick}}" on-mouseover="{{onMouseOver}}">
+    <div id="root" on-click="{{onClick}}" on-mouseover="{{onMouseOver}}" 
+        class="{{showFront ? 'showFront' : ''}}">
       <div class="face front">
         <content select=".front.small"></content>
       </div>
@@ -25,11 +34,14 @@
   </template>
   <script>
     var updatePreviewer = function() {
-      // TODO: get the id properly.
-      if (this.$.scripts.$(this.$.root).hasClass('showFront')) {
-        this.$.previewerHandler.setCard(this.previewId + '-front', this.$.frontPreview.getDistributedNodes()[0]);
+      if (this.showFront) {
+        this.$.previewerHandler.setCard(
+            this.previewId + '-front', 
+            this.$.frontPreview.getDistributedNodes()[0]);
       } else {
-        this.$.previewerHandler.setCard(this.previewId + '-back', this.$.backPreview.getDistributedNodes()[0]);
+        this.$.previewerHandler.setCard(
+            this.previewId + '-back', 
+            this.$.backPreview.getDistributedNodes()[0]);
       }
     };
 
@@ -38,7 +50,7 @@
         this.previewId = '';
       },
       onClick: function() {
-        this.$.scripts.$(this.$.root).toggleClass('showFront');
+        this.showFront = !this.showFront;
         updatePreviewer.bind(this)();
       },
       onMouseOver: function() {

@@ -3,13 +3,13 @@
 <link rel="import" href="card.html">
 <link rel="import" href="scripts.html">
 
-<polymer-element name="pb-standard-card" attributes="face value">
+<polymer-element name="pb-standard-card" attributes="face value showFront">
   <template>
     <pb-scripts id="scripts"></pb-scripts>
 
     <link rel="stylesheet" href="css/all.css">
 
-    <pb-card id="card" previewId="{{face}}_{{value}}">
+    <pb-card id="card" previewId="{{face}}_{{value}}" showFront="{{!!showFront}}">
       <!-- The front preview face -->
       <div id="front" class="pb-standard-card front preview {{face}}">
         <div class="margin">
@@ -43,6 +43,7 @@
     };
 
     var cloneFaces = function() {
+      // TODO: Pull this to util.
       var $ = this.$.scripts.$;
 
       // Remove the old clones.

@@ -33,6 +33,10 @@
    * @private
    */
   function deepEqual(obj1, obj2) {
+    if (obj1 === obj2) {
+      return true;
+    }
+    
     if (!(obj1 instanceof Object) || !(obj2 instanceof Object)) {
       return obj1 === obj2;
     }
@@ -154,6 +158,7 @@
    * @static
    */ 
   Mock.mockFunction = function(name) {
+    var id = Date.now();
     var f = function() {
       var args = toArgArray(arguments);
       f.interactions.push(args);
@@ -169,6 +174,7 @@
     f.interactions = [];
     f.functionName = name;
     f.expectations = [];
+    f.toString = function() { return '{0}_{1}'.format(name, id); };
     return f;
   };
 
