@@ -1,5 +1,16 @@
+@import "css/base.less";
+@import "css/compat.less";
+
 .pb-hand {
-  & > * {
-    
+  ::content *, pb-standard-card, #blah {
+    .transform(scale(1));
+    .transition-duration(@transition-duration);
+    .transition-property(transform);
+  }
+
+  ::content *:hover, pb-standard-card:hover, #blah:hover {
+    .transform(scale(1.5));
+    .transition-duration(@transition-duration);
+    .transition-property(transform);
   }
 }

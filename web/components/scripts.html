@@ -1,23 +1,5 @@
-<link rel="import" href="../../bower_components/polymer/polymer.html">
-
-<polymer-element name="pb-scripts">
-  <script src="../../bower_components/jquery/dist/jquery.js"></script>
-  <script>
-    var define = function(callback) {
-      callback();
-    };
-  </script>
-  <script src="../../common/events.js"></script>
-  <script src="../../common/uris.js"></script>
-  <script src="../../common/pretty.js"></script>
-  <script src="../scripts/svg.js"></script>
-  
-  <script>
-    Polymer('pb-scripts', {
-      created: function() {
-        this.$ = $;
-        this.svg = svg;
-      }
-    });
-  </script>
-</polymer-element>
+<script src="../../bower_components/jquery/dist/jquery.js"></script>
+<script src="../../common/events.js"></script>
+<script src="../../common/uris.js"></script>
+<script src="../../common/pretty.js"></script>
+<script src="../scripts/svg.js"></script>

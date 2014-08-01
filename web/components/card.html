@@ -8,54 +8,59 @@ To use this, create the pb-card element and pass in 4 elements:
 - Element with .back.small. This is the back small face displayed on the card.
 -->
 
-<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="scripts.html">
 
-<link rel="import" href="card-previewer-handler.html">
+<template>
+  <link rel="stylesheet" href="css/all.css">
 
-<polymer-element name="pb-card" attributes="previewId showFront">
-  <template>
-    <link rel="stylesheet" href="css/all.css">
-
-    <pb-card-previewer-handler id="previewerHandler"></pb-card-previewer-handler>
-    
-    <div id="root" on-click="{{onClick}}" on-mouseover="{{onMouseOver}}" 
-        class="{{showFront ? 'showFront' : ''}}">
-      <div class="face front">
-        <content select=".front.small"></content>
-      </div>
-      <div class="face back">
-        <content select=".back.small"></content>
-      </div>
+  <pb-card-previewer-handler id="previewerHandler"></pb-card-previewer-handler>
+  
+  <div id="root" on-click="{{onClick}}" on-mouseover="{{onMouseOver}}" 
+      class="{{showFront ? 'showFront' : ''}}">
+    <div class="face front">
+      <content select=".front.small"></content>
     </div>
-    <div class="preview">
-      <content id="frontPreview" select=".front.preview"></content>
-      <content id="backPreview" select=".back.preview"></content>
+    <div class="face back">
+      <content select=".back.small"></content>
     </div>
-  </template>
-  <script>
-    var updatePreviewer = function() {
-      if (this.showFront) {
-        this.$.previewerHandler.setCard(
-            this.previewId + '-front', 
-            this.$.frontPreview.getDistributedNodes()[0]);
-      } else {
-        this.$.previewerHandler.setCard(
-            this.previewId + '-back', 
-            this.$.backPreview.getDistributedNodes()[0]);
-      }
+  </div>
+  <div class="preview">
+    <content id="frontPreview" select=".front.preview"></content>
+    <content id="backPreview" select=".back.preview"></content>
+  </div>
+</template>
+
+<script>
+  (function() {
+    var Card = function(previewId, showFront, frontSmall, backSmall, frontPreview, backPreview) { 
+
+      var updatePreviewer = function() {
+        if (this.showFront) {
+          CardPreviewerHandler.setCard(
+              previewId + '-front', 
+              frontPreview);
+        } else {
+          CardPreviewerHandler.setCard(
+              previewId + '-back', 
+              backPreview);
+        }
+      };
+
+
     };
 
-    Polymer('pb-card', {
-      created: function() {
-        this.previewId = '';
-      },
-      onClick: function() {
-        this.showFront = !this.showFront;
-        updatePreviewer.bind(this)();
-      },
-      onMouseOver: function() {
-        updatePreviewer.bind(this)();
-      }
-    });
-  </script>
-</polymer-element>
+    // Polymer('pb-card', {
+    //   created: function() {
+    //     this.previewId = '';
+    //     this.showFront = !!this.startShowFront;
+    //   },
+    //   onClick: function() {
+    //     this.showFront = !this.showFront;
+    //     updatePreviewer.bind(this)();
+    //   },
+    //   onMouseOver: function() {
+    //     updatePreviewer.bind(this)();
+    //   }
+    // });
+  }).call(this);
+</script>

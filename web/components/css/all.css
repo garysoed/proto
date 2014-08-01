@@ -1,8 +1,9 @@
 pb-card::shadow #root {
-  perspective: 1000;
-  -webkit-perspective: 1000;
-  -moz-perspective: 1000;
+  perspective: 1000px;
+  -webkit-perspective: 1000px;
+  -moz-perspective: 1000px;
   cursor: pointer;
+  display: inline-block;
   position: relative;
 }
 pb-card::shadow #root .face {
@@ -80,6 +81,32 @@ pb-card::shadow .preview {
 
 
 
+.pb-hand ::content *,
+.pb-hand pb-standard-card,
+.pb-hand #blah {
+  transform: scale(1);
+  -webkit-transform: scale(1);
+  -moz-transform: scale(1);
+  transition-duration: 0.5s;
+  -webkit-transition-duration: 0.5s;
+  -moz-transition-duration: 0.5s;
+  transition-property: transform;
+  -webkit-transition-property: transform;
+  -moz-transition-property: transform;
+}
+.pb-hand ::content *:hover,
+.pb-hand pb-standard-card:hover,
+.pb-hand #blah:hover {
+  transform: scale(1.5);
+  -webkit-transform: scale(1.5);
+  -moz-transform: scale(1.5);
+  transition-duration: 0.5s;
+  -webkit-transition-duration: 0.5s;
+  -moz-transition-duration: 0.5s;
+  transition-property: transform;
+  -webkit-transition-property: transform;
+  -moz-transition-property: transform;
+}
 
 .pb-standard-card {
   height: 380px;

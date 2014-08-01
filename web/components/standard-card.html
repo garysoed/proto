@@ -9,7 +9,7 @@
 
     <link rel="stylesheet" href="css/all.css">
 
-    <pb-card id="card" previewId="{{face}}_{{value}}" showFront="{{!!showFront}}">
+    <pb-card id="card" previewId="{{face}}_{{value}}" startShowFront="{{!!showFront}}">
       <!-- The front preview face -->
       <div id="front" class="pb-standard-card front preview {{face}}">
         <div class="margin">
@@ -38,14 +38,11 @@
   </template>
   <script>
     var updateSymbols = function() {
-      this.$.scripts.$('.symbol', this.$.card)
-          .each(this.$.scripts.svg.appendSvg('assets/{0}.svg'.format(this.face)));
+      $('.symbol', this.$.card)
+          .each(svg.appendSvg('assets/{0}.svg'.format(this.face)));
     };
 
     var cloneFaces = function() {
-      // TODO: Pull this to util.
-      var $ = this.$.scripts.$;
-
       // Remove the old clones.
       $('.front.small', this.$.card).empty();
       $('.back.small', this.$.card).empty();
@@ -73,8 +70,6 @@
       },
 
       valueChanged: function(oldValue, newValue) {
-        var $ = this.$.scripts.$;
-
         // TODO: validate
         var $symbols = $(this.$.symbols);
         $symbols.empty();

@@ -4,35 +4,30 @@
         .replace(/\t/g, '\\t');
   };
 
-  var prettify = function(value) {
-    switch (typeof value) {
-      case 'number':
-        return value;
-      case 'string':
-        return '"' + oneline(value) + '"';
-      case 'function':
-        var functionName = value.name || 'function';
-        return functionName + '()';
-      default:
-        if (value instanceof Array) {
-          if (value.length === 0) {
-            return '[]';
-          } else {
-            return '[' 
-                + value
-                    .map(function(entry) {
-                      return prettify(entry);
-                    })
-                    .join(',')
-                + ']';
+  var prettify = function(target) {
+
+    var helper = function(key, value) {
+      switch (typeof value) {
+        case 'number':
+          return value;
+        case 'string':
+          return oneline(value);
+        case 'function':
+          var functionName = value.name || 'function';
+          return functionName + '()';
+        default:
+          if (value instanceof Node) {
+            return value.toString();
+          } else if (value === null) {
+            return value;
+          } else if (value === undefined) {
+            return 'undefined';
           }
-        } else if (value instanceof Node) {
-          return value.toString();
-        } else if (value.toPrettyString instanceof Function) {
-          return value.toPrettyString();
-        }
-        return JSON.stringify(value);
-    }
+          return value;
+      }
+    };
+
+    return JSON.stringify(target, helper, '  ');
   };
 
   if (!String.prototype.format) {

@@ -67,6 +67,7 @@ module.exports = function(grunt) {
     'vulcanize': {
       default: {
         files: {
+          'test_gen/web/components/card-previewer-handler_test.html': 'web/components/card-previewer-handler_test.html',
           'test_gen/web/components/card_test.html': 'web/components/card_test.html',
           'test_gen/web/components/game-logic_test.html': 'web/components/game-logic_test.html',
           'test_gen/web/scripts/network_test.html': 'web/scripts/network_test.html'

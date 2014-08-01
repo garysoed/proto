@@ -10,12 +10,13 @@ pb-card::shadow {
       .transition-property(transform);
     }
 
-    .perspective(1000);
+    .perspective(1000px);
     cursor: pointer;
+    display: inline-block;
     position: relative;
 
     .face {
-      .backface-visibility(hidden);
+      .backface-visibility(hidden); 
 
       border: 1px solid black;
       display: inline-block;

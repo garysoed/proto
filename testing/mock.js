@@ -73,8 +73,8 @@
   var Matcher = function(equalFn, name) {
     this.equals = equalFn;
 
-    this.toPrettyString = function() { return name; };
-    this.toString = this.toPrettyString;
+    this.toJSON = function() { return name; };
+    this.toString = this.toJSON;
   };
 
   /**
@@ -148,7 +148,7 @@
   Mock.instanceOf = function(type, name) {
     return new Matcher(
         function(other) { return other instanceof type; },
-        '{' + (name ? name : pretty.pretty(type)) + '}');
+        '{' + (name ? name : Pretty.prettify(type)) + '}');
   };
 
   /**

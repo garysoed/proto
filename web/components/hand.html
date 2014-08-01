@@ -1,26 +1,18 @@
-<polymer-element name="pb-hand">
+<polymer-element name="pb-hand" attributes="owner">
   <template>
     <link rel="stylesheet" href="css/all.css">
     
-    <div id="container" class="pb-hand">
+    <div id="root" class="pb-hand">
       <content></content>
+      <pb-standard-card face="heart" value="a"></pb-standard-card>
+      <div style="width: 30px; height: 30px;" id="blah">
+        <div style="background-color: blue; width: 300px; height: 300px;"></div>
+      </div>
     </div>
   </template>
   <script>
-  require(['config'], function() {
-    define('hand', ['jquery', 'jquery-ui/sortable', 'polymer'], function($) {
-      Polymer('pb-hand', {
-        created: function() {
-          this.width = '100px';
-          this.height = '100px';
-        },
-        ready: function() {
-        },
-        cardClick: function() {
-          $(this.$.root).toggleClass('showFront');
-        }
-      });
+    Polymer('pb-hand', {
+      
     });
-  });
   </script>
 </polymer-element>

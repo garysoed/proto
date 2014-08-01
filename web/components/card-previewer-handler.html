@@ -1,22 +1,20 @@
-<link rel="import" href="../../bower_components/polymer/polymer.html">
-
 <link rel="import" href="scripts.html">
 
-<polymer-element name="pb-card-previewer-handler">
-  <template>
-    <pb-scripts id="scripts"></pb-scripts>
-  </template>
-  <script>
-    var eventType = 'changed';
+<script>
+  (function() {
     var target = {};
 
-    Polymer('pb-card-previewer-handler', {
-      listen: function(handler) {
-        this.$.scripts.$(target).bind(eventType, handler);
-      },
-      setCard: function(id, card) {
-        this.$.scripts.$(target).trigger(eventType, {id: id, dom: card});
-      }
-    });
-  </script>
-</polymer-element>
+    var CardPreviewerHandler = {};
+
+    CardPreviewerHandler.EventType = {
+      CARD_SET: 'cardset'
+    };
+
+    CardPreviewerHandler.setCard = function(id, card) {
+      $(CardPreviewerHandler)
+          .trigger(CardPreviewerHandler.EventType.CARD_SET, {id: id, dom: card});
+    };
+
+    this.CardPreviewerHandler = CardPreviewerHandler;
+  }).call(this);
+</script>

@@ -1,155 +1,149 @@
-<link rel="import" href="../../bower_components/polymer/polymer.html">
-
 <link rel="import" href="scripts.html">
 <link rel="import" href="../scripts/network.html">
 
-<polymer-element name="pb-game-logic">
-  <template>
-    <pb-scripts id="scripts"></pb-scripts>
-  </template>
-  <script>
-    (function() {
-      var network = null;
-      var state = {};
+<script>
+  (function() {
+    var network = null;
+    var state = {};
+
+    /**
+     * Events that the game dispatches.
+     *
+     * @enum {string}
+     */
+    var Events = {
+      JOIN: 'Game.Events.join',
+      NEW_GAME_STATE: 'Game.Events.new_game_state',
+      PLAYER_ADDED: 'Game.Events.player_added',
+      PLAYER_REMOVED: 'Game.Events.player_removed'
+    };
+
+    /**
+     * Types of changes that the game can handle.
+     *
+     * @enum {string}
+     */
+    var ChangeType = {
+      ADD: 'ADD',
+      DELETE: 'DELETE',
+      UPDATE: 'UPDATE'
+    };
+
+    function assertSignedIn() {
+      if (!network) {
+        throw 'Need to sign in first';
+      }
+    }
+
+    function handleMessage(e, msg) {
+      // TODO: Pass to processor / game logic.
+      state[msg.type] = msg.data.value;
+      $(this).trigger(
+          '{0}.{1}'.format(msg.type, msg.data.change), 
+          {actor: msg.data.actor, value: msg.data.value});
+    }
+
+    function handleNewGameState(e, gameState) {
+      state = gameState || {};
+      $(this).trigger(Events.NEW_GAME_STATE);
+    }
+
+    function handleJoin() {
+      $(this).trigger(Events.JOIN, {gameId: network.getGameId()});
+    }
+
+    function handlePlayerAdded(e, userId) {
+      $(this).trigger(Events.PLAYER_ADDED, {userId: userId});
+    }
+
+    function handlePlayerRemoved(e, userId) {
+      $(this).trigger(Events.PLAYER_REMOVED, {userId: userId});
+    }
+
+    var Game = {
+      /**
+       * Resets the state of the game, signing out if necessary.
+       */
+      reset: function() {
+        this.leave();
+        network = null;
+        state = {};
+      },
 
       /**
-       * Events that the game dispatches.
+       * Signs into the game.
        *
-       * @enum {string}
+       * @param  {string} userId The User ID to sign in with.
        */
-      var Events = {
-        JOIN: 'Game.Events.join',
-        NEW_GAME_STATE: 'Game.Events.new_game_state',
-        PLAYER_ADDED: 'Game.Events.player_added',
-        PLAYER_REMOVED: 'Game.Events.player_removed'
-      };
+      signIn: function(userId) {
+        this.leave();
+        network = new Network(userId, this.getState);
+        $(network)
+            .bind(Network.Events.MESSAGE, handleMessage.bind(this))
+            .bind(Network.Events.NEW_GAME_STATE, handleNewGameState.bind(this))
+            .bind(Network.Events.JOIN, handleJoin.bind(this))
+            .bind(Network.Events.PLAYER_ADDED, handlePlayerAdded.bind(this))
+            .bind(Network.Events.PLAYER_REMOVED, handlePlayerRemoved.bind(this));
+      },
 
       /**
-       * Types of changes that the game can handle.
-       *
-       * @enum {string}
+       * Creates a new game. SignIn must have been called.
        */
-      var ChangeType = {
-        ADD: 'ADD',
-        DELETE: 'DELETE',
-        UPDATE: 'UPDATE'
-      };
+      create: function() {
+        assertSignedIn();
+        network.create();
+      },
 
-      function assertSignedIn() {
-        if (!network) {
-          throw 'Need to sign in first';
+      /**
+       * Joins the given game ID. SignIn must have been called.
+       *
+       * @param  {string} gameId Game ID to join.
+       */
+      join: function(gameId) {
+        assertSignedIn();
+        network.join(gameId);
+      },
+
+      /**
+       * Leaves the game if signed in. Noop if not signed in.
+       */
+      leave: function() {
+        if (network) {
+          network.leave();
         }
-      }
+      },
 
-      function handleMessage(e, msg) {
-        // TODO: Pass to processor / game logic.
-        state[msg.type] = msg.data.value;
-        this.fire(
-            '{0}.{1}'.format(msg.type, msg.data.change), 
-            {actor: msg.data.actor, value: msg.data.value});
-      }
+      /**
+       * Sends a change to the server.
+       *
+       * @param  {string}                   field  The field that is changed.
+       * @param  {pb-game-logic.ChangeType} change The change type.
+       * @param  {Object}                   value  The new value of the field.
+       */
+      change: function(field, change, value) {
+        // TODO add validator
+        assertSignedIn();
+        network.send(field, {actor: network.getUserId(), change: change, value: value});
+      },
 
-      function handleNewGameState(e, gameState) {
-        state = gameState || {};
-        this.fire(Events.NEW_GAME_STATE);
-      }
+      /**
+       * Returns the state of the game.
+       *
+       * @return {Object} Current state of the game.
+       */
+      getState: function() {
+        return state;
+      },
 
-      function handleJoin() {
-        this.fire(Events.JOIN, {gameId: network.getGameId()});
-      }
+      /**
+       * Events that the Game can trigger.
+       *
+       * @enum {string}
+       */
+      Events: Events,
+      ChangeType: ChangeType
+    };
 
-      function handlePlayerAdded(e, userId) {
-        this.fire(Events.PLAYER_ADDED, {userId: userId});
-      }
-
-      function handlePlayerRemoved(e, userId) {
-        this.fire(Events.PLAYER_REMOVED, {userId: userId});
-      }
-
-      Polymer('pb-game-logic', {
-        /**
-         * Resets the state of the game, signing out if necessary.
-         */
-        reset: function() {
-          this.leave();
-          network = null;
-          state = {};
-        },
-
-        /**
-         * Signs into the game.
-         *
-         * @param  {string} userId The User ID to sign in with.
-         */
-        signIn: function(userId) {
-          this.leave();
-          network = new Network(userId, this.getState);
-          $(network)
-              .bind(Network.Events.MESSAGE, handleMessage.bind(this))
-              .bind(Network.Events.NEW_GAME_STATE, handleNewGameState.bind(this))
-              .bind(Network.Events.JOIN, handleJoin.bind(this))
-              .bind(Network.Events.PLAYER_ADDED, handlePlayerAdded.bind(this))
-              .bind(Network.Events.PLAYER_REMOVED, handlePlayerRemoved.bind(this));
-        },
-
-        /**
-         * Creates a new game. SignIn must have been called.
-         */
-        create: function() {
-          assertSignedIn();
-          network.create();
-        },
-
-        /**
-         * Joins the given game ID. SignIn must have been called.
-         *
-         * @param  {string} gameId Game ID to join.
-         */
-        join: function(gameId) {
-          assertSignedIn();
-          network.join(gameId);
-        },
-
-        /**
-         * Leaves the game if signed in. Noop if not signed in.
-         */
-        leave: function() {
-          if (network) {
-            network.leave();
-          }
-        },
-
-        /**
-         * Sends a change to the server.
-         *
-         * @param  {string}                   field  The field that is changed.
-         * @param  {pb-game-logic.ChangeType} change The change type.
-         * @param  {Object}                   value  The new value of the field.
-         */
-        change: function(field, change, value) {
-          // TODO add validator
-          assertSignedIn();
-          network.send(field, {actor: network.getUserId(), change: change, value: value});
-        },
-
-        /**
-         * Returns the state of the game.
-         *
-         * @return {Object} Current state of the game.
-         */
-        getState: function() {
-          return state;
-        },
-
-        /**
-         * Events that the Game can trigger.
-         *
-         * @enum {string}
-         */
-        Events: Events,
-        ChangeType: ChangeType
-      });
-    }).call(this);
-  </script>
-}
-</polymer-element>
+    this.Game = Game;
+  }).call(this);
+</script>

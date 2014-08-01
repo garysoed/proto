@@ -23,8 +23,6 @@
         this.handler.listen(this.handleCardChange.bind(this));
       },
       handleCardChange: function(e, data) {
-        var $ = this.$.scripts.$;
-
         $(this.$.root).empty();
         if (!this.cards[data.id]) {
           this.cards[data.id] = $(data.dom).clone(false)[0];
