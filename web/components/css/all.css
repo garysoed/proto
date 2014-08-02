@@ -3,6 +3,7 @@ pb-card::shadow #root {
   -webkit-perspective: 1000;
   -moz-perspective: 1000;
   cursor: pointer;
+  display: inline-block;
   position: relative;
 }
 pb-card::shadow #root .face {

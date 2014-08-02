@@ -12,7 +12,7 @@ To use this, create the pb-card element and pass in 4 elements:
 
 <link rel="import" href="card-previewer-handler.html">
 
-<polymer-element name="pb-card" attributes="previewId showFront">
+<polymer-element name="pb-card" attributes="previewId">
   <template>
     <link rel="stylesheet" href="css/all.css">
 
@@ -48,6 +48,7 @@ To use this, create the pb-card element and pass in 4 elements:
     Polymer('pb-card', {
       created: function() {
         this.previewId = '';
+        this.showFront = false;
       },
       onClick: function() {
         this.showFront = !this.showFront;

@@ -1,4 +1,4 @@
-<polymer-element name="pb-hand">
+<polymer-element name="pb-hand" attributes="owner">
   <template>
     <link rel="stylesheet" href="css/all.css">
     
@@ -7,20 +7,29 @@
     </div>
   </template>
   <script>
-  require(['config'], function() {
-    define('hand', ['jquery', 'jquery-ui/sortable', 'polymer'], function($) {
-      Polymer('pb-hand', {
-        created: function() {
-          this.width = '100px';
-          this.height = '100px';
-        },
-        ready: function() {
-        },
-        cardClick: function() {
-          $(this.$.root).toggleClass('showFront');
-        }
-      });
+    var updateCards = function() {
+      
+    };
+    var updateVisibility = function() {
+
+    };
+
+    Polymer('pb-hand', {
+      created: function() {
+        this.width = '100px';
+        this.height = '100px';
+        this.owner = '';
+      },
+      ready: function() {
+      },
+      cardClick: function() {
+        $(this.$.root).toggleClass('showFront');
+      },
+      set config function(config) {
+        this.config = config;
+        updateCards.call(this);
+        updateVisibility.call(this);
+      }
     });
-  });
   </script>
 </polymer-element>
