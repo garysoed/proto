@@ -60,7 +60,7 @@ module.exports = function(grunt) {
     'less': {
       development: {
         files: {
-          'web/components/css/all.css': ['web/components/**/*.less']
+          'web/lib/css/all.css': ['web/**/*.less']
         }
       }
     },

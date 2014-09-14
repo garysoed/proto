@@ -1,0 +1,130 @@
+@import "../lib/css/compat.less";
+
+.b2-card {
+  @height: 400px;          // Height of the card.
+  @margin: 10px;           // Margin of the card.
+  @symbol-hw-ratio: 2 / 3; // The height / width ratio of the symbols.
+  @width: 300px;           // Width of the card.
+  
+  height: @height - 2 * @margin;
+  padding: @margin;
+  width: @width - 2 * @margin;
+  
+  &.front {
+    .display(flex);
+
+    background-color: white;
+    font-family: Helvetica, Arial, sans-serif;
+    font-size: 20px;
+
+    &.heart, &.diamond {
+      color: red;
+
+      .symbol {
+        fill: red;
+      }
+    }
+
+    .margin {
+      @side-width: 30px; // Width of the card's sides.
+
+      width: @side-width;
+      display: block;
+      text-align: center;
+      text-transform: uppercase;
+
+      &.right {
+        position: relative;
+
+        .container {
+          .transform(rotateZ(180deg));
+
+          position: absolute;
+          bottom: 0;
+        }
+      }
+      
+      .symbol {
+        width: @side-width;
+        height: @side-width * @symbol-hw-ratio;
+        display: inline-block;
+      }
+    }
+
+    .main {
+      .align-items(center);
+      .display(flex);
+      .flex(1);
+
+      .symbols {
+        @symbol-size: 50px; // Base size of the symbol in the main section of the card.
+
+        .size(@width) {
+          width: @width;
+          height: @width * @symbol-hw-ratio;
+        }
+
+        .align-items(center);
+        .display(flex);
+        .flex(1);
+
+        & > div {
+          .align-items(center);
+          .display(flex);
+          .flex(1);
+          .flex-direction(column);
+        }
+
+        &.value-a .symbol {
+          .size(@symbol-size * 3);
+        }
+
+        &.value-2 .symbol,
+        &.value-3 .symbol,
+        &.value-4 .symbol,
+        &.value-5 .symbol,
+        &.value-6 .symbol,
+        &.value-7 .symbol,
+        &.value-8 .symbol,
+        &.value-9 .symbol,
+        &.value-10 .symbol {
+          .size(@symbol-size * 0.75);
+          margin-bottom: @symbol-size;
+        }
+
+        &.value-5 .symbol {
+          margin-bottom: @symbol-size * 3;
+        }
+
+        .value-letter {
+          text-transform: uppercase;
+          font-size: 400%;
+        }
+
+        .symbol:last-child {
+          margin-bottom: 0;
+        }
+      }
+    }
+  }
+
+  &.back {
+    background-color: green;
+  }
+
+  // The small interaction faces.
+  &.small {
+    @scale: 0.1; // Scale of the small face relative to the full card.
+
+    height: @height * @scale;
+    padding: 0;
+    width: @width * @scale;
+
+    .preview {
+      .transform(scale(@scale));
+      .transform-origin(0 0);
+
+      position: absolute;
+    }
+  }
+}

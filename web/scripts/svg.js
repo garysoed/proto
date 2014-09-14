@@ -1,4 +1,4 @@
-var svg = (function() {
+var Svg = (function() {
 
   /**
    * Returns a function to be passed into jQuery's each() to append the given SVG to each element.

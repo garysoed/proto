@@ -1,0 +1,56 @@
+// Compatibility mixins.
+
+.compat(@name; @value) {
+  @{name}: @value;
+  -webkit-@{name}: @value;
+  -moz-@{name}: @value;
+}
+
+.align-items(...) {
+  align-items: @arguments;
+  -webkit-align-items: @arguments;
+}
+
+.backface-visibility(...) {
+  .compat(backface-visibility; @arguments);
+}
+
+.display(@_) {
+  display: @arguments;
+}
+.display(flex) {
+  display: -webkit-flex;
+  display: flex;
+}
+
+.flex(...) {
+  .compat(flex; @arguments);
+}
+
+.flex-direction(...) {
+  .compat(flex-direction; @arguments);
+}
+
+.perspective(...) {
+  .compat(perspective; @arguments);
+}
+
+.transform(...) {
+  .compat(transform; @arguments);
+}
+
+.transform-origin(...) {
+  .compat(transform-origin; @arguments);
+}
+
+.transform-style(...) {
+  .compat(transform-style; @arguments);
+}
+
+.transition-duration(...) {
+  .compat(transition-duration; @arguments);
+}
+
+.transition-property(...) {
+  .compat(transition-property; @arguments);
+}

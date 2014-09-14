@@ -19,15 +19,13 @@ app.use(bodyParser.urlencoded());
 app.use(methodOverride());
 
 var statics = {
-  'scripts': '/../web/scripts',
   'bower_components': '/../bower_components',
-  'common': '/../common',
-  'web': '/../web',
-  'assets': '/../web/assets'
+  'common': '/../common'
 };
 for (var key in statics) {
   app.use('/' + key, express.static(__dirname + statics[key]));
 }
+app.use('/', express.static(__dirname + '/../web'));
 
 app.engine('html', ejs.renderFile);
 

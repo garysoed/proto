@@ -1,0 +1,121 @@
+<link rel="import" href="../lib/main.html">
+<link rel="import" href="../deps/jquery.html">
+
+<template>
+  <link rel="stylesheet" href="css/all.css">
+
+  <div class="b2-card">
+    <!-- The front preview face -->
+    <div class="b2-card front">
+      <div class="margin">
+        <div class="value"></div>
+        <div class="symbol"></div>
+      </div>
+
+      <div class="main">
+        <div class="symbols"></div>
+      </div>
+
+      <div class="margin right">
+        <div class="container">
+          <div class="value"></div>
+          <div class="symbol"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- The back preview face -->
+    <div class="b2-card back"></div>
+  </div>
+
+  <div class="pb-standard-card front small"></div>
+  <div class="pb-standard-card back small"></div>
+</template>
+<script src="../scripts/svg.js"></script>
+<script>
+  (function(value, face) {
+    var DATA_FACE = 'face';
+
+    var template = $('template', document.currentScript.ownerDocument)[0];
+
+    var updateSymbols = function(root) {
+      $('.symbol', root)
+          .each(Svg.appendSvg('assets/' + $(root).data(DATA_FACE) + '.svg'));
+    };
+
+    var cloneFaces = function() {
+      // Remove the old clones.
+      $('.front.small', this.$.card).empty();
+      $('.back.small', this.$.card).empty();
+
+      // Clone the faces.
+      var frontClone = $(this.$.front)
+          .clone(false)
+          .removeAttr('id')[0];
+      var backClone = $(this.$.back)
+          .clone(false)
+          .removeAttr('id')[0];
+      $('.front.small', this.$.card).append(frontClone);
+      $('.back.small', this.$.card).append(backClone);
+    };
+
+    var setValue = function(root, value) {
+      // TODO: validate
+      var $symbols = $('.symbols', root);
+      $symbols.empty();
+
+      if (value === 'a') {
+        value = 1;
+      }
+
+      var valueInt = Number.parseInt(value);
+      if (Number.isNaN(valueInt)) {
+        $symbols.append($('<div class="value-letter">{0}</div>'.format(value)));
+      } else {
+        var addSymbols = function($parent, count) {
+          if (count === 10) {
+            addSymbols($parent, 4);
+            addSymbols($parent, 2);
+            addSymbols($parent, 4);
+          } else if (count > 4) {
+            var remainder = count % 2;
+            var divided = Math.floor(count / 2);
+
+            addSymbols($parent, divided);
+            if (remainder) {
+              addSymbols($parent, remainder);
+            }
+            addSymbols($parent, divided);
+          } else  {
+            var $div = $('<div></div>');
+            for (var i = 0; i < count; i++) {
+              $div.append('<div class="symbol"></symbol>');
+            }
+            $parent.append($div);
+          }
+        };
+
+        addSymbols($symbols, valueInt);
+      }
+
+      updateSymbols.call(this, root);
+    };
+
+    $.fn.big2_card = function(value, face) {
+      var clone = document.importNode(template.content, true);
+      var root = clone.querySelector('.b2-card');
+
+      $(root).data(DATA_FACE, face);
+
+      $('.front', root).addClass(face);
+      $('.value', root).text(value);
+      $('.symbols', root).addClass('value-' + value);
+
+      setValue.call(this, root, value);
+
+      this.pb_card(
+          $('.front', root)[0],
+          $('.back', root)[0]);
+    };
+  }).call(this);
+</script>

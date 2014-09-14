@@ -1,0 +1,35 @@
+<link rel="import" href="../deps/jquery.html">
+
+<template>
+  <link rel="stylesheet" href="../lib/css/all.css">
+
+  <div class="pb-card">
+    <div class="front"></div>
+    <div class="back"></div>
+  </div>
+</template>
+<script>
+  (function() {
+    if ($.fn.pb_card !== undefined) {
+      throw '"pb_card" is already defined';
+    }
+
+    var CSS_SHOW_FRONT = 'showFront';
+
+    var template = $('template', document.currentScript.ownerDocument)[0];
+
+    $.fn.pb_card = function(front, back) {
+      var clone = document.importNode(template.content, true);
+      var root = clone.querySelector('.pb-card');      
+
+      // TODO: How to use jQuery with documentFragments?
+      $('.front', root).append(front);
+      $('.back', root).append(back);
+
+      $(root).click(function() {
+        $(root).toggleClass(CSS_SHOW_FRONT);
+      });
+      this.append(clone);
+    };
+  }).call(this);
+</script>
