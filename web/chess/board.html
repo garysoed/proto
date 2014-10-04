@@ -1,0 +1,58 @@
+<link rel="import" href="cell.html">
+
+<link rel="import" href="../proto/surface/rect-grid.html">
+<link rel="import" href="../proto/surface/rect.html">
+<link rel="import" href="../proto/util.html">
+
+<link rel="import" href="../proto/service/dragdrop.html">
+
+<template id="main">
+  <pb-s-rect-grid pb-row="8" pb-col="8"></pb-s-rect-grid>
+</template>
+<template id="cell">
+  <pb-chs-cell></pb-chs-cell>
+</template>
+
+<script>
+  (function(window) {
+    var doc = document.currentScript.ownerDocument;
+    var Board = {};
+
+    var handleDragged_ = function(event, el) {
+      // TODO: highlight the correct cells.
+    };
+
+    Board.prototype = Object.create(HTMLElement.prototype);
+    Board.prototype.createdCallback = function() {
+      var shadowRoot = this.createShadowRoot();
+      shadowRoot.appendChild(Util.extractTemplate('template#main', doc));
+
+      // Create the grid cells.
+      var gridEl = shadowRoot.querySelector('pb-s-rect-grid');
+      for (var row = 0; row < 8; row++) {
+        for (var col = 0; col < 8; col++) {
+          var color = (row + col) % 2 === 0 ? 'black' : 'white';
+          var cell = Util.extractTemplate('template#cell', doc);
+          var rect = cell.querySelector('pb-chs-cell');
+          $(rect)
+              .attr(color, '')
+              .attr('pb-row', row)
+              .attr('pb-col', col);
+          gridEl.appendChild(cell);
+        }
+      }
+    };
+
+    Board.prototype.attachedCallback = function() {
+      $(DragDropService).on('dragged', handleDragged_.bind(this));
+    };
+
+    Board.prototype.put = function(el, row, col) {
+      this.shadowRoot.querySelector('pb-s-rect-grid')
+          .get(row, col)
+          .appendChild(el);
+    };
+
+    document.registerElement('pb-chs-board', {prototype: Board.prototype});
+  })(window);
+</script>

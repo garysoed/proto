@@ -1,0 +1,28 @@
+<link rel="import" href="../proto/component/token.html">
+<link rel="import" href="../proto/util.html">
+<template>
+  <style>
+    div {
+      width: 100px;
+      height: 100px;
+      background-color: red;
+    }
+  </style>
+  <div draggable="true"></div>
+</template>
+<script>
+  (function(window) {
+    var doc = document.currentScript.ownerDocument;
+    var King = {};
+
+    King.prototype = Object.create(Token.prototype);
+    King.prototype.createdCallback = function() {
+      Util.nonNullFn(Token.prototype, 'createdCallback', this)();
+
+      var shadowRoot = this.createShadowRoot();
+      shadowRoot.appendChild(Util.extractTemplate('template', doc));
+    };
+
+    document.registerElement('pb-chs-king', {prototype: King.prototype});
+  })(window);
+</script>

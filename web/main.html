@@ -1,13 +1,25 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <link rel="import" href="bigtwo/card.html">
-  </head>
+  <style>
+    [draggable="true"] {
+      cursor: move;
+    }
+  </style>
   <body>
-    <div id="card"></div>
-  </body>
+    <link rel="import" href="chess/board.html">
+    <link rel="import" href="chess/king.html">
+    <link rel="import" href="proto/util.html">
 
-  <script>
-    $('#card').big2_card('a', 'heart');
-  </script>
+    <pb-chs-board></pb-chs-board>
+    <pb-chs-king></pb-chs-king>
+
+    <script>
+      $(document).ready(function() {
+        var board = document.querySelector('pb-chs-board');
+        var king = document.querySelector('pb-chs-king');
+        board.put(king, 2, 3);
+      });
+    </script>
+  </body>
 </html>

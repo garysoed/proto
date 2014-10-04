@@ -1,0 +1,41 @@
+<!-- A simple rectangular surface -->
+<link rel="import" href="../surface.html">
+<link rel="import" href="../util.html">
+
+<template>
+  <div><content></content></div>
+</template>
+
+<script>
+  (function(window) {
+    var doc = document.currentScript.ownerDocument;
+    var Rect = {};
+    Rect.prototype = Object.create(Surface.prototype);
+    Rect.prototype.createdCallback = function() {
+      Util.nonNullFn(Surface.prototype, 'createdCallback').call(this);
+      this.createShadowRoot().appendChild(Util.extractTemplate('template', doc));
+    };
+
+    Rect.prototype.attachedCallback = function() {
+      Util.nonNullFn(Surface.prototype, 'attachedCallback').call(this);
+      // TODO: Only prevent default if the target is allowed.
+      $(this)
+          .on('dragover', this.handleDragover_.bind(this))
+          .on('dragenter', function(e) { e.originalEvent.preventDefault(); })
+          .on('drop', this.handleDrop_.bind(this));
+    }
+
+    Rect.prototype.handleDrop_ = function(event) {
+
+    };
+
+    Rect.prototype.handleDragover_ = function(event) {
+      event.originalEvent.preventDefault();
+      event.originalEvent.dropEffect = 'move';
+    };
+
+    document.registerElement('pb-s-rect', {prototype: Rect.prototype});
+
+    window.Rect = Rect;
+  })(window);
+</script>

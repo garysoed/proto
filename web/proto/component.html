@@ -1,0 +1,12 @@
+<link rel="import" href="util.html">
+<script>
+  (function(window) {
+    var Component = {};
+    Component.prototype = Object.create(HTMLElement.prototype);
+    Component.prototype.attachedCallback = function() {
+    };
+
+    // Exports
+    window.Component = Component;
+  })(window);
+</script>

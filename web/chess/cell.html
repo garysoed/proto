@@ -1,0 +1,63 @@
+<link rel="import" href="../proto/surface/rect.html">
+<link rel="import" href="../proto/util.html">
+<link rel="import" href="../proto/service/dragdrop.html">
+<template>
+  <style>
+    :host::shadow div {
+      width: 100px;
+      height: 100px;
+    }
+
+    :host([black])::shadow div {
+      background-color: black;
+    }
+
+    :host([white])::shadow div {
+      background-color: white;
+    }
+
+    :host(.over)::shadow div {
+      outline: orange solid 4px;
+      outline-offset: -4px;
+    }
+  </style>
+  <shadow></shadow>
+</template>
+<script>
+  (function(window) {
+    var doc = document.currentScript.ownerDocument;
+    var Cell = {};
+
+    var handleDrop_ = function(event) {
+      this.classList.remove('over');
+      if (DragDropService.lastDraggedEl) {
+        this.appendChild(DragDropService.lastDraggedEl);
+      }
+    };
+
+    var handleDragEnter_ = function(event) {
+      this.classList.add('over');
+    };
+
+    var handleDragLeave_ = function(event) {
+      this.classList.remove('over');
+    };
+
+    Cell.prototype = Object.create(Rect.prototype);
+
+    Cell.prototype.createdCallback = function() {
+      Util.nonNullFn(Rect.prototype, 'createdCallback').call(this);
+      this.createShadowRoot().appendChild(Util.extractTemplate('template', doc));
+    };
+
+    Cell.prototype.attachedCallback = function() {
+      Util.nonNullFn(Rect.prototype, 'attachedCallback').call(this);
+      $(this)
+          .on('drop', handleDrop_)
+          .on('dragenter', handleDragEnter_)
+          .on('dragleave', handleDragLeave_);
+    };
+
+    document.registerElement('pb-chs-cell', {prototype: Cell.prototype});
+  })(window);
+</script>

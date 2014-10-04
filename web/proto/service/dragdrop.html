@@ -1,0 +1,17 @@
+<script>
+  (function(window) {
+    var DragDropService = {};
+
+    DragDropService.lastDraggedEl = null;
+    DragDropService.EventType = {
+      DRAGGED: 'dragged'
+    };
+
+    DragDropService.dragStart = function(dragged) {
+      DragDropService.lastDraggedEl = dragged;
+      $(DragDropService).trigger(DragDropService.EventType.DRAGGED, dragged);
+    };
+
+    window.DragDropService = DragDropService;
+  })(window);
+</script>

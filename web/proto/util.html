@@ -1,0 +1,28 @@
+<link rel="import" href="deps.html">
+<script src="../../../common/pretty.js"></script>
+<script>
+  (function(window) {
+    var Util = {};
+
+    Util.extractTemplate = function(templateQuery, doc) {
+      return doc.importNode(doc.querySelector(templateQuery).content, true);
+    };
+
+    Util.nonNullFn = function(obj, name) {
+      return obj[name] || function() {};
+    }
+
+    Util.observe = function(object, opt_property, handler) {
+      Object.observe(object, function(changes) {
+        changes.forEach(function(change) {
+          if (!opt_property || change.name === opt_property) {
+            handler(change.type, change.oldValue);
+          }
+        });
+      });
+    };
+
+    // Exports
+    window.Util = Util;
+  })(window);
+</script>

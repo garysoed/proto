@@ -20,7 +20,8 @@ app.use(methodOverride());
 
 var statics = {
   'bower_components': '/../bower_components',
-  'common': '/../common'
+  'common': '/../common',
+  'lib': '../web/lib',
 };
 for (var key in statics) {
   app.use('/' + key, express.static(__dirname + statics[key]));

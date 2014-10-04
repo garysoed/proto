@@ -37,6 +37,7 @@
     "grunt-execute": "^0.2.2",
     "grunt-jsdoc": "^0.5.6",
     "grunt-node-qunit": "^2.0.2",
+    "grunt-traceur": "^0.2.7",
     "grunt-vulcanize": "^0.3.0",
     "jshint-stylish": "^0.4.0",
     "qunit": "^0.6.4",

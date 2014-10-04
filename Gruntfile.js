@@ -64,6 +64,19 @@ module.exports = function(grunt) {
         }
       }
     },
+    'traceur': {
+      options: {
+        // traceur options here
+      },
+      custom: {
+        files: [{
+          expand: true,
+          cwd: 'web-src',
+          src: ['*.js', '*.html'],
+          dest: 'web-bin'
+        }]
+      },
+    },
     'vulcanize': {
       default: {
         files: {
@@ -74,16 +87,6 @@ module.exports = function(grunt) {
       }
     },
     'watch': {
-      webtests: {
-        files: [
-          'web/**/*_test.html', 
-          'web/**/*.html', 
-          '!web/**/*_test_run.html'],
-        tasks: ['vulcanize'],
-        options: {
-          atBegin: true
-        }
-      },
       less: {
         files: [
           'web/**/*.less'
@@ -101,8 +104,8 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-node-qunit');
   grunt.loadNpmTasks('grunt-jsdoc');
   grunt.loadNpmTasks('grunt-contrib-less');
-  grunt.loadNpmTasks('grunt-vulcanize');
   grunt.loadNpmTasks('grunt-contrib-watch');
+  grunt.loadNpmTasks('grunt-traceur');
 
   // Register default tasks.
   grunt.registerTask('check', ['node-qunit', 'qunit:scripts', 'jshint']);

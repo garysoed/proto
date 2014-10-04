@@ -1,0 +1,70 @@
+<!-- A rectangular grid surface -->
+<link rel="import" href="../surface.html">
+<link rel="import" href="../util.html">
+<template id="main">
+  <style>
+    #root {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .row {
+      display: flex;
+      flex-direction: row;
+    }
+  </style>
+
+  <div id="root"></div>
+</template>
+<template id="row">
+  <div class="row"></div>
+</template>
+<template id="col">
+  <div>
+    <content></content>
+  </div>
+</template>
+
+<script>
+  (function(window) {
+    var RectGrid = {};
+    var doc = document.currentScript.ownerDocument;
+
+    RectGrid.prototype = Object.create(Surface.prototype);
+    RectGrid.prototype.createdCallback = function() {
+      // Create the shadow DOM.
+      var shadowRoot = this.createShadowRoot();
+      shadowRoot.appendChild(Util.extractTemplate('template#main', doc));
+
+      // Initializes the data.
+      var rowCount = $(this).attr('pb-row');
+      var colCount = $(this).attr('pb-col');
+      var rootEl = shadowRoot.querySelector('#root');
+
+      // Add the rows.
+      for (var row = 0; row < rowCount; row++) {
+        rootEl.appendChild(Util.extractTemplate('template#row', doc));
+      }
+
+      $(shadowRoot.querySelectorAll('#root > div'))
+          .each(function(row, rowEl) {
+            for (var col = 0; col < colCount; col++) {
+              var colEl = Util.extractTemplate('template#col', doc);
+              $(colEl.querySelector('content'))
+                  .attr('select', '[pb-row="{0}"][pb-col="{1}"]'.format(row, col))
+                  .attr('pb-row', row)
+                  .attr('pb-col', col);
+              rowEl.appendChild(colEl);
+            }
+          });
+    };
+
+    RectGrid.prototype.get = function(row, col) {
+      return this.shadowRoot
+          .querySelector('content[pb-row="{0}"][pb-col="{1}"]'.format(row, col))
+          .getDistributedNodes()[0];
+    };
+
+    document.registerElement('pb-s-rect-grid', {prototype: RectGrid.prototype});
+  })(window);
+</script>

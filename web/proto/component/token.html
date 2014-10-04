@@ -1,0 +1,28 @@
+<!-- A simple component that can be moved around -->
+<link rel="import" href="../component.html">
+<link rel="import" href="../service/dragdrop.html">
+
+<script>
+  (function(window) {
+    var doc = document.currentScript.ownerDocument;
+    var Token = {};
+
+    var handleDragStart_ = function(event) {
+      var dt = event.originalEvent.dataTransfer;
+      dt.setData('text/html', event.target);
+      dt.effectAllowed = 'move';
+
+      DragDropService.dragStart(this);
+    };
+
+    Token.prototype = Object.create(Component.prototype);
+    Token.prototype.attachedCallback = function() {
+      Util.nonNullFn(Component.prototype, 'attachedCallback').call(this);
+      $(this.shadowRoot.querySelector('[draggable=true]'))
+          .on('dragstart', handleDragStart_.bind(this));
+    };
+
+    document.registerElement('pb-c-token', {prototype: Token.prototype});
+    window.Token = Token;
+  })(window);
+</script>
