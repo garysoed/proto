@@ -7,7 +7,7 @@
 <link rel="import" href="../proto/service/dragdrop.html">
 
 <template id="main">
-  <pb-s-rect-grid pb-row="8" pb-col="8"></pb-s-rect-grid>
+  <pb-s-rect-grid row="8" col="8"></pb-s-rect-grid>
 </template>
 <template id="cell">
   <pb-chs-cell></pb-chs-cell>
@@ -36,8 +36,8 @@
           var rect = cell.querySelector('pb-chs-cell');
           $(rect)
               .attr(color, '')
-              .attr('pb-row', row)
-              .attr('pb-col', col);
+              .attr('row', row)
+              .attr('col', col);
           gridEl.appendChild(cell);
         }
       }

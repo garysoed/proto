@@ -1,9 +1,23 @@
 <!-- A simple component that can be moved around -->
 <link rel="import" href="../component.html">
 <link rel="import" href="../service/dragdrop.html">
+<link rel="import" href="../util.html">
+
+<template>
+  <style>
+    div#container:hover {
+      outline: red solid 5px;
+    }
+  </style>
+  <div id="container">
+    <content></content>
+  </div>
+</template>
 
 <script>
   (function(window) {
+    var NAME = 'pb-c-token';
+
     var doc = document.currentScript.ownerDocument;
     var Token = {};
 
@@ -16,13 +30,35 @@
     };
 
     Token.prototype = Object.create(Component.prototype);
-    Token.prototype.attachedCallback = function() {
-      Util.nonNullFn(Component.prototype, 'attachedCallback').call(this);
-      $(this.shadowRoot.querySelector('[draggable=true]'))
-          .on('dragstart', handleDragStart_.bind(this));
+    Token.prototype.createdCallback = function() {
+      Util.nonNullFn(Component.prototype, 'createdCallback').call(this);
+      this.createShadowRoot().appendChild(Util.extractTemplate('template', doc));
     };
 
-    document.registerElement('pb-c-token', {prototype: Token.prototype});
+    Token.prototype.attachedCallback = function() {
+      Util.nonNullFn(Component.prototype, 'attachedCallback').call(this);
+      if (this.hasAttribute('draggable')) {
+        $(Util.getContentElementRoot(this.shadowRoot))
+            .attr('draggable', 'true')
+            .on('dragstart', handleDragStart_.bind(this));
+      }
+    };
+
+    Token.prototype.attributeChangedCallback = function(name, oldVal, newVal) {
+
+    };
+
+    Token.prototype.setDraggable = function(draggable) {
+      var $contentRoot = $(Util.getContentElementRoot(this.shadowRoot))
+          .attr('draggable', draggable);
+      if (draggable) {
+        $contentRoot.on('dragstart.' + NAME, handleDragStart_.bind(this));
+      } else {
+        $contentRoot.off('dragstart.' + NAME);
+      }
+    };
+
+    document.registerElement(NAME, {prototype: Token.prototype});
     window.Token = Token;
   })(window);
 </script>

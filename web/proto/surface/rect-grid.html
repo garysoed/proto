@@ -37,8 +37,8 @@
       shadowRoot.appendChild(Util.extractTemplate('template#main', doc));
 
       // Initializes the data.
-      var rowCount = $(this).attr('pb-row');
-      var colCount = $(this).attr('pb-col');
+      var rowCount = $(this).attr('row');
+      var colCount = $(this).attr('col');
       var rootEl = shadowRoot.querySelector('#root');
 
       // Add the rows.
@@ -51,9 +51,9 @@
             for (var col = 0; col < colCount; col++) {
               var colEl = Util.extractTemplate('template#col', doc);
               $(colEl.querySelector('content'))
-                  .attr('select', '[pb-row="{0}"][pb-col="{1}"]'.format(row, col))
-                  .attr('pb-row', row)
-                  .attr('pb-col', col);
+                  .attr('select', '[row="{0}"][col="{1}"]'.format(row, col))
+                  .attr('row', row)
+                  .attr('col', col);
               rowEl.appendChild(colEl);
             }
           });
@@ -61,7 +61,7 @@
 
     RectGrid.prototype.get = function(row, col) {
       return this.shadowRoot
-          .querySelector('content[pb-row="{0}"][pb-col="{1}"]'.format(row, col))
+          .querySelector('content[row="{0}"][col="{1}"]'.format(row, col))
           .getDistributedNodes()[0];
     };
 

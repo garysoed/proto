@@ -22,6 +22,10 @@
       });
     };
 
+    Util.getContentElementRoot = function(el) {
+      return el.querySelectorAll(':not(style):not(script)');
+    };
+
     // Exports
     window.Util = Util;
   })(window);

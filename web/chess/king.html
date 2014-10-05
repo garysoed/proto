@@ -8,7 +8,7 @@
       background-color: red;
     }
   </style>
-  <div draggable="true"></div>
+  <div></div>
 </template>
 <script>
   (function(window) {
@@ -17,10 +17,13 @@
 
     King.prototype = Object.create(Token.prototype);
     King.prototype.createdCallback = function() {
-      Util.nonNullFn(Token.prototype, 'createdCallback', this)();
+      Util.nonNullFn(Token.prototype, 'createdCallback').call(this);
 
       var shadowRoot = this.createShadowRoot();
       shadowRoot.appendChild(Util.extractTemplate('template', doc));
+
+      // Set the attribute
+      this.setDraggable(true);
     };
 
     document.registerElement('pb-chs-king', {prototype: King.prototype});
