@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Unit test for pb-game-logic</title>
+  <link rel="stylesheet" href="../../../bower_components/qunit/qunit/qunit.css">
+
+  <script src="../../../bower_components/platform-dev/platform.js"></script>
+  <script src="../../../bower_components/qunit/qunit/qunit.js"></script>
+
+  <script src="../../../common/pretty.js"></script>
+  <script src="../../../common/events.js"></script>
+  <script src="../../../testing/mock.js"></script>
+  
+  <div hidden><!--
+Base component for interactable card.
+
+To use this, create the pb-card element and pass in 4 elements:
+- Element with .front.preview. This is the front face used for previewing the card.
+- Element with .back.preview. This is the back face used for previewing the card.
+- Element with .front.small. This is the front small face displayed on the card.
+- Element with .back.small. This is the back small face displayed on the card.
+-->
+
+<!--
+Copyright (c) 2014 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<!--
+Copyright (c) 2014 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+<style shim-shadowdom="">
+/*******************************
+          Flex Layout
+*******************************/
+
+html /deep/ [layout][horizontal], html /deep/ [layout][vertical] {
+  display: -ms-flexbox;
+  display: -webkit-flex;
+  display: flex;
+}
+
+html /deep/ [layout][horizontal][inline], html /deep/ [layout][vertical][inline] {
+  display: -ms-inline-flexbox;
+  display: -webkit-inline-flex;
+  display: inline-flex;
+}
+
+html /deep/ [layout][horizontal] {
+  -ms-flex-direction: row;
+  -webkit-flex-direction: row;
+  flex-direction: row;
+}
+
+html /deep/ [layout][horizontal][reverse] {
+  -ms-flex-direction: row-reverse;
+  -webkit-flex-direction: row-reverse;
+  flex-direction: row-reverse;
+}
+
+html /deep/ [layout][vertical] {
+  -ms-flex-direction: column;
+  -webkit-flex-direction: column;
+  flex-direction: column;
+}
+
+html /deep/ [layout][vertical][reverse] {
+  -ms-flex-direction: column-reverse;
+  -webkit-flex-direction: column-reverse;
+  flex-direction: column-reverse;
+}
+
+html /deep/ [layout][wrap] {
+  -ms-flex-wrap: wrap;
+  -webkit-flex-wrap: wrap;
+  flex-wrap: wrap;
+}
+
+html /deep/ [layout][wrap-reverse] {
+  -ms-flex-wrap: wrap-reverse;
+  -webkit-flex-wrap: wrap-reverse;
+  flex-wrap: wrap-reverse;
+}
+
+html /deep/ [flex] {
+  -ms-flex: 1;
+  -webkit-flex: 1;
+  flex: 1;
+}
+
+html /deep/ [flex][auto] {
+  -ms-flex: 1 1 auto;
+  -webkit-flex: 1 1 auto;
+  flex: 1 1 auto;
+}
+
+html /deep/ [flex][none] {
+  -ms-flex: none;
+  -webkit-flex: none;
+  flex: none;
+}
+
+html /deep/ [flex][one] {
+  -ms-flex: 1;
+  -webkit-flex: 1;
+  flex: 1;
+}
+
+html /deep/ [flex][two] {
+  -ms-flex: 2;
+  -webkit-flex: 2;
+  flex: 2;
+}
+
+html /deep/ [flex][three] {
+  -ms-flex: 3;
+  -webkit-flex: 3;
+  flex: 3;
+}
+
+html /deep/ [flex][four] {
+  -ms-flex: 4;
+  -webkit-flex: 4;
+  flex: 4;
+}
+
+html /deep/ [flex][five] {
+  -ms-flex: 5;
+  -webkit-flex: 5;
+  flex: 5;
+}
+
+html /deep/ [flex][six] {
+  -ms-flex: 6;
+  -webkit-flex: 6;
+  flex: 6;
+}
+
+html /deep/ [flex][seven] {
+  -ms-flex: 7;
+  -webkit-flex: 7;
+  flex: 7;
+}
+
+html /deep/ [flex][eight] {
+  -ms-flex: 8;
+  -webkit-flex: 8;
+  flex: 8;
+}
+
+html /deep/ [flex][nine] {
+  -ms-flex: 9;
+  -webkit-flex: 9;
+  flex: 9;
+}
+
+html /deep/ [flex][ten] {
+  -ms-flex: 10;
+  -webkit-flex: 10;
+  flex: 10;
+}
+
+html /deep/ [flex][eleven] {
+  -ms-flex: 11;
+  -webkit-flex: 11;
+  flex: 11;
+}
+
+html /deep/ [flex][twelve] {
+  -ms-flex: 12;
+  -webkit-flex: 12;
+  flex: 12;
+}
+
+/* alignment in cross axis */
+
+html /deep/ [layout][start] {
+  -ms-flex-align: start;
+  -webkit-align-items: flex-start;
+  align-items: flex-start;
+}
+
+html /deep/ [layout][center] {
+  -ms-flex-align: center;
+  -webkit-align-items: center;
+  align-items: center;
+}
+
+html /deep/ [layout][end] {
+  -ms-flex-align: end;
+  -webkit-align-items: flex-end;
+  align-items: flex-end;
+}
+
+/* alignment in main axis */
+
+html /deep/ [layout][start-justified] {
+  -ms-flex-pack: start;
+  -webkit-justify-content: flex-start;
+  justify-content: flex-start;
+}
+
+html /deep/ [layout][center-justified] {
+  -ms-flex-pack: center;
+  -webkit-justify-content: center;
+  justify-content: center;
+}
+
+html /deep/ [layout][end-justified] {
+  -ms-flex-pack: end;
+  -webkit-justify-content: flex-end;
+  justify-content: flex-end;
+}
+
+html /deep/ [layout][around-justified] {
+  -ms-flex-pack: around;
+  -webkit-justify-content: space-around;
+  justify-content: space-around;
+}
+
+html /deep/ [layout][justified] {
+  -ms-flex-pack: justify;
+  -webkit-justify-content: space-between;
+  justify-content: space-between;
+}
+
+/* self alignment */
+
+html /deep/ [self-start] {
+  -ms-align-self: flex-start;
+  -webkit-align-self: flex-start;
+  align-self: flex-start;
+}
+
+html /deep/ [self-center] {
+  -ms-align-self: center;
+  -webkit-align-self: center;
+  align-self: center;
+}
+
+html /deep/ [self-end] {
+  -ms-align-self: flex-end;
+  -webkit-align-self: flex-end;
+  align-self: flex-end;
+}
+
+html /deep/ [self-stretch] {
+  -ms-align-self: stretch;
+  -webkit-align-self: stretch;
+  align-self: stretch;
+}
+
+/*******************************
+          Other Layout
+*******************************/
+
+html /deep/ [block] {
+  display: block;
+}
+
+/* ie support for hidden */
+html /deep/ [hidden] {
+  display: none !important;
+}
+
+html /deep/ [relative] {
+  position: relative;
+}
+
+html /deep/ [fit] {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+}
+
+body[fullbleed] {
+  margin: 0;
+  height: 100vh;
+}
+
+/*******************************
+            Other
+*******************************/
+
+html /deep/ [segment], html /deep/ segment {
+  display: block;
+  position: relative;
+  -webkit-box-sizing: border-box;
+  -ms-box-sizing: border-box;
+  box-sizing: border-box;
+  margin: 1em 0.5em;
+  padding: 1em;
+  background-color: white;
+  -webkit-box-shadow: 0px 0px 0px 1px rgba(0, 0, 0, 0.1);
+  box-shadow: 0px 0px 0px 1px rgba(0, 0, 0, 0.1);
+  border-radius: 5px 5px 5px 5px;
+}
+
+</style>
+
+<script src="../../../bower_components/polymer/polymer.js"></script>
+<!--<link rel="import" href="../polymer-dev/polymer.html">--> 
+
+
+
+
+
+<polymer-element name="pb-scripts" assetpath="../../../web/components/">
+  <script src="../../../bower_components/jquery/dist/jquery.js"></script>
+  <script>
+    var define = function(callback) {
+      callback();
+    };
+  </script>
+  <script src="../../../common/events.js"></script>
+  <script src="../../../common/uris.js"></script>
+  <script src="../../../common/pretty.js"></script>
+  <script src="../../../web/scripts/svg.js"></script>
+  
+  <script>
+    Polymer('pb-scripts', {
+      created: function() {
+        this.$ = $;
+        this.svg = svg;
+      }
+    });
+  </script>
+</polymer-element>
+
+<polymer-element name="pb-card-previewer-handler" assetpath="../../../web/components/">
+  <template>
+    <pb-scripts id="scripts"></pb-scripts>
+  </template>
+  <script>
+    var eventType = 'changed';
+    var target = {};
+
+    Polymer('pb-card-previewer-handler', {
+      listen: function(handler) {
+        this.$.scripts.$(target).bind(eventType, handler);
+      },
+      setCard: function(id, card) {
+        this.$.scripts.$(target).trigger(eventType, {id: id, dom: card});
+      }
+    });
+  </script>
+</polymer-element>
+
+<polymer-element name="pb-card" attributes="previewId" assetpath="../../../web/components/">
+  <template>
+    <style>pb-card::shadow #root {
+  perspective: 1000;
+  -webkit-perspective: 1000;
+  -moz-perspective: 1000;
+  cursor: pointer;
+  display: inline-block;
+  position: relative;
+}
+pb-card::shadow #root .face {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  -moz-backface-visibility: hidden;
+  border: 1px solid black;
+  display: inline-block;
+}
+pb-card::shadow #root .pad {
+  visibility: hidden;
+}
+pb-card::shadow #root .front {
+  transform: rotateY(-180deg);
+  -webkit-transform: rotateY(-180deg);
+  -moz-transform: rotateY(-180deg);
+  transform-style: preserve-3d;
+  -webkit-transform-style: preserve-3d;
+  -moz-transform-style: preserve-3d;
+  transition-duration: 0.5s;
+  -webkit-transition-duration: 0.5s;
+  -moz-transition-duration: 0.5s;
+  transition-property: transform;
+  -webkit-transition-property: transform;
+  -moz-transition-property: transform;
+}
+pb-card::shadow #root .back {
+  transform: rotateY(0);
+  -webkit-transform: rotateY(0);
+  -moz-transform: rotateY(0);
+  transform-style: preserve-3d;
+  -webkit-transform-style: preserve-3d;
+  -moz-transform-style: preserve-3d;
+  transition-duration: 0.5s;
+  -webkit-transition-duration: 0.5s;
+  -moz-transition-duration: 0.5s;
+  transition-property: transform;
+  -webkit-transition-property: transform;
+  -moz-transition-property: transform;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+pb-card::shadow #root.showFront .front {
+  transform: rotateY(0deg);
+  -webkit-transform: rotateY(0deg);
+  -moz-transform: rotateY(0deg);
+  transform-style: preserve-3d;
+  -webkit-transform-style: preserve-3d;
+  -moz-transform-style: preserve-3d;
+  transition-duration: 0.5s;
+  -webkit-transition-duration: 0.5s;
+  -moz-transition-duration: 0.5s;
+  transition-property: transform;
+  -webkit-transition-property: transform;
+  -moz-transition-property: transform;
+}
+pb-card::shadow #root.showFront .back {
+  transform: rotateY(180deg);
+  -webkit-transform: rotateY(180deg);
+  -moz-transform: rotateY(180deg);
+  transform-style: preserve-3d;
+  -webkit-transform-style: preserve-3d;
+  -moz-transform-style: preserve-3d;
+  transition-duration: 0.5s;
+  -webkit-transition-duration: 0.5s;
+  -moz-transition-duration: 0.5s;
+  transition-property: transform;
+  -webkit-transition-property: transform;
+  -moz-transition-property: transform;
+}
+pb-card::shadow .preview {
+  display: none;
+}
+
+
+
+
+.pb-standard-card {
+  height: 380px;
+  padding: 10px;
+  width: 280px;
+}
+.pb-standard-card.front {
+  display: -webkit-flex;
+  display: flex;
+  background-color: white;
+  font-family: Helvetica, Arial, sans-serif;
+  font-size: 20px;
+}
+.pb-standard-card.front.heart,
+.pb-standard-card.front.diamond {
+  color: red;
+}
+.pb-standard-card.front.heart .symbol,
+.pb-standard-card.front.diamond .symbol {
+  fill: red;
+}
+.pb-standard-card.front .margin {
+  width: 30px;
+  display: block;
+  text-align: center;
+  text-transform: uppercase;
+}
+.pb-standard-card.front .margin.right {
+  position: relative;
+}
+.pb-standard-card.front .margin.right .container {
+  transform: rotateZ(180deg);
+  -webkit-transform: rotateZ(180deg);
+  -moz-transform: rotateZ(180deg);
+  position: absolute;
+  bottom: 0;
+}
+.pb-standard-card.front .margin .symbol {
+  width: 30px;
+  height: 20px;
+  display: inline-block;
+}
+.pb-standard-card.front .main {
+  align-items: center;
+  -webkit-align-items: center;
+  display: -webkit-flex;
+  display: flex;
+  flex: 1;
+  -webkit-flex: 1;
+  -moz-flex: 1;
+}
+.pb-standard-card.front .main .symbols {
+  align-items: center;
+  -webkit-align-items: center;
+  display: -webkit-flex;
+  display: flex;
+  flex: 1;
+  -webkit-flex: 1;
+  -moz-flex: 1;
+}
+.pb-standard-card.front .main .symbols > div {
+  align-items: center;
+  -webkit-align-items: center;
+  display: -webkit-flex;
+  display: flex;
+  flex: 1;
+  -webkit-flex: 1;
+  -moz-flex: 1;
+  flex-direction: column;
+  -webkit-flex-direction: column;
+  -moz-flex-direction: column;
+}
+.pb-standard-card.front .main .symbols.value-a .symbol {
+  width: 150px;
+  height: 100px;
+}
+.pb-standard-card.front .main .symbols.value-2 .symbol,
+.pb-standard-card.front .main .symbols.value-3 .symbol,
+.pb-standard-card.front .main .symbols.value-4 .symbol,
+.pb-standard-card.front .main .symbols.value-5 .symbol,
+.pb-standard-card.front .main .symbols.value-6 .symbol,
+.pb-standard-card.front .main .symbols.value-7 .symbol,
+.pb-standard-card.front .main .symbols.value-8 .symbol,
+.pb-standard-card.front .main .symbols.value-9 .symbol,
+.pb-standard-card.front .main .symbols.value-10 .symbol {
+  width: 37.5px;
+  height: 25px;
+  margin-bottom: 50px;
+}
+.pb-standard-card.front .main .symbols.value-5 .symbol {
+  margin-bottom: 150px;
+}
+.pb-standard-card.front .main .symbols .value-letter {
+  text-transform: uppercase;
+  font-size: 400%;
+}
+.pb-standard-card.front .main .symbols .symbol:last-child {
+  margin-bottom: 0;
+}
+.pb-standard-card.back {
+  background-color: green;
+}
+.pb-standard-card.small {
+  height: 40px;
+  padding: 0;
+  width: 30px;
+}
+.pb-standard-card.small .preview {
+  transform: scale(0.1);
+  -webkit-transform: scale(0.1);
+  -moz-transform: scale(0.1);
+  transform-origin: 0 0;
+  -webkit-transform-origin: 0 0;
+  -moz-transform-origin: 0 0;
+  position: absolute;
+}
+</style>
+
+    <pb-card-previewer-handler id="previewerHandler"></pb-card-previewer-handler>
+    
+    <div id="root" on-click="{{onClick}}" on-mouseover="{{onMouseOver}}" class="{{showFront ? &apos;showFront&apos; : &apos;&apos;}}">
+      <div class="face front">
+        <content select=".front.small"></content>
+      </div>
+      <div class="face back">
+        <content select=".back.small"></content>
+      </div>
+    </div>
+    <div class="preview">
+      <content id="frontPreview" select=".front.preview"></content>
+      <content id="backPreview" select=".back.preview"></content>
+    </div>
+  </template>
+  <script>
+    var updatePreviewer = function() {
+      if (this.showFront) {
+        this.$.previewerHandler.setCard(
+            this.previewId + '-front', 
+            this.$.frontPreview.getDistributedNodes()[0]);
+      } else {
+        this.$.previewerHandler.setCard(
+            this.previewId + '-back', 
+            this.$.backPreview.getDistributedNodes()[0]);
+      }
+    };
+
+    Polymer('pb-card', {
+      created: function() {
+        this.previewId = '';
+        this.showFront = false;
+      },
+      onClick: function() {
+        this.showFront = !this.showFront;
+        updatePreviewer.bind(this)();
+      },
+      onMouseOver: function() {
+        updatePreviewer.bind(this)();
+      }
+    });
+  </script>
+</polymer-element></div>
+  <style>
+    .qunit-assert-list {
+      font-family: "Lucida Console", Monaco, monospace;
+    }
+  </style>
+</head>
+<body>
+  <div id="qunit"></div>
+  <div id="qunit-fixture"></div>
+  <script>
+    var card;
+    QUnit.testStart(function() {
+      $('pb-card').remove();
+      card = $('<pb-card previewId="testCard"></pb-card>')
+          .append('<div class="front small"></div>')
+          .append('<div class="back small"></div>')
+          .append('<div class="front preview"></div>')
+          .append('<div class="back preview"></div>')
+          .appendTo(document.body)[0];
+    });
+    QUnit.testDone(function() {
+      $('pb-card').remove();
+    });
+
+    QUnit.module('pb-card:hover', {
+      setup: function() {
+        this.mockSetCard = Mock.spy(card.$.previewerHandler, 'setCard');
+      }
+    });
+    QUnit.test('front face', function(asserts) {
+      $(card.$.root).click();
+      Mock.reset(this.mockSetCard);
+      card.onMouseOver();
+
+      Mock.verify(this.mockSetCard)(
+          card.previewId + '-front', $('.front.preview')[0]);
+    });
+    QUnit.test('back face', function(asserts) {
+      card.onMouseOver();
+
+      Mock.verify(this.mockSetCard)(
+          card.previewId + '-back', $('.back.preview')[0]);
+    });
+
+    QUnit.module('pb-card:click', {
+      setup: function() {
+        this.mockSetCard = Mock.spy(card.$.previewerHandler, 'setCard');
+      }
+    });
+    QUnit.test('click twice toggles', function(asserts) {
+      var cssClass = 'showFront';
+
+      // Should start showing the back side.
+      var $card = $(card.$.root);
+      asserts.ok(!$card.hasClass(cssClass));
+
+      // Now click the card.
+      $card.click();
+      asserts.ok($card.hasClass(cssClass));
+      Mock.verify(this.mockSetCard)(
+          card.previewId + '-front', $('.front.preview')[0]);
+
+      // Now click the card again.
+      $card.click();
+      asserts.ok(!$card.hasClass(cssClass));
+      Mock.verify(this.mockSetCard)(
+          card.previewId + '-back', $('.back.preview')[0]);
+    });
+  </script>
+</body>
+</html>

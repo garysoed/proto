@@ -7,6 +7,12 @@
 <link rel="import" href="../proto/service/dragdrop.html">
 
 <template id="main">
+  <style>
+    pb-chs-cell.suggest {
+      outline: green dashed 5px;
+      outline-offset: -5px;
+    }
+  </style>
   <pb-s-rect-grid row="8" col="8"></pb-s-rect-grid>
 </template>
 <template id="cell">
@@ -19,7 +25,19 @@
     var Board = {};
 
     var handleDragged_ = function(event, el) {
-      // TODO: highlight the correct cells.
+      var elCell = el.parentElement;
+      var elRow = Number.parseInt($(elCell).attr('row'));
+      var elCol = Number.parseInt($(elCell).attr('col'));
+      $(this.shadowRoot.querySelectorAll('pb-chs-cell'))
+          .filter(function(i, el) {
+            var row = Number.parseInt($(el).attr('row'));
+            var col = Number.parseInt($(el).attr('col'));
+            return (row - 1) <= elRow
+                && (row + 1) >= elRow
+                && (col - 1) <= elCol
+                && (col + 1) >= elCol;
+          })
+          .addClass('suggest');
     };
 
     Board.prototype = Object.create(HTMLElement.prototype);

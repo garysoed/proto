@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Unit test for CardPreviewerHandler</title>
+  <link rel="stylesheet" href="../../../bower_components/qunit/qunit/qunit.css">
+
+  <script src="../../../bower_components/qunit/qunit/qunit.js"></script>
+
+  <script src="../../../common/pretty.js"></script>
+  <script src="../../../common/events.js"></script>
+  <script src="../../../testing/mock.js"></script>
+  
+  <div hidden><script src="../../../bower_components/jquery/dist/jquery.js"></script>
+<script src="../../../common/events.js"></script>
+<script src="../../../common/uris.js"></script>
+<script src="../../../common/pretty.js"></script>
+<script src="../../../web/scripts/svg.js"></script>
+</div>
+  <div hidden>
+
+<script>
+  (function() {
+    var target = {};
+
+    var CardPreviewerHandler = {};
+
+    CardPreviewerHandler.EventType = {
+      CARD_SET: 'cardset'
+    };
+
+    CardPreviewerHandler.setCard = function(id, card) {
+      $(CardPreviewerHandler)
+          .trigger(CardPreviewerHandler.EventType.CARD_SET, {id: id, dom: card});
+    };
+
+    this.CardPreviewerHandler = CardPreviewerHandler;
+  }).call(this);
+</script>
+</div>
+  <style>
+    .qunit-assert-list {
+      font-family: "Lucida Console", Monaco, monospace;
+    }
+  </style>
+</head>
+<body>
+  <div id="qunit"></div>
+  <div id="qunit-fixture"></div>
+  <div id="card"></div>
+
+  <script>
+    QUnit.module('CardPreviewerHandler.setCard');
+    QUnit.test('good', function(assert) {
+      var id = 'Id';
+      var dom = $('#card')[0];
+      var mockListener = Mock.mockFunction('listener');
+      $(CardPreviewerHandler).on(CardPreviewerHandler.EventType.CARD_SET, mockListener);
+
+      CardPreviewerHandler.setCard(id, dom);
+      Mock.verify(mockListener)(
+          Mock.instanceOf(jQuery.Event, 'jQuery.Event'), 
+          {id: id, dom: dom});
+    });
+  </script>
+</body>
+</html>
